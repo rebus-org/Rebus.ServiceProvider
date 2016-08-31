@@ -1,4 +1,4 @@
-# Rebus.TODO
+# Rebus.ServiceProvider
 
 Provides an ASP.NET Core Service Provider-based container adapter for [Rebus](https://github.com/rebus-org/Rebus).
 
