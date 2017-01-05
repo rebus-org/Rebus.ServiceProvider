@@ -70,8 +70,9 @@ namespace Rebus.ServiceProvider
         /// <param name="bus"></param>
         public void SetBus(IBus bus)
         {
-            _services.AddSingleton<IBus>(bus);
-            _services.AddTransient<IMessageContext>((s) => MessageContext.Current);
+            _services.AddSingleton(bus);
+            _services.AddTransient(s => MessageContext.Current);
+            _services.AddTransient(s => s.GetService<IBus>().Advanced.SyncBus);
         }
 
         void DisposeBus()
