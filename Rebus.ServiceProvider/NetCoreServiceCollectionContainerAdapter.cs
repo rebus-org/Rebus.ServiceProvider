@@ -28,18 +28,12 @@ namespace Rebus.ServiceProvider
         /// <exception cref="System.ArgumentNullException"></exception>
         public NetCoreServiceCollectionContainerAdapter(IServiceCollection services)
         {
-            if (services == null)
-                throw new ArgumentNullException(nameof(services));
-
-            _services = services;
+            _services = services ?? throw new ArgumentNullException(nameof(services));
 
             var serviceProvider = _services.BuildServiceProvider();
             var applicationLifetime = serviceProvider.GetService<IApplicationLifetime>();
 
-            if (applicationLifetime != null)
-            {
-                applicationLifetime.ApplicationStopping.Register(DisposeBus);
-            }
+            applicationLifetime?.ApplicationStopping.Register(DisposeBus);
         }
 
         /// <summary>

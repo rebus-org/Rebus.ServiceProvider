@@ -24,36 +24,35 @@ namespace Rebus.ServiceProvider
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
 
-            var assemblyToRegister = typeof(THandler).Assembly;
+            var assemblyToRegister = GetAssembly<THandler>();
 
             RegisterAssembly(services, assemblyToRegister);
         }
 
-        /// <summary>
-        /// Automatically picks up all handler types from the calling assembly and registers them in the container
-        /// </summary>
-        /// <param name="services">The services.</param>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        public static void AutoRegisterHandlersFromThisAssembly(this IServiceCollection services)
+        static Assembly GetAssembly<THandler>() where THandler : IHandleMessages
         {
-            if (services == null)
-                throw new ArgumentNullException(nameof(services));
-
-            var callingAssembly = Assembly.GetCallingAssembly();
-
-            RegisterAssembly(services, callingAssembly);
+#if NETSTANDARD1_6
+            return typeof(THandler).GetTypeInfo().Assembly;
+#else
+            return typeof(THandler).Assembly;
+#endif
         }
 
         static IEnumerable<Type> GetImplementedHandlerInterfaces(Type type)
         {
+#if NETSTANDARD1_6
+            return type.GetTypeInfo().GetInterfaces()
+                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>));
+#else
             return type.GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>));
+#endif
         }
 
         static void RegisterAssembly(IServiceCollection services, Assembly assemblyToRegister)
         {
             var typesToAutoRegister = assemblyToRegister.GetTypes()
-                .Where(type => !type.IsInterface && !type.IsAbstract)
+                .Where(IsClass)
                 .Select(type => new
                 {
                     Type = type,
@@ -65,6 +64,15 @@ namespace Rebus.ServiceProvider
             {
                 RegisterType(services, type.Type, true);
             }
+        }
+
+        static bool IsClass(Type type)
+        {
+#if NETSTANDARD1_6
+            return !type.GetTypeInfo().IsInterface && !type.GetTypeInfo().IsAbstract;
+#else
+            return !type.IsInterface && !type.IsAbstract;
+#endif
         }
 
         static void RegisterType(IServiceCollection services, Type typeToRegister, bool auto)
