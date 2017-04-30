@@ -43,7 +43,7 @@ namespace Rebus.ServiceProvider
         /// <param name="message"></param>
         /// <param name="transactionContext"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<IHandleMessages<TMessage>>> GetHandlers<TMessage>(TMessage message, ITransactionContext transactionContext)
+        public Task<IEnumerable<IHandleMessages<TMessage>>> GetHandlers<TMessage>(TMessage message, ITransactionContext transactionContext)
         {
             var resolvedHandlerInstances = GetAllHandlersInstances<TMessage>();
 
@@ -55,7 +55,7 @@ namespace Rebus.ServiceProvider
                 }
             });
 
-            return resolvedHandlerInstances;
+            return Task.FromResult((IEnumerable<IHandleMessages<TMessage>>)resolvedHandlerInstances);
         }
 
         /// <summary>
