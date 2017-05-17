@@ -39,10 +39,6 @@ namespace Rebus.ServiceProvider
         /// <summary>
         /// Resolves all handlers for the given <typeparamref name="TMessage"/> message type
         /// </summary>
-        /// <typeparam name="TMessage"></typeparam>
-        /// <param name="message"></param>
-        /// <param name="transactionContext"></param>
-        /// <returns></returns>
         public Task<IEnumerable<IHandleMessages<TMessage>>> GetHandlers<TMessage>(TMessage message, ITransactionContext transactionContext)
         {
             var resolvedHandlerInstances = GetAllHandlersInstances<TMessage>();
@@ -61,9 +57,13 @@ namespace Rebus.ServiceProvider
         /// <summary>
         /// Sets the bus instance that this <see cref="T:Rebus.Activation.IContainerAdapter" /> should be able to inject when resolving handler instances
         /// </summary>
-        /// <param name="bus"></param>
         public void SetBus(IBus bus)
         {
+            if (_services.Any(s => s.ServiceType == typeof(IBus)))
+            {
+                throw new InvalidOperationException("An IBus instance has already been registered. Please use multiple container instances if you want to host multiple Rebus instances in a single process.");
+            }
+
             _services.AddSingleton(bus);
             _services.AddTransient(s => MessageContext.Current);
             _services.AddTransient(s => s.GetService<IBus>().Advanced.SyncBus);
