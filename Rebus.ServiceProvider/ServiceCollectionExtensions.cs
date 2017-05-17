@@ -28,6 +28,24 @@ namespace Rebus.ServiceProvider
 
             RegisterAssembly(services, assemblyToRegister);
         }
+        
+        /// <summary>
+        /// Automatically picks up all handler types from the specified assembly and registers them in the container
+        /// </summary>
+        /// <param name="services">The services</param>
+        /// <param name="assemblyString">The long name of the assembly</param>
+        public static void AutoRegisterHandlersFromAssembly(this IServiceCollection services, string assemblyString)
+        {
+            if (services == null)
+                throw new ArgumentNullException(nameof(services));
+
+            if (string.IsNullOrEmpty(assemblyString))
+                throw new ArgumentNullException(nameof(assemblyString));
+
+            var assembly = Assembly.Load(assemblyString);
+
+            RegisterAssembly(services, assembly);
+        }
 
         static Assembly GetAssembly<THandler>() where THandler : IHandleMessages
         {
