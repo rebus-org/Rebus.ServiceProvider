@@ -42,7 +42,9 @@ namespace Rebus.ServiceProvider
             if (string.IsNullOrEmpty(assemblyString))
                 throw new ArgumentNullException(nameof(assemblyString));
 
-            var assembly = Assembly.Load(assemblyString);
+            var assemblyName = new AssemblyName(assemblyString);
+
+            var assembly = Assembly.Load(assemblyName);
 
             RegisterAssembly(services, assembly);
         }
