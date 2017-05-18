@@ -16,12 +16,12 @@
 
 * Update to Rebus 3
 
-## 4.0.0-b03
+## 4.0.0-b04
 
 * Update to Rebus 4
 * Add .NET Core support (netstandard 1.6)
 * Additional assembly scanning registration method - thanks [komainu85]
-* Update deps to b09
+* Update deps to b10
 
 
 [komainu85]: https://github.com/komainu85
