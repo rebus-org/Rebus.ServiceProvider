@@ -11,7 +11,7 @@ namespace Rebus.ServiceProvider
     /// <summary>
     /// Extension methods for making it easy to register Rebus handlers in your <see cref="IServiceCollection"/>
     /// </summary>
-    public static class ServiceCollectionExtensions
+    public static partial class ServiceCollectionExtensions
     {
         /// <summary>
         /// Automatically picks up all handler types from the assembly containing <typeparamref name="THandler"/> and registers them in the container
