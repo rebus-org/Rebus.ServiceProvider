@@ -7,7 +7,6 @@ using Rebus.Activation;
 using Rebus.Bus;
 using Rebus.Extensions;
 using Rebus.Handlers;
-using Rebus.Pipeline;
 using Rebus.Transport;
 using Microsoft.AspNetCore.Hosting;
 
@@ -19,39 +18,17 @@ namespace Rebus.ServiceProvider
     /// <seealso cref="Rebus.Activation.IContainerAdapter" />
     public class ServiceProviderContainerAdapter : IContainerAdapter
     {
-        private readonly IServiceCollection _services;
-
         private HandlerServiceProvider _handlerProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceProviderContainerAdapter"/> class.
         /// </summary>
-        /// <param name="services">The ServiceCollection.</param>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        public ServiceProviderContainerAdapter(IServiceCollection services)
+        /// <param name="provider">The service provider used to yield handler instances.</param>
+        public ServiceProviderContainerAdapter(IServiceProvider provider)
         {
-            _services = services ?? throw new ArgumentNullException(nameof(services));
-
-            _services.AddTransient(s => MessageContext.Current);
-            _services.AddTransient(s => s.GetService<IBus>().Advanced.SyncBus);
-        }
-
-        /// <summary>
-        /// Gets whether or not the adapter has been activated yet with a service provider.  I.E. Is it ready
-        /// to start resolving handler instances.
-        /// </summary>
-        public bool IsActivated => _handlerProvider != null;
-
-        /// <summary>
-        /// Activates the adapter with the supplied service provider.
-        /// </summary>
-        /// <param name="provider"></param>
-        /// <exception cref="System.InvalidOperationException"></exception>
-        public void Activate(IServiceProvider provider)
-        {
-            if (_handlerProvider != null)
+            if (provider == null)
             {
-                throw new InvalidOperationException("The adapter has already been activated.");
+                throw new ArgumentNullException(nameof(provider));
             }
 
             _handlerProvider = new HandlerServiceProvider(provider);

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
+using Rebus.Bus;
 
 namespace Rebus.ServiceProvider
 {
@@ -14,8 +15,7 @@ namespace Rebus.ServiceProvider
         /// <param name="provider">The service provider configured for Rebus.</param>
         public static IServiceProvider UseRebus(this IServiceProvider provider)
         {
-            var activator = provider.GetRequiredService<RebusActivator>();
-            activator.Activate();
+            provider.GetRequiredService<IBus>();
             return provider;
         }
     }
