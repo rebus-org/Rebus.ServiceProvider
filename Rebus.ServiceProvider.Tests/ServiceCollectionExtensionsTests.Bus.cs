@@ -13,7 +13,7 @@ namespace Rebus.ServiceProvider.Tests
     public partial class ServiceCollectionExtensionsTests
     {
         [Test]
-        public async Task WithRebus_ConfigureRebusOnce_StartsAndConfiguresBus()
+        public async Task AddRebus_ConfigureRebusOnce_StartsAndConfiguresBus()
         {
             // Arrange
             var services = new ServiceCollection();
@@ -43,7 +43,7 @@ namespace Rebus.ServiceProvider.Tests
         }
 
         [Test]
-        public async Task WithRebus_ConfigureRebusManyTimes_StartsAndCreatesOneBus()
+        public async Task AddRebus_ConfigureRebusManyTimes_StartsAndCreatesOneBus()
         {
             // Arrange
             var services = new ServiceCollection();
@@ -76,7 +76,7 @@ namespace Rebus.ServiceProvider.Tests
         }
 
         [Test]
-        public async Task WithRebus_ConfigurePolymorphicMessageHandling_AllMessagesAreHandled()
+        public async Task AddRebus_ConfigurePolymorphicMessageHandling_AllMessagesAreHandled()
         {
             // Arrange
             var services = new ServiceCollection();
