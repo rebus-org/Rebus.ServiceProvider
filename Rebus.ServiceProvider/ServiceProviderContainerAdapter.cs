@@ -18,7 +18,9 @@ namespace Rebus.ServiceProvider
     /// <seealso cref="Rebus.Activation.IContainerAdapter" />
     public class ServiceProviderContainerAdapter : IContainerAdapter
     {
-        private HandlerServiceProvider _handlerProvider;
+        private readonly IServiceProvider _provider;
+
+        private IBus _bus;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceProviderContainerAdapter"/> class.
@@ -26,12 +28,10 @@ namespace Rebus.ServiceProvider
         /// <param name="provider">The service provider used to yield handler instances.</param>
         public ServiceProviderContainerAdapter(IServiceProvider provider)
         {
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
+            _provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
-            _handlerProvider = new HandlerServiceProvider(provider);
+            var applicationLifetime = _provider.GetService<IApplicationLifetime>();
+            applicationLifetime?.ApplicationStopping.Register(Dispose);
         }
 
         /// <summary>
@@ -40,103 +40,71 @@ namespace Rebus.ServiceProvider
         /// <exception cref="System.InvalidOperationException"></exception>
         public Task<IEnumerable<IHandleMessages<TMessage>>> GetHandlers<TMessage>(TMessage message, ITransactionContext transactionContext)
         {
-            if (_handlerProvider == null)
+            if (_bus == null)
             {
                 throw new InvalidOperationException($"Rebus messaging engine has not been activated yet, no messages can be processed.");
             }
 
-            return _handlerProvider.GetHandlers<TMessage>(message, transactionContext);
+            var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>();
+
+            transactionContext.OnDisposed(() =>
+            {
+                foreach (var disposableInstance in resolvedHandlerInstances.OfType<IDisposable>())
+                {
+                    disposableInstance.Dispose();
+                }
+            });
+
+            return Task.FromResult((IEnumerable<IHandleMessages<TMessage>>)resolvedHandlerInstances.ToArray());
         }
 
         /// <summary>
-        /// This will either get called too early (the bus is started before the container is created/app started) or
-        /// too late (the app has started so the bus cannot be added to service collection). This method doesn't perform any work.
+        /// Sets the bus instance associated with this <see cref="T:Rebus.Activation.IContainerAdapter" />.
         /// </summary>
         /// <param name="bus"></param>
         public void SetBus(IBus bus)
         {
-
+            _bus = bus ?? throw new ArgumentNullException(nameof(bus));
         }
 
-        private class HandlerServiceProvider : IDisposable
+        List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>()
         {
-            private readonly IServiceProvider _provider;
-            private IBus _bus;
+            var handledMessageTypes = typeof(TMessage).GetBaseTypes()
+                .Concat(new[] { typeof(TMessage) });
 
-            public HandlerServiceProvider(IServiceProvider provider)
-            {
-                _provider = provider;
-
-                var applicationLifetime = _provider.GetService<IApplicationLifetime>();
-
-                applicationLifetime?.ApplicationStopping.Register(Dispose);
-            }
-
-            private IBus Bus
-            {
-                get
+            return handledMessageTypes
+                .SelectMany(t =>
                 {
-                    if (_bus == null)
-                    {
-                        _bus = _provider.GetRequiredService<IBus>();
-                    }
+                    var implementedInterface = typeof(IHandleMessages<>).MakeGenericType(t);
 
-                    return _bus;
-                }
-            }
-
-            public Task<IEnumerable<IHandleMessages<TMessage>>> GetHandlers<TMessage>(TMessage message, ITransactionContext transactionContext)
-            {
-                var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>();
-
-                transactionContext.OnDisposed(() =>
-                {
-                    foreach (var disposableInstance in resolvedHandlerInstances.OfType<IDisposable>())
-                    {
-                        disposableInstance.Dispose();
-                    }
-                });
-
-                return Task.FromResult((IEnumerable<IHandleMessages<TMessage>>)resolvedHandlerInstances.ToArray());
-            }
-
-            List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>()
-            {
-                var handledMessageTypes = typeof(TMessage).GetBaseTypes()
-                    .Concat(new[] { typeof(TMessage) });
-
-                return handledMessageTypes
-                    .SelectMany(t =>
-                    {
-                        var implementedInterface = typeof(IHandleMessages<>).MakeGenericType(t);
-
-                        return _provider.GetServices(implementedInterface).Cast<IHandleMessages>();
-                    })
-                    .Cast<IHandleMessages<TMessage>>()
-                    .ToList();
-            }
-
-            #region IDisposable Support
-            private bool disposedValue = false;
-
-            protected virtual void Dispose(bool disposing)
-            {
-                if (!disposedValue)
-                {
-                    if (disposing)
-                    {
-                        _bus?.Dispose();
-                    }
-
-                    disposedValue = true;
-                }
-            }
-
-            public void Dispose()
-            {
-                Dispose(true);
-            }
-            #endregion
+                    return _provider.GetServices(implementedInterface).Cast<IHandleMessages>();
+                })
+                .Cast<IHandleMessages<TMessage>>()
+                .ToList();
         }
+
+        #region IDisposable Support
+
+        private bool disposedValue = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _bus?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion
     }
 }
