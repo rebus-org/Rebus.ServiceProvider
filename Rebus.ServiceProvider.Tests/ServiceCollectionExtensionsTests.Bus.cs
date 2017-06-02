@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -43,36 +44,23 @@ namespace Rebus.ServiceProvider.Tests
         }
 
         [Test]
-        public async Task AddRebus_ConfigureRebusManyTimes_StartsAndCreatesOneBus()
+        public void AddRebus_ConfigureRebusManyTimes_Throws()
         {
             // Arrange
             var services = new ServiceCollection();
             var testHandler = new Handler1(2);
 
-            // Act            
-            services
-                .AddSingleton<IHandleMessages<Message1>, Handler1>()
-                .AddRebus(config => config
-                    .Logging(l => l.None())
-                    .Transport(t => t.UseInMemoryTransport(new InMemNetwork(false), "Messages")))
-                .AddRebus(config => config
-                    .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
-
-            var provider = services
-                .BuildServiceProvider()
-                .UseRebus();
-
-            var rebus = provider.GetRequiredService<IBus>();
-            await rebus.Send(new Message1());
-            await rebus.Send(new Message1());
-
-            // Assert
-            provider.GetServices<IBus>().Should().HaveCount(1);
-
-            await Task.WhenAny(testHandler.CountReached, Task.Delay(3000));
-
-            (provider.GetRequiredService<IHandleMessages<Message1>>() as Handler1)
-                .HandleCount.Should().Be(2);
+            // Act
+            new Action(() =>
+            {
+                services
+                    .AddSingleton<IHandleMessages<Message1>, Handler1>()
+                    .AddRebus(config => config
+                        .Logging(l => l.None())
+                        .Transport(t => t.UseInMemoryTransport(new InMemNetwork(false), "Messages")))
+                    .AddRebus(config => config
+                        .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
+            }).ShouldThrow<InvalidOperationException>();
         }
 
         [Test]

@@ -16,34 +16,30 @@ namespace Rebus.ServiceProvider
         /// <param name="configureRebus">The optional configuration actions for Rebus.</param>
         public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configureRebus)
         {
+            if (configureRebus == null)
+            {
+                throw new ArgumentNullException(nameof(configureRebus));
+            }
+
             var messageBusRegistration = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(IBus));
 
-            if (messageBusRegistration == null) // not yet registered
+            if (messageBusRegistration != null)
             {
-                services.AddTransient(s => MessageContext.Current);
-                services.AddTransient(s => s.GetService<IBus>().Advanced.SyncBus);
-
-                // Register the Rebus Bus instance, to be created when it is first requested.
-                services.AddSingleton(provider =>
-                {
-                    var adapter = new NetCoreServiceProviderContainerAdapter(provider);
-
-                    // Apply any configuration in the order in which they were specified during startup
-                    var configurer = Configure.With(adapter);
-                    foreach (var configAction in provider.GetServices<RebusConfigAction>())
-                    {
-                        configAction.Action(configurer);
-                    }
-
-                    return configurer.Start();
-                });
+                throw new InvalidOperationException("Rebus has already been configured.");
             }
 
-            // Now register this configure action, as potentially one of many from different components...
-            if (configureRebus != null)
+            services.AddTransient(s => MessageContext.Current);
+            services.AddTransient(s => s.GetService<IBus>().Advanced.SyncBus);
+
+            // Register the Rebus Bus instance, to be created when it is first requested.
+            services.AddSingleton(provider =>
             {
-                services.AddSingleton(new RebusConfigAction(configureRebus));
-            }
+                var adapter = new NetCoreServiceProviderContainerAdapter(provider);
+                var configurer = Configure.With(adapter);
+                configureRebus(configurer);
+
+                return configurer.Start();
+            });
 
             return services;
         }
