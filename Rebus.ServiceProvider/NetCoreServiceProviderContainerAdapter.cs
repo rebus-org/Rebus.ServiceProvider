@@ -16,17 +16,17 @@ namespace Rebus.ServiceProvider
     /// Implementation of <see cref="IContainerAdapter"/> that is backed by a ServiceProvider
     /// </summary>
     /// <seealso cref="Rebus.Activation.IContainerAdapter" />
-    public class ServiceProviderContainerAdapter : IContainerAdapter
+    public class NetCoreServiceProviderContainerAdapter : IContainerAdapter
     {
         private readonly IServiceProvider _provider;
 
         private IBus _bus;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ServiceProviderContainerAdapter"/> class.
+        /// Initializes a new instance of the <see cref="NetCoreServiceProviderContainerAdapter"/> class.
         /// </summary>
         /// <param name="provider">The service provider used to yield handler instances.</param>
-        public ServiceProviderContainerAdapter(IServiceProvider provider)
+        public NetCoreServiceProviderContainerAdapter(IServiceProvider provider)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
@@ -62,12 +62,13 @@ namespace Rebus.ServiceProvider
         /// Sets the bus instance associated with this <see cref="T:Rebus.Activation.IContainerAdapter" />.
         /// </summary>
         /// <param name="bus"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public void SetBus(IBus bus)
         {
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
         }
 
-        List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>()
+        private List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>()
         {
             var handledMessageTypes = typeof(TMessage).GetBaseTypes()
                 .Concat(new[] { typeof(TMessage) });
@@ -87,6 +88,10 @@ namespace Rebus.ServiceProvider
 
         private bool disposedValue = false;
 
+        /// <summary>
+        /// Disposes of the bus.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -100,6 +105,9 @@ namespace Rebus.ServiceProvider
             }
         }
 
+        /// <summary>
+        /// Disposes of the bus.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);

@@ -11,28 +11,36 @@ using Rebus.Tests.Contracts.Activation;
 
 namespace Rebus.ServiceProvider.Tests
 {
-    public class NetCoreServiceCollectionContainerAdapterFactory : IContainerAdapterFactory
+    public class NetCoreServiceProviderContainerAdapterFactory : IContainerAdapterFactory
     {
         readonly IServiceCollection _serviceCollection = new ServiceCollection();
+        private IServiceProvider _provider;
 
         public void CleanUp()
         {
-            var serviceProvider = _serviceCollection.BuildServiceProvider();
-            var bus = serviceProvider.GetService<IBus>();
+            var bus = GetProvider().GetService<IBus>();
 
             bus.Dispose();
         }
 
         public IHandlerActivator GetActivator()
         {
-            return new NetCoreServiceCollectionContainerAdapter(_serviceCollection);
+            return new NetCoreServiceProviderContainerAdapter(GetProvider());
         }
 
         public IBus GetBus()
         {
-            var container = _serviceCollection.BuildServiceProvider();
+            return GetProvider().GetService<IBus>();
+        }
 
-            return container.GetService<IBus>();
+        private IServiceProvider GetProvider()
+        {
+            if (_provider == null)
+            {
+                _provider = _serviceCollection.BuildServiceProvider();
+            }
+
+            return _provider;
         }
 
         void IContainerAdapterFactory.RegisterHandlerType<THandler>()

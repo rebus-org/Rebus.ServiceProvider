@@ -26,7 +26,7 @@ namespace Rebus.ServiceProvider
                 // Register the Rebus Bus instance, to be created when it is first requested.
                 services.AddSingleton(provider =>
                 {
-                    var adapter = new ServiceProviderContainerAdapter(provider);
+                    var adapter = new NetCoreServiceProviderContainerAdapter(provider);
 
                     // Apply any configuration in the order in which they were specified during startup
                     var configurer = Configure.With(adapter);
