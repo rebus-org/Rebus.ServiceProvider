@@ -65,6 +65,11 @@ namespace Rebus.ServiceProvider
         /// <exception cref="ArgumentNullException"></exception>
         public void SetBus(IBus bus)
         {
+            if (_bus != null)
+            {
+                throw new InvalidOperationException("Cannot set the bus instance more than once on the container adapter.");
+            }
+
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
         }
 

@@ -22,7 +22,7 @@ namespace Rebus.ServiceProvider.Tests
 
             // Act            
             services
-                .AddSingleton<IHandleMessages<Message1>, Handler1>()
+                .AddSingleton<IHandleMessages<Message1>>(testHandler)
                 .AddRebus(config => config
                     .Logging(l => l.None())
                     .Transport(t => t.UseInMemoryTransport(new InMemNetwork(false), "Messages"))
@@ -74,7 +74,7 @@ namespace Rebus.ServiceProvider.Tests
             // Act            
             services
                 .AddSingleton<IHandleMessages<Message1>>(testHandler1)
-                .AddSingleton<IHandleMessages<Message1>>(testHandler2)
+                .AddSingleton<IHandleMessages<MessageBase>>(testHandler2)
                 .AddRebus(config => config
                     .Logging(l => l.None())
                     .Transport(t => t.UseInMemoryTransport(new InMemNetwork(false), "Messages"))
