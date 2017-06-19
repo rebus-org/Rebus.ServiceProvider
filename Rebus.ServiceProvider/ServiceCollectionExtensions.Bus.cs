@@ -32,10 +32,10 @@ namespace Rebus.ServiceProvider
             services.AddTransient(s => s.GetService<IBus>().Advanced.SyncBus);
 
             // Register the Rebus Bus instance, to be created when it is first requested.
+            services.AddSingleton(provider => new NetCoreServiceProviderContainerAdapter(provider));
             services.AddSingleton(provider =>
             {
-                var adapter = new NetCoreServiceProviderContainerAdapter(provider);
-                var configurer = Configure.With(adapter);
+                var configurer = Configure.With(provider.GetRequiredService<NetCoreServiceProviderContainerAdapter>());
                 configureRebus(configurer);
 
                 return configurer.Start();
