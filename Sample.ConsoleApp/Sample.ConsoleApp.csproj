@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Rebus" Version="4.0.0-b10" />
+    <PackageReference Include="Rebus" Version="4.0.0-b14" />
   </ItemGroup>
 
   <ItemGroup>

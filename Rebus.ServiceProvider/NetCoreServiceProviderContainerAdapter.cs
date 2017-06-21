@@ -40,11 +40,6 @@ namespace Rebus.ServiceProvider
         /// <exception cref="System.InvalidOperationException"></exception>
         public Task<IEnumerable<IHandleMessages<TMessage>>> GetHandlers<TMessage>(TMessage message, ITransactionContext transactionContext)
         {
-            if (_bus == null)
-            {
-                throw new InvalidOperationException($"Rebus messaging engine has not been activated yet, no messages can be processed.");
-            }
-
             var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>();
 
             transactionContext.OnDisposed(() =>

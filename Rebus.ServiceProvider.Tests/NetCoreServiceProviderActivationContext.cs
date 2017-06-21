@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using System.Threading;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Rebus.Activation;
 using Rebus.Bus;
@@ -18,11 +19,15 @@ namespace Rebus.ServiceProvider.Tests
         {
             var services = new ServiceCollection();
             handlerConfig.Invoke(new HandlerRegistry(services));
+            services.AddSingleton<IApplicationLifetime>(new TestLifetime());
 
             var provider = services.BuildServiceProvider();
+            
+            var adapter = new NetCoreServiceProviderContainerAdapter(provider);
+
             container = new ActivatedContainer(provider);
 
-            return new NetCoreServiceProviderContainerAdapter(provider);
+            return adapter;
         }
 
         public IBus CreateBus(Action<IHandlerRegistry> handlerConfig, Func<RebusConfigurer, RebusConfigurer> configureBus, out IActivatedContainer container)
@@ -35,7 +40,9 @@ namespace Rebus.ServiceProvider.Tests
             var provider = services.BuildServiceProvider();
             container = new ActivatedContainer(provider);
 
-            return provider.UseRebus();
+            provider.UseRebus();
+
+            return container.ResolveBus();
         }
 
         private class HandlerRegistry : IHandlerRegistry
@@ -47,12 +54,25 @@ namespace Rebus.ServiceProvider.Tests
                 _services = services;
             }
 
-            public IHandlerRegistry Register<THandler>() where THandler : IHandleMessages
+            public IHandlerRegistry Register<THandler>() where THandler : class, IHandleMessages
             {
                 GetHandlerInterfaces(typeof(THandler))
                     .ForEach(i => _services.AddTransient(i, typeof(THandler)));
 
                 return this;
+            }
+
+            static IEnumerable<Type> GetHandlerInterfaces(Type type)
+            {
+#if NETSTANDARD1_6
+            return type.GetTypeInfo().GetInterfaces()
+                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
+                .ToArray();
+#else
+                return type.GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
+                    .ToArray();
+#endif
             }
         }
 
@@ -72,21 +92,46 @@ namespace Rebus.ServiceProvider.Tests
 
             public void Dispose()
             {
-                ResolveBus().Dispose();
+                _provider.GetRequiredService<IApplicationLifetime>().StopApplication();
             }
         }
 
-        static IEnumerable<Type> GetHandlerInterfaces(Type type)
+        private class TestLifetime : IApplicationLifetime
         {
-#if NETSTANDARD1_6
-            return type.GetTypeInfo().GetInterfaces()
-                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
-                .ToArray();
-#else
-            return type.GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
-                .ToArray();
-#endif
+            private readonly CancellationTokenSource _stoppingSource;
+            private readonly CancellationTokenSource _stoppedSource;
+
+            public TestLifetime()
+            {
+                var source = new CancellationTokenSource();
+                ApplicationStarted = source.Token;
+                source.Cancel();
+
+                _stoppingSource = new CancellationTokenSource();
+                _stoppedSource = new CancellationTokenSource();
+
+                ApplicationStopping = _stoppingSource.Token;
+                ApplicationStopped = _stoppedSource.Token;
+            }
+
+            public CancellationToken ApplicationStarted { get; }
+
+            public CancellationToken ApplicationStopping { get; }
+
+            public CancellationToken ApplicationStopped { get; }
+
+            public void StopApplication()
+            {
+                _stoppingSource.Cancel();
+
+                var allHandlersStopped = new CancellationTokenSource();
+                _stoppedSource.Token.Register(() => allHandlersStopped.Cancel());
+
+                _stoppedSource.Cancel();
+
+                // make sure we block untill all the handlers have finished.
+                allHandlersStopped.Token.WaitHandle.WaitOne();
+            }
         }
     }
 }
