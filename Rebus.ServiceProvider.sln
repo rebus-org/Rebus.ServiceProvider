@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stuff", "stuff", "{1ABDD7C1-1F8D-402D-8692-3E4B66962DE0}"
 	ProjectSection(SolutionItems) = preProject
@@ -10,9 +10,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stuff", "stuff", "{1ABDD7C1
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebus.ServiceProvider", "Rebus.ServiceProvider\Rebus.ServiceProvider.csproj", "{0B17644E-52C5-4756-8745-D78F2A52C08F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebus.ServiceProvider", "Rebus.ServiceProvider\Rebus.ServiceProvider.csproj", "{0B17644E-52C5-4756-8745-D78F2A52C08F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rebus.ServiceProvider.Tests", "Rebus.ServiceProvider.Tests\Rebus.ServiceProvider.Tests.csproj", "{9A24DD7A-7C30-49B6-B949-BF8F360E9F51}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rebus.ServiceProvider.Tests", "Rebus.ServiceProvider.Tests\Rebus.ServiceProvider.Tests.csproj", "{9A24DD7A-7C30-49B6-B949-BF8F360E9F51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.ConsoleApp", "Sample.ConsoleApp\Sample.ConsoleApp.csproj", "{EBDD4021-4E2C-4695-9208-1A9405DAC8C0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{4C1C1464-DCA0-4215-8A7D-30AC85E6D995}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,8 +32,15 @@ Global
 		{9A24DD7A-7C30-49B6-B949-BF8F360E9F51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A24DD7A-7C30-49B6-B949-BF8F360E9F51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A24DD7A-7C30-49B6-B949-BF8F360E9F51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBDD4021-4E2C-4695-9208-1A9405DAC8C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBDD4021-4E2C-4695-9208-1A9405DAC8C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBDD4021-4E2C-4695-9208-1A9405DAC8C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBDD4021-4E2C-4695-9208-1A9405DAC8C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EBDD4021-4E2C-4695-9208-1A9405DAC8C0} = {4C1C1464-DCA0-4215-8A7D-30AC85E6D995}
 	EndGlobalSection
 EndGlobal
