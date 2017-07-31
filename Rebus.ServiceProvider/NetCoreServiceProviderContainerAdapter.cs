@@ -18,9 +18,9 @@ namespace Rebus.ServiceProvider
     /// <seealso cref="Rebus.Activation.IContainerAdapter" />
     public class NetCoreServiceProviderContainerAdapter : IContainerAdapter
     {
-        private readonly IServiceProvider _provider;
+        readonly IServiceProvider _provider;
 
-        private IBus _bus;
+        IBus _bus;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NetCoreServiceProviderContainerAdapter"/> class.
