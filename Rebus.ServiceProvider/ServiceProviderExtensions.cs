@@ -18,5 +18,16 @@ namespace Rebus.ServiceProvider
             provider.GetRequiredService<IBus>();
             return provider;
         }
+
+        /// <summary>
+        /// Activates the Rebus engine, allowing it to start sending and receiving messages.
+        /// </summary>
+        /// <param name="provider">The service provider configured for Rebus.</param>
+        /// <param name="busAction">An action to perform on the bus.</param>
+        public static IServiceProvider UseRebus(this IServiceProvider provider, Action<IBus> busAction)
+        {
+            busAction(provider.GetRequiredService<IBus>());
+            return provider;
+        }
     }
 }

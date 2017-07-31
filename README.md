@@ -10,6 +10,46 @@ Provides an ASP.NET Core Service Provider-based container adapter for [Rebus](ht
 
 ## Usage
 
+### In a Startup.cs
+
+```c#
+public void ConfigureServices(IServiceCollection services)
+{
+   // Register handlers 
+   services.AutoRegisterHandlersFromAssemblyOf<Handler1>();
+
+   // Configure and register Rebus
+   services.AddRebus(configure => configure
+       .Logging(l => l.None()))
+       .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
+       .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
+}
+
+public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+{
+     app
+         .UseDeveloperExceptionPage()
+         .UseRebus()
+		 // or optionally act on the bus:
+		 // .UseRebus(async bus => await bus.Subscribe<Message1>())
+         .Run(async (context) =>
+         {
+             var bus = app.ApplicationServices.GetRequiredService<IBus>();
+
+             await Task.WhenAll(
+                 Enumerable.Range(0, 10)
+                     .Select(i => new Message1())
+                     .Select(message => bus.Send(message)));
+
+             await context.Response.WriteAsync("Rebus sent another 10 messages!");
+         });
+}
+```
+
+(See the WebApp sample)
+
+### A vanilla console app
+
 ```c#
 var services = new ServiceCollection();
 
@@ -32,7 +72,8 @@ var provider = services.BuildServiceProvider();
 
 // trigger the 'start' of Rebus (the IBus is created, and will immediately start 'listening' for messages).
 provider.UseRebus();
-
 ```
+
+(See the ConsoleApp sample)
 
 
