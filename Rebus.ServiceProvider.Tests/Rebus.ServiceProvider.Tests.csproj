@@ -43,8 +43,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Rebus.ServiceProvider\Rebus.ServiceProvider.csproj" />
     <PackageReference Include="nunit" Version="3.7.1" />
-    <PackageReference Include="Rebus" Version="4.0.0-b17" />
-    <PackageReference Include="Rebus.Tests.Contracts" Version="4.0.0-b17" />
+    <PackageReference Include="Rebus" Version="4.0.0-b20" />
+    <PackageReference Include="Rebus.Tests.Contracts" Version="4.0.0-b20" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
