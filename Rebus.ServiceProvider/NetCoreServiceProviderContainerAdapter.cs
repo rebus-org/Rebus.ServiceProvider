@@ -40,15 +40,11 @@ namespace Rebus.ServiceProvider
         /// <exception cref="System.InvalidOperationException"></exception>
         public Task<IEnumerable<IHandleMessages<TMessage>>> GetHandlers<TMessage>(TMessage message, ITransactionContext transactionContext)
         {
-            var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>();
+            var scope = _provider.CreateScope();
 
-            transactionContext.OnDisposed(() =>
-            {
-                foreach (var disposableInstance in resolvedHandlerInstances.OfType<IDisposable>())
-                {
-                    disposableInstance.Dispose();
-                }
-            });
+            var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>(scope);
+
+            transactionContext.OnDisposed(scope.Dispose);
 
             return Task.FromResult((IEnumerable<IHandleMessages<TMessage>>)resolvedHandlerInstances.ToArray());
         }
@@ -68,7 +64,7 @@ namespace Rebus.ServiceProvider
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
         }
 
-        private List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>()
+        private List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceScope scope)
         {
             var handledMessageTypes = typeof(TMessage).GetBaseTypes()
                 .Concat(new[] { typeof(TMessage) });
@@ -78,7 +74,7 @@ namespace Rebus.ServiceProvider
                 {
                     var implementedInterface = typeof(IHandleMessages<>).MakeGenericType(t);
 
-                    return _provider.GetServices(implementedInterface).Cast<IHandleMessages>();
+                    return scope.ServiceProvider.GetServices(implementedInterface).Cast<IHandleMessages>();
                 })
                 .Cast<IHandleMessages<TMessage>>()
                 .ToList();
