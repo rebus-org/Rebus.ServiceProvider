@@ -16,15 +16,13 @@
 
 * Update to Rebus 3
 
-## 4.0.0-b07
+## 4.0.0
 
 * Update to Rebus 4
 * Add .NET Core support (netstandard 1.6)
 * Additional assembly scanning registration method - thanks [komainu85]
-* Update deps to b10
 * Update contracts dep - thanks [trevorreeves]
 * Add usage sample and bus callback for startup actions - thanks [trevorreeves]
-* Update deps to 4.0.0-b20
 * Pass provider to configuration action - thanks [mattwhetton]
 * Fix `AddScoped` - thanks [rosieks]
 
