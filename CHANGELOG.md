@@ -27,6 +27,11 @@
 * Fix `AddScoped` - thanks [rosieks]
 
 
+## 4.0.1
+
+* Remove type constraint on the `AutoRegisterHandlersFromAssemblyOf` extension
+
+
 [komainu85]: https://github.com/komainu85
 [mattwhetton]: https://github.com/mattwhetton
 [rosieks]: https://github.com/rosieks

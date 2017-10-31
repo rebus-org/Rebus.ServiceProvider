@@ -19,7 +19,7 @@ namespace Rebus.ServiceProvider
         /// <typeparam name="THandler">The type of the handler.</typeparam>
         /// <param name="services">The services.</param>
         /// <exception cref="System.ArgumentNullException"></exception>
-        public static void AutoRegisterHandlersFromAssemblyOf<THandler>(this IServiceCollection services) where THandler : IHandleMessages
+        public static void AutoRegisterHandlersFromAssemblyOf<THandler>(this IServiceCollection services)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
@@ -49,7 +49,7 @@ namespace Rebus.ServiceProvider
             RegisterAssembly(services, assembly);
         }
 
-        static Assembly GetAssembly<THandler>() where THandler : IHandleMessages
+        static Assembly GetAssembly<THandler>()
         {
 #if NETSTANDARD1_6
             return typeof(THandler).GetTypeInfo().Assembly;
