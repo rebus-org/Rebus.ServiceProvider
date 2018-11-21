@@ -19,7 +19,7 @@ namespace Rebus.ServiceProvider
         /// <typeparam name="THandler">The type of the handler.</typeparam>
         /// <param name="services">The services.</param>
         /// <exception cref="System.ArgumentNullException"></exception>
-        public static void AutoRegisterHandlersFromAssemblyOf<THandler>(this IServiceCollection services)
+        public static IServiceCollection AutoRegisterHandlersFromAssemblyOf<THandler>(this IServiceCollection services)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
@@ -27,6 +27,7 @@ namespace Rebus.ServiceProvider
             var assemblyToRegister = GetAssembly<THandler>();
 
             RegisterAssembly(services, assemblyToRegister);
+            return services;
         }
         
         /// <summary>
@@ -34,7 +35,7 @@ namespace Rebus.ServiceProvider
         /// </summary>
         /// <param name="services">The services</param>
         /// <param name="assemblyString">The long name of the assembly</param>
-        public static void AutoRegisterHandlersFromAssembly(this IServiceCollection services, string assemblyString)
+        public static IServiceCollection AutoRegisterHandlersFromAssembly(this IServiceCollection services, string assemblyString)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
@@ -47,6 +48,8 @@ namespace Rebus.ServiceProvider
             var assembly = Assembly.Load(assemblyName);
 
             RegisterAssembly(services, assembly);
+
+            return services;
         }
 
         static Assembly GetAssembly<THandler>()
