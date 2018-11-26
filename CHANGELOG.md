@@ -31,9 +31,13 @@
 
 * Remove type constraint on the `AutoRegisterHandlersFromAssemblyOf` extension
 
+## 4.0.2
+
+* Make `AutoRegister(...)` methods return `IServiceCollection` for the sake of the builder pattern - thanks [weisro]
+
 
 [komainu85]: https://github.com/komainu85
 [mattwhetton]: https://github.com/mattwhetton
 [rosieks]: https://github.com/rosieks
 [trevorreeves]: https://github.com/trevorreeves
-
+[weisro]: https://github.com/weisro
