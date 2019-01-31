@@ -8,7 +8,6 @@ using Rebus.Bus;
 using Rebus.Extensions;
 using Rebus.Handlers;
 using Rebus.Transport;
-using Microsoft.AspNetCore.Hosting;
 
 namespace Rebus.ServiceProvider
 {
@@ -29,9 +28,6 @@ namespace Rebus.ServiceProvider
         public NetCoreServiceProviderContainerAdapter(IServiceProvider provider)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-
-            var applicationLifetime = _provider.GetService<IApplicationLifetime>();
-            applicationLifetime?.ApplicationStopping.Register(Dispose);
         }
 
         /// <summary>

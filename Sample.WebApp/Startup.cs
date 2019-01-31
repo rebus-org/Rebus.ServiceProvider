@@ -40,7 +40,7 @@ namespace Sample.WebApp
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseRebus();
+            app.ApplicationServices.UseRebus();
 
             app.Run(async (context) =>
             {
