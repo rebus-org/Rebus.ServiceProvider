@@ -27,7 +27,7 @@ namespace Sample.WebApp
             services.AutoRegisterHandlersFromAssemblyOf<Handler1>();
 
             // Configure and register Rebus
-            services.AddRebus((configure, p) => configure
+            services.AddRebus(configure => configure
                 .Logging(l => l.Use(new MSLoggerFactoryAdapter(_loggerFactory)))
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
                 .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
