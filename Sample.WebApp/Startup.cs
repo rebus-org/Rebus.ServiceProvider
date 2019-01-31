@@ -41,6 +41,8 @@ namespace Sample.WebApp
             }
 
             app.ApplicationServices.UseRebus();
+            //or optionally act on the bus
+            //app.ApplicationServices.UseRebus(async bus => await bus.Subscribe<Message1>());
 
             app.Run(async (context) =>
             {

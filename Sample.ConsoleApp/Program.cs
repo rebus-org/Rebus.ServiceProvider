@@ -9,33 +9,35 @@ namespace Sample.ConsoleApp
     {
         static void Main(string[] args)
         {
-            // 1. Service registration pipeline...
-            var services = new ServiceCollection();
-            services.AutoRegisterHandlersFromAssemblyOf<Handler1>();
-            services.AddSingleton<Producer>();
+        // 1. Service registration pipeline...
+        var services = new ServiceCollection();
+        services.AutoRegisterHandlersFromAssemblyOf<Handler1>();
+        services.AddSingleton<Producer>();
 
-            // 1.1. Configure Rebus
-            services.AddRebus(configure => configure
-                .Logging(l => l.ColoredConsole())
-                .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
-                .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
+        // 1.1. Configure Rebus
+        services.AddRebus(configure => configure
+            .Logging(l => l.ColoredConsole())
+            .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
+            .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
 
-            // 1.2. Potentially add more service registrations for the application, some of which
-            //      could be required by handlers.
+        // 1.2. Potentially add more service registrations for the application, some of which
+        //      could be required by handlers.
 
-            // 2. Application starting pipeline...
-            // Make sure we correctly dispose of the provider (and therefore the bus) on application shutdown
-            using (var provider = services.BuildServiceProvider())
-            {
-                // 3. Application started pipeline...
+        // 2. Application starting pipeline...
+        // Make sure we correctly dispose of the provider (and therefore the bus) on application shutdown
+        using (var provider = services.BuildServiceProvider())
+        {
+            // 3. Application started pipeline...
 
-                // 3.1. Now application is running, lets trigger the 'start' of Rebus.
-                provider.UseRebus();
+            // 3.1. Now application is running, lets trigger the 'start' of Rebus.
+            provider.UseRebus();
+            //optionally...
+            //provider.UseRebus(async bus => await bus.Subscribe<Message1>());
 
-                // 3.2. Begin the domain work for the application
-                var producer = provider.GetRequiredService<Producer>();
-                producer.Produce();
-            }
+            // 3.2. Begin the domain work for the application
+            var producer = provider.GetRequiredService<Producer>();
+            producer.Produce();
+        }
         }
     }
 }
