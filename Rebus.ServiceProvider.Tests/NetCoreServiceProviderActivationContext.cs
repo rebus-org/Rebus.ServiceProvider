@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Rebus.Activation;
 using Rebus.Bus;
 using Rebus.Config;
@@ -34,7 +34,7 @@ namespace Rebus.ServiceProvider.Tests
         {
             var services = new ServiceCollection();
             handlerConfig.Invoke(new HandlerRegistry(services));
-
+             
             services.AddRebus(configureBus);
 
             var provider = services.BuildServiceProvider();
