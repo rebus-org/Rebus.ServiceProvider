@@ -8,13 +8,14 @@ using Rebus.Bus;
 using Rebus.Extensions;
 using Rebus.Handlers;
 using Rebus.Transport;
+// ReSharper disable UnusedMember.Global
 
 namespace Rebus.ServiceProvider
 {
     /// <summary>
     /// Implementation of <see cref="IContainerAdapter"/> that is backed by a ServiceProvider
     /// </summary>
-    /// <seealso cref="Rebus.Activation.IContainerAdapter" />
+    /// <seealso cref="IContainerAdapter" />
     public class NetCoreServiceProviderContainerAdapter : IContainerAdapter
     {
         readonly IServiceProvider _provider;
@@ -60,7 +61,7 @@ namespace Rebus.ServiceProvider
             _bus = bus ?? throw new ArgumentNullException(nameof(bus));
         }
 
-        private List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceScope scope)
+        List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceScope scope)
         {
             var handledMessageTypes = typeof(TMessage).GetBaseTypes()
                 .Concat(new[] { typeof(TMessage) });
@@ -76,9 +77,7 @@ namespace Rebus.ServiceProvider
                 .ToList();
         }
 
-        #region IDisposable Support
-
-        private bool disposedValue = false;
+        bool _disposed;
 
         /// <summary>
         /// Disposes of the bus.
@@ -86,15 +85,14 @@ namespace Rebus.ServiceProvider
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    _bus?.Dispose();
-                }
+            if (_disposed) return;
 
-                disposedValue = true;
+            if (disposing)
+            {
+                _bus?.Dispose();
             }
+
+            _disposed = true;
         }
 
         /// <summary>
@@ -104,7 +102,5 @@ namespace Rebus.ServiceProvider
         {
             Dispose(true);
         }
-
-        #endregion
     }
 }

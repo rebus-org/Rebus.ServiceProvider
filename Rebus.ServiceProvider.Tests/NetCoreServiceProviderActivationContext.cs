@@ -34,7 +34,8 @@ namespace Rebus.ServiceProvider.Tests
         {
             var services = new ServiceCollection();
             handlerConfig.Invoke(new HandlerRegistry(services));
-             
+            services.AddSingleton<IApplicationLifetime>(new TestLifetime());
+
             services.AddRebus(configureBus);
 
             var provider = services.BuildServiceProvider();
@@ -45,9 +46,9 @@ namespace Rebus.ServiceProvider.Tests
             return container.ResolveBus();
         }
 
-        private class HandlerRegistry : IHandlerRegistry
+        class HandlerRegistry : IHandlerRegistry
         {
-            private readonly IServiceCollection _services;
+            readonly IServiceCollection _services;
 
             public HandlerRegistry(IServiceCollection services)
             {
@@ -70,9 +71,9 @@ namespace Rebus.ServiceProvider.Tests
             }
         }
 
-        private class ActivatedContainer : IActivatedContainer
+        class ActivatedContainer : IActivatedContainer
         {
-            private readonly IServiceProvider _provider;
+            readonly IServiceProvider _provider;
 
             public ActivatedContainer(IServiceProvider provider)
             {
@@ -90,10 +91,10 @@ namespace Rebus.ServiceProvider.Tests
             }
         }
 
-        private class TestLifetime : IApplicationLifetime
+        class TestLifetime : IApplicationLifetime
         {
-            private readonly CancellationTokenSource _stoppingSource;
-            private readonly CancellationTokenSource _stoppedSource;
+            readonly CancellationTokenSource _stoppingSource;
+            readonly CancellationTokenSource _stoppedSource;
 
             public TestLifetime()
             {
