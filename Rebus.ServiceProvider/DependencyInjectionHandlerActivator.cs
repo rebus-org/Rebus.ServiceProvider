@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Rebus.Activation;
-using Rebus.Bus;
 using Rebus.Extensions;
 using Rebus.Handlers;
 using Rebus.Transport;
@@ -13,20 +12,18 @@ using Rebus.Transport;
 namespace Rebus.ServiceProvider
 {
     /// <summary>
-    /// Implementation of <see cref="IContainerAdapter"/> that is backed by a ServiceProvider
+    /// Implementation of <see cref="IHandlerActivator"/> that is backed by a ServiceProvider
     /// </summary>
-    /// <seealso cref="IContainerAdapter" />
-    public class NetCoreServiceProviderContainerAdapter : IContainerAdapter
+    /// <seealso cref="IHandlerActivator" />
+    public class DependencyInjectionHandlerActivator : IHandlerActivator
     {
         readonly IServiceProvider _provider;
 
-        IBus _bus;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="NetCoreServiceProviderContainerAdapter"/> class.
+        /// Initializes a new instance of the <see cref="DependencyInjectionHandlerActivator"/> class.
         /// </summary>
         /// <param name="provider">The service provider used to yield handler instances.</param>
-        public NetCoreServiceProviderContainerAdapter(IServiceProvider provider)
+        public DependencyInjectionHandlerActivator(IServiceProvider provider)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
@@ -45,22 +42,7 @@ namespace Rebus.ServiceProvider
 
             return Task.FromResult((IEnumerable<IHandleMessages<TMessage>>)resolvedHandlerInstances.ToArray());
         }
-
-        /// <summary>
-        /// Sets the bus instance associated with this <see cref="T:Rebus.Activation.IContainerAdapter" />.
-        /// </summary>
-        /// <param name="bus"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public void SetBus(IBus bus)
-        {
-            if (_bus != null)
-            {
-                throw new InvalidOperationException("Cannot set the bus instance more than once on the container adapter.");
-            }
-
-            _bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        }
-
+        
         List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceScope scope)
         {
             var handledMessageTypes = typeof(TMessage).GetBaseTypes()
@@ -75,32 +57,6 @@ namespace Rebus.ServiceProvider
                 })
                 .Cast<IHandleMessages<TMessage>>()
                 .ToList();
-        }
-
-        bool _disposed;
-
-        /// <summary>
-        /// Disposes of the bus.
-        /// </summary>
-        /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed) return;
-
-            if (disposing)
-            {
-                _bus?.Dispose();
-            }
-
-            _disposed = true;
-        }
-
-        /// <summary>
-        /// Disposes of the bus.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
         }
     }
 }

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Rebus.Activation;
 using Rebus.Bus;
 using Rebus.Config;
@@ -17,24 +15,20 @@ namespace Rebus.ServiceProvider.Tests
     {
         public IHandlerActivator CreateActivator(Action<IHandlerRegistry> handlerConfig, out IActivatedContainer container)
         {
-            var services = new ServiceCollection();
+            var services = new ServiceCollection().AddSingleton(p => new DependencyInjectionHandlerActivator(p));
             handlerConfig.Invoke(new HandlerRegistry(services));
-            services.AddSingleton<IApplicationLifetime>(new TestLifetime());
-
-            var provider = services.BuildServiceProvider();
             
-            var adapter = new NetCoreServiceProviderContainerAdapter(provider);
+            var provider = services.BuildServiceProvider();
 
             container = new ActivatedContainer(provider);
 
-            return adapter;
+            return provider.GetRequiredService<DependencyInjectionHandlerActivator>();
         }
 
         public IBus CreateBus(Action<IHandlerRegistry> handlerConfig, Func<RebusConfigurer, RebusConfigurer> configureBus, out IActivatedContainer container)
         {
             var services = new ServiceCollection();
             handlerConfig.Invoke(new HandlerRegistry(services));
-            services.AddSingleton<IApplicationLifetime>(new TestLifetime());
 
             services.AddRebus(configureBus);
 
@@ -73,9 +67,9 @@ namespace Rebus.ServiceProvider.Tests
 
         class ActivatedContainer : IActivatedContainer
         {
-            readonly IServiceProvider _provider;
+            readonly Microsoft.Extensions.DependencyInjection.ServiceProvider _provider;
 
-            public ActivatedContainer(IServiceProvider provider)
+            public ActivatedContainer(Microsoft.Extensions.DependencyInjection.ServiceProvider provider)
             {
                 _provider = provider;
             }
@@ -87,45 +81,7 @@ namespace Rebus.ServiceProvider.Tests
 
             public void Dispose()
             {
-                _provider.GetRequiredService<IApplicationLifetime>().StopApplication();
-            }
-        }
-
-        class TestLifetime : IApplicationLifetime
-        {
-            readonly CancellationTokenSource _stoppingSource;
-            readonly CancellationTokenSource _stoppedSource;
-
-            public TestLifetime()
-            {
-                var source = new CancellationTokenSource();
-                ApplicationStarted = source.Token;
-                source.Cancel();
-
-                _stoppingSource = new CancellationTokenSource();
-                _stoppedSource = new CancellationTokenSource();
-
-                ApplicationStopping = _stoppingSource.Token;
-                ApplicationStopped = _stoppedSource.Token;
-            }
-
-            public CancellationToken ApplicationStarted { get; }
-
-            public CancellationToken ApplicationStopping { get; }
-
-            public CancellationToken ApplicationStopped { get; }
-
-            public void StopApplication()
-            {
-                _stoppingSource.Cancel();
-
-                var allHandlersStopped = new CancellationTokenSource();
-                _stoppedSource.Token.Register(() => allHandlersStopped.Cancel());
-
-                _stoppedSource.Cancel();
-
-                // make sure we block untill all the handlers have finished.
-                allHandlersStopped.Token.WaitHandle.WaitOne();
+               _provider.Dispose();
             }
         }
     }
