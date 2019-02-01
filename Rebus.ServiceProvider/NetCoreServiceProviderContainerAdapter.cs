@@ -16,7 +16,7 @@ namespace Rebus.ServiceProvider
     /// Implementation of <see cref="IContainerAdapter"/> that is backed by a ServiceProvider
     /// </summary>
     /// <seealso cref="IContainerAdapter" />
-    public class NetCoreServiceProviderContainerAdapter : IContainerAdapter
+    public class NetCoreServiceProviderContainerAdapter : IContainerAdapter, IDisposable
     {
         readonly IServiceProvider _provider;
 
