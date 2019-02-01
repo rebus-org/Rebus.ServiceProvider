@@ -15,14 +15,14 @@ namespace Rebus.ServiceProvider.Tests
     {
         public IHandlerActivator CreateActivator(Action<IHandlerRegistry> handlerConfig, out IActivatedContainer container)
         {
-            var services = new ServiceCollection().AddSingleton(p => new NetCoreServiceProviderContainerAdapter(p));
+            var services = new ServiceCollection().AddSingleton(p => new DependencyInjectionHandlerActivator(p));
             handlerConfig.Invoke(new HandlerRegistry(services));
             
             var provider = services.BuildServiceProvider();
 
             container = new ActivatedContainer(provider);
 
-            return provider.GetRequiredService<NetCoreServiceProviderContainerAdapter>();
+            return provider.GetRequiredService<DependencyInjectionHandlerActivator>();
         }
 
         public IBus CreateBus(Action<IHandlerRegistry> handlerConfig, Func<RebusConfigurer, RebusConfigurer> configureBus, out IActivatedContainer container)
