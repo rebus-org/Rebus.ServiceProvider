@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Rebus.Logging;
@@ -14,7 +15,7 @@ namespace Rebus.ServiceProvider.Tests
     public class CheckTheApi : FixtureBase
     {
         [Test]
-        public void ThisIsHowItWorks()
+        public async Task ThisIsHowItWorks()
         {
             var serviceCollection = new ServiceCollection();
 
@@ -27,6 +28,8 @@ namespace Rebus.ServiceProvider.Tests
             Using((IDisposable)serviceProvider);
 
             serviceProvider.UseRebus();
+
+            await Task.Delay(TimeSpan.FromSeconds(2));
         }
     }
 }

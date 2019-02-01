@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Rebus.Bus;
+// ReSharper disable UnusedMember.Global
 
 namespace Rebus.ServiceProvider
 {
