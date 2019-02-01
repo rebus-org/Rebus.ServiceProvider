@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Rebus.Activation;
 using Rebus.Bus;
 using Rebus.Config;
@@ -35,7 +34,7 @@ namespace Rebus.ServiceProvider.Tests
         {
             var services = new ServiceCollection();
             handlerConfig.Invoke(new HandlerRegistry(services));
-
+             
             services.AddRebus(configureBus);
 
             var provider = services.BuildServiceProvider();
@@ -65,15 +64,9 @@ namespace Rebus.ServiceProvider.Tests
 
             static IEnumerable<Type> GetHandlerInterfaces(Type type)
             {
-#if NETSTANDARD1_6
-                return type.GetTypeInfo().GetInterfaces()
-                    .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
-                    .ToArray();
-#else
                 return type.GetInterfaces()
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
                     .ToArray();
-#endif
             }
         }
 

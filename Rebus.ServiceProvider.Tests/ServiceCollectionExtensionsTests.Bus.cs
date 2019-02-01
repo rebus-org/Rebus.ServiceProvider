@@ -60,7 +60,7 @@ namespace Rebus.ServiceProvider.Tests
                         .Transport(t => t.UseInMemoryTransport(new InMemNetwork(false), "Messages")))
                     .AddRebus(config => config
                         .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
-            }).ShouldThrow<InvalidOperationException>();
+            }).Should().Throw<InvalidOperationException>();
         }
 
         [Test]

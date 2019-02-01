@@ -54,22 +54,14 @@ namespace Rebus.ServiceProvider
 
         static Assembly GetAssembly<THandler>()
         {
-#if NETSTANDARD1_6
-            return typeof(THandler).GetTypeInfo().Assembly;
-#else
             return typeof(THandler).Assembly;
-#endif
         }
 
         static IEnumerable<Type> GetImplementedHandlerInterfaces(Type type)
         {
-#if NETSTANDARD1_6
-            return type.GetTypeInfo().GetInterfaces()
-                .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>));
-#else
             return type.GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>));
-#endif
+
         }
 
         static void RegisterAssembly(IServiceCollection services, Assembly assemblyToRegister)
@@ -91,11 +83,7 @@ namespace Rebus.ServiceProvider
 
         static bool IsClass(Type type)
         {
-#if NETSTANDARD1_6
-            return !type.GetTypeInfo().IsInterface && !type.GetTypeInfo().IsAbstract;
-#else
             return !type.IsInterface && !type.IsAbstract;
-#endif
         }
 
         static void RegisterType(IServiceCollection services, Type typeToRegister, bool auto)
