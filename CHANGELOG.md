@@ -35,9 +35,10 @@
 
 * Make `AutoRegister(...)` methods return `IServiceCollection` for the sake of the builder pattern - thanks [weisro]
 
-## 5.0.0-b01
+## 5.0.0-b02
 
 * Remove ASP.NET Core dependency and make it into an adapter for Microsoft.Extensions.DependencyInjection (the way it's supposed to be) - thanks [Hawxy]
+* Speed up resolution by a factor of 3 to 4
 
 
 [Hawxy]: https://github.com/Hawxy

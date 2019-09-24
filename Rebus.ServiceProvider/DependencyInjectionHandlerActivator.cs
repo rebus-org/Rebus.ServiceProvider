@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace Rebus.ServiceProvider
     /// <seealso cref="IHandlerActivator" />
     public class DependencyInjectionHandlerActivator : IHandlerActivator
     {
+        readonly ConcurrentDictionary<Type, Type[]> _typesToResolveByMessage = new ConcurrentDictionary<Type, Type[]>();
         readonly IServiceProvider _provider;
 
         /// <summary>
@@ -42,21 +44,24 @@ namespace Rebus.ServiceProvider
 
             return Task.FromResult((IEnumerable<IHandleMessages<TMessage>>)resolvedHandlerInstances.ToArray());
         }
-        
+
         List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceScope scope)
         {
-            var handledMessageTypes = typeof(TMessage).GetBaseTypes()
-                .Concat(new[] { typeof(TMessage) });
+            var typesToResolve = _typesToResolveByMessage.GetOrAdd(typeof(TMessage), FigureOutTypesToResolve);
 
-            return handledMessageTypes
-                .SelectMany(t =>
-                {
-                    var implementedInterface = typeof(IHandleMessages<>).MakeGenericType(t);
-
-                    return scope.ServiceProvider.GetServices(implementedInterface).Cast<IHandleMessages>();
-                })
+            return typesToResolve
+                .SelectMany(type => scope.ServiceProvider.GetServices(type).Cast<IHandleMessages>())
                 .Cast<IHandleMessages<TMessage>>()
                 .ToList();
+        }
+
+        static Type[] FigureOutTypesToResolve(Type messageType)
+        {
+            var handledMessageTypes = new[] {messageType}.Concat(messageType.GetBaseTypes());
+
+            return handledMessageTypes
+                .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
+                .ToArray();
         }
     }
 }
