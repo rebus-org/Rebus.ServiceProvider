@@ -50,6 +50,7 @@ Could not reproduce it though.
 
             serviceCollection.AddTransient<IHandleMessages<GenerateProductVariant>>(GetHandler);
             serviceCollection.AddTransient<IHandleMessages<IFailed<GenerateProductVariant>>>(GetHandler);
+            //serviceCollection.AddTransient<IHandleMessages<IFailed<GenerateProductVariant>>>(GetHandler);
 
             using (var provider = serviceCollection.BuildServiceProvider())
             {
