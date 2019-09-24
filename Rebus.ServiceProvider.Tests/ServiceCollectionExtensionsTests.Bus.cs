@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Configuration;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,7 +8,9 @@ using NUnit.Framework;
 using Rebus.Bus;
 using Rebus.Handlers;
 using Rebus.Routing.TypeBased;
+using Rebus.Tests.Contracts.Extensions;
 using Rebus.Transport.InMem;
+#pragma warning disable 1998
 
 namespace Rebus.ServiceProvider.Tests
 {
@@ -16,16 +20,20 @@ namespace Rebus.ServiceProvider.Tests
         [Test]
         public async Task AddRebus_ConfigureRebusOnce_StartsAndConfiguresBus()
         {
+            var handledMessages = new ConcurrentQueue<string>();
+
             // Arrange
             var services = new ServiceCollection();
             var testHandler = new Handler1(2);
 
             // Act            
             services
-                .AddSingleton<IHandleMessages<Message1>>(testHandler)
+                .AddSingleton(handledMessages)
+                //.AddSingleton<IHandleMessages<Message1>>(testHandler)
+                .AddTransient<IHandleMessages<TextMessage>, TextMessageHandler>()
                 .AddRebus(config => config
                     .Logging(l => l.None())
-                    .Transport(t => t.UseInMemoryTransport(new InMemNetwork(false), "Messages"))
+                    .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
                     .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
 
             var provider = services
@@ -33,34 +41,56 @@ namespace Rebus.ServiceProvider.Tests
                 .UseRebus();
 
             var rebus = provider.GetRequiredService<IBus>();
-            await rebus.Send(new Message1());
-            await rebus.Send(new Message1());
+            
+            await rebus.Send(new TextMessage("HEJ"));
+            await rebus.Send(new TextMessage("MED"));
+            await rebus.Send(new TextMessage("DIG"));
 
             // Assert
-            await Task.WhenAny(testHandler.CountReached, Task.Delay(3000));
+            await handledMessages.WaitUntil(q => q.Count >= 3);
 
-            (provider.GetRequiredService<IHandleMessages<Message1>>() as Handler1)
-                .HandleCount.Should().Be(2);
+            await Task.Delay(TimeSpan.FromSeconds(0.1));
+
+            Assert.That(handledMessages, Is.EqualTo(new[]{"HEJ", "MED", "DIG"}));
+        }
+
+        class TextMessageHandler : IHandleMessages<TextMessage>
+        {
+            readonly ConcurrentQueue<string> _receivedMessages;
+
+            public TextMessageHandler(ConcurrentQueue<string> receivedMessages) => _receivedMessages = receivedMessages;
+
+            public async Task Handle(TextMessage message) => _receivedMessages.Enqueue(message.Text);
+        }
+
+        class TextMessage
+        {
+            public string Text { get; }
+
+            public TextMessage(string text) => Text = text;
         }
 
         [Test]
         public void AddRebus_ConfigureRebusManyTimes_Throws()
         {
             // Arrange
-            var services = new ServiceCollection();
-            var testHandler = new Handler1(2);
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection
+                .AddSingleton<IHandleMessages<Message1>, Handler1>()
+                .AddRebus(config => config
+                    .Logging(l => l.None())
+                    .Transport(t => t.UseInMemoryTransport(new InMemNetwork(false), "Messages")));
 
             // Act
-            new Action(() =>
+            var invalidOperationException = Assert.Throws<InvalidOperationException>(() =>
             {
-                services
-                    .AddSingleton<IHandleMessages<Message1>, Handler1>()
-                    .AddRebus(config => config
-                        .Logging(l => l.None())
-                        .Transport(t => t.UseInMemoryTransport(new InMemNetwork(false), "Messages")))
+                serviceCollection
                     .AddRebus(config => config
                         .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
-            }).Should().Throw<InvalidOperationException>();
+            });
+
+            Console.WriteLine(invalidOperationException);
         }
 
         [Test]

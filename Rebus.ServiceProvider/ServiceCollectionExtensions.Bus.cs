@@ -16,9 +16,11 @@ namespace Rebus.ServiceProvider
         /// <param name="configureRebus">The optional configuration actions for Rebus.</param>
         public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configureRebus)
         {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (configureRebus == null) throw new ArgumentNullException(nameof(configureRebus));
+            
             return AddRebus(services, (c, p) => configureRebus(c));
         }
-
 
         /// <summary>
         /// Registers and/or modifies Rebus configuration for the current service collection.
@@ -27,16 +29,14 @@ namespace Rebus.ServiceProvider
         /// <param name="configureRebus">The optional configuration actions for Rebus.</param>
         public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configureRebus)
         {
-            if (configureRebus == null)
-            {
-                throw new ArgumentNullException(nameof(configureRebus));
-            }
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (configureRebus == null) throw new ArgumentNullException(nameof(configureRebus));
 
             var messageBusRegistration = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(IBus));
 
             if (messageBusRegistration != null)
             {
-                throw new InvalidOperationException("Rebus has already been configured.");
+                throw new InvalidOperationException(@"Sorry, but it seems like Rebus has already been configured in this service collection.");
             }
 
             services.AddTransient(s => MessageContext.Current);
@@ -47,6 +47,7 @@ namespace Rebus.ServiceProvider
             services.AddSingleton(provider =>
             {
                 var configurer = Configure.With(provider.GetRequiredService<DependencyInjectionHandlerActivator>());
+
                 configureRebus(configurer, provider);
 
                 return configurer.Start();
