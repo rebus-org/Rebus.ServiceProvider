@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Rebus.Bus;
 using Rebus.Config;
 using Rebus.Pipeline;
@@ -50,7 +51,14 @@ namespace Rebus.ServiceProvider
 
                 configureRebus(configurer, provider);
 
-                return configurer.Start();
+                var bus = configurer.Start();
+
+                // if we can, we hook up to the application's lifetime events and ensure that Rebus stops, when the application stops,
+                // thus making it so that no messages are handled while the container gets disposed
+                var applicationLifetime = provider.GetService<IApplicationLifetime>();
+                applicationLifetime?.ApplicationStopping.Register(() => bus.Advanced.Workers.SetNumberOfWorkers(0));
+
+                return bus;
             });
 
             return services;

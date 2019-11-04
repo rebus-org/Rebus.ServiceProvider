@@ -35,10 +35,11 @@
 
 * Make `AutoRegister(...)` methods return `IServiceCollection` for the sake of the builder pattern - thanks [weisro]
 
-## 5.0.0-b03
+## 5.0.0-b04
 
 * Remove ASP.NET Core dependency and make it into an adapter for Microsoft.Extensions.DependencyInjection (the way it's supposed to be) - thanks [Hawxy]
 * Speed up resolution by a factor of 3 to 4
+* Detect `IApplicationLifetime` in the container and stop the bus in the `ApplicationStopping` callback
 
 
 [Hawxy]: https://github.com/Hawxy
