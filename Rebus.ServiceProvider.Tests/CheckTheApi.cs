@@ -24,8 +24,8 @@ namespace Rebus.ServiceProvider.Tests
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "ioc-text")));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            Using((IDisposable)serviceProvider);
+            
+            Using(serviceProvider);
 
             serviceProvider.UseRebus();
 

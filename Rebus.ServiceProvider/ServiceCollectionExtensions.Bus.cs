@@ -39,7 +39,7 @@ namespace Rebus.ServiceProvider
                 throw new InvalidOperationException(@"Sorry, but it seems like Rebus has already been configured in this service collection.");
             }
 
-            services.AddTransient(s => MessageContext.Current);
+            services.AddTransient(s => MessageContext.Current ?? throw new InvalidOperationException("Attempted to resolve IMessageContext outside of a Rebus handler, which is not possible. If you get this error, it's probably a sign that your service provider is being used outside of Rebus, where it's simply not possible to resolve a Rebus message context. Rebus' message context is only available to code executing inside a Rebus handler."));
             services.AddTransient(s => s.GetService<IBus>().Advanced.SyncBus);
 
             // Register the Rebus Bus instance, to be created when it is first requested.
