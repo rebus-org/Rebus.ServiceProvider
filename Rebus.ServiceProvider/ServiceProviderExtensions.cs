@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Rebus.Bus;
+using Rebus.Startup;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Rebus.ServiceProvider
@@ -16,8 +18,9 @@ namespace Rebus.ServiceProvider
         /// <param name="provider">The service provider configured for Rebus.</param>
         public static IServiceProvider UseRebus(this IServiceProvider provider)
         {
-            provider.GetRequiredService<IBus>();
-            return provider;
+            if (provider == null) throw new ArgumentNullException(nameof(provider));
+
+            return UseRebus(provider, _ => { });
         }
 
         /// <summary>
@@ -27,7 +30,15 @@ namespace Rebus.ServiceProvider
         /// <param name="busAction">An action to perform on the bus.</param>
         public static IServiceProvider UseRebus(this IServiceProvider provider, Action<IBus> busAction)
         {
-            busAction(provider.GetRequiredService<IBus>());
+            if (provider == null) throw new ArgumentNullException(nameof(provider));
+            if (busAction == null) throw new ArgumentNullException(nameof(busAction));
+
+            provider.GetRequiredService<ServiceCollectionBusDisposalFacility>();
+
+            var bus = provider.GetRequiredService<IBusStarter>().Start();
+            
+            busAction(bus);
+
             return provider;
         }
     }

@@ -9,6 +9,7 @@ using Rebus.Extensions;
 using Rebus.Handlers;
 using Rebus.Transport;
 // ReSharper disable UnusedMember.Global
+#pragma warning disable 1998
 
 namespace Rebus.ServiceProvider
 {
@@ -25,24 +26,27 @@ namespace Rebus.ServiceProvider
         /// Initializes a new instance of the <see cref="DependencyInjectionHandlerActivator"/> class.
         /// </summary>
         /// <param name="provider">The service provider used to yield handler instances.</param>
-        public DependencyInjectionHandlerActivator(IServiceProvider provider)
-        {
-            _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-        }
+        public DependencyInjectionHandlerActivator(IServiceProvider provider) => _provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
         /// <summary>
         /// Resolves all handlers for the given <typeparamref name="TMessage"/> message type
         /// </summary>
-        /// <exception cref="System.InvalidOperationException"></exception>
-        public Task<IEnumerable<IHandleMessages<TMessage>>> GetHandlers<TMessage>(TMessage message, ITransactionContext transactionContext)
+        public async Task<IEnumerable<IHandleMessages<TMessage>>> GetHandlers<TMessage>(TMessage message, ITransactionContext transactionContext)
         {
             var scope = _provider.CreateScope();
 
-            var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>(scope);
+            try
+            {
+                var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>(scope);
 
-            transactionContext.OnDisposed(scope.Dispose);
+                transactionContext.OnDisposed(scope.Dispose);
 
-            return Task.FromResult((IEnumerable<IHandleMessages<TMessage>>)resolvedHandlerInstances.ToArray());
+                return resolvedHandlerInstances.ToArray();
+            }
+            catch (ObjectDisposedException exception)
+            {
+                throw new OperationCanceledException("Handler resolution aborted, because the bus is shutting down", exception);
+            }
         }
 
         List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceScope scope)
