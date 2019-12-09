@@ -33,13 +33,13 @@ namespace Rebus.ServiceProvider
         /// </summary>
         public async Task<IEnumerable<IHandleMessages<TMessage>>> GetHandlers<TMessage>(TMessage message, ITransactionContext transactionContext)
         {
-            var scope = _provider.CreateScope();
-
             try
             {
-                var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>(scope);
+                var scope = _provider.CreateScope();
 
                 transactionContext.OnDisposed(scope.Dispose);
+                
+                var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>(scope);
 
                 return resolvedHandlerInstances.ToArray();
             }
@@ -61,7 +61,7 @@ namespace Rebus.ServiceProvider
 
         static Type[] FigureOutTypesToResolve(Type messageType)
         {
-            var handledMessageTypes = new[] {messageType}.Concat(messageType.GetBaseTypes());
+            var handledMessageTypes = new[] { messageType }.Concat(messageType.GetBaseTypes());
 
             return handledMessageTypes
                 .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
