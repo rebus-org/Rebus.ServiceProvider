@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Rebus.Activation;
 using Rebus.Extensions;
 using Rebus.Handlers;
+using Rebus.Pipeline;
 using Rebus.Transport;
 // ReSharper disable UnusedMember.Global
 #pragma warning disable 1998
@@ -35,10 +36,10 @@ namespace Rebus.ServiceProvider
         {
             try
             {
-                var scope = _provider.CreateScope();
+                var scope = GetOrCreateScope(transactionContext);
 
                 transactionContext.OnDisposed(scope.Dispose);
-                
+
                 var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>(scope);
 
                 return resolvedHandlerInstances.ToArray();
@@ -47,6 +48,16 @@ namespace Rebus.ServiceProvider
             {
                 throw new OperationCanceledException("Handler resolution aborted, because the bus is shutting down", exception);
             }
+        }
+
+        IServiceScope GetOrCreateScope(ITransactionContext transactionContext)
+        {
+            var stepContext = transactionContext.GetOrNull<IncomingStepContext>(StepContext.StepContextKey);
+
+            // can't think of any situations when there would NOT be an incoming step context in the transaction context, except in tests.... so...
+            if (stepContext == null) return _provider.CreateScope();
+
+            return stepContext.Load<IServiceScope>() ?? stepContext.Save(_provider.CreateScope());
         }
 
         List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceScope scope)

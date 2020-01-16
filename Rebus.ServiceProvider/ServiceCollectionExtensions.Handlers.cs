@@ -14,6 +14,30 @@ namespace Rebus.ServiceProvider
     public static partial class ServiceCollectionExtensions
     {
         /// <summary>
+        /// Registers the given <typeparamref name="THandler"/> with a transient lifestyle
+        /// </summary>
+        public static IServiceCollection AddRebusHandler<THandler>(this ServiceCollection services) where THandler : IHandleMessages
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+
+            RegisterType(services, typeof(THandler));
+
+            return services;
+        }
+
+        /// <summary>
+        /// Registers the given <typeparamref name="THandler"/> with a transient lifestyle
+        /// </summary>
+        public static IServiceCollection AddRebusHandler<THandler>(this ServiceCollection services, Func<IServiceProvider, THandler> factory) where THandler : IHandleMessages
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+
+            RegisterFactory(services, typeof(THandler), provider => factory(provider));
+
+            return services;
+        }
+
+        /// <summary>
         /// Automatically picks up all handler types from the assembly containing <typeparamref name="THandler"/> and registers them in the container
         /// </summary>
         /// <typeparam name="THandler">The type of the handler.</typeparam>
@@ -21,10 +45,7 @@ namespace Rebus.ServiceProvider
         /// <exception cref="System.ArgumentNullException"></exception>
         public static IServiceCollection AutoRegisterHandlersFromAssemblyOf<THandler>(this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            if (services == null) throw new ArgumentNullException(nameof(services));
 
             var assemblyToRegister = GetAssembly<THandler>();
 
@@ -40,15 +61,8 @@ namespace Rebus.ServiceProvider
         /// <param name="assemblyString">The long name of the assembly</param>
         public static IServiceCollection AutoRegisterHandlersFromAssembly(this IServiceCollection services, string assemblyString)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
-            if (string.IsNullOrEmpty(assemblyString))
-            {
-                throw new ArgumentNullException(nameof(assemblyString));
-            }
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (string.IsNullOrEmpty(assemblyString)) throw new ArgumentNullException(nameof(assemblyString));
 
             var assemblyName = new AssemblyName(assemblyString);
             var assembly = Assembly.Load(assemblyName);
@@ -58,16 +72,11 @@ namespace Rebus.ServiceProvider
             return services;
         }
 
-        static Assembly GetAssembly<THandler>()
-        {
-            return typeof(THandler).Assembly;
-        }
+        static Assembly GetAssembly<THandler>() => typeof(THandler).Assembly;
 
-        static IEnumerable<Type> GetImplementedHandlerInterfaces(Type type)
-        {
-            return type.GetInterfaces()
+        static IEnumerable<Type> GetImplementedHandlerInterfaces(Type type) =>
+            type.GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>));
-        }
 
         static void RegisterAssembly(IServiceCollection services, Assembly assemblyToRegister)
         {
@@ -86,9 +95,16 @@ namespace Rebus.ServiceProvider
             }
         }
 
-        static bool IsClass(Type type)
+        static bool IsClass(Type type) => !type.IsInterface && !type.IsAbstract;
+
+        static void RegisterFactory(IServiceCollection services, Type typeToRegister, Func<IServiceProvider, object> factory)
         {
-            return !type.IsInterface && !type.IsAbstract;
+            var implementedHandlerInterfaces = GetImplementedHandlerInterfaces(typeToRegister).ToArray();
+
+            foreach (var handlerInterface in implementedHandlerInterfaces)
+            {
+                services.AddTransient(handlerInterface, factory);
+            }
         }
 
         static void RegisterType(IServiceCollection services, Type typeToRegister)

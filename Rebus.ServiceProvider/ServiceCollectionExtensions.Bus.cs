@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Rebus.Bus;
 using Rebus.Config;
 using Rebus.Pipeline;
@@ -56,10 +55,19 @@ It is advised to use one container instance per bus instance, because this way i
 
                 configure(configurer, provider);
 
-                var starter = configurer.Create();
+                var starter = configurer
+                    .Options(o => o.Decorate<IPipeline>(c =>
+                    {
+                        var pipeline = c.Get<IPipeline>();
+
+                        return new PipelineStepConcatenator(pipeline)
+                            .OnReceive(new ServiceProviderProviderStep(provider), PipelineAbsolutePosition.Front);
+                    }))
+                    .Create();
 
                 return starter;
             });
+
             services.AddSingleton(provider => provider.GetRequiredService<IBusStarter>().Bus);
             services.AddSingleton(provider => new ServiceCollectionBusDisposalFacility(provider.GetRequiredService<IBus>()));
 
