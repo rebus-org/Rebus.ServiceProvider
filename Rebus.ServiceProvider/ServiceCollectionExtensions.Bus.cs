@@ -59,9 +59,11 @@ It is advised to use one container instance per bus instance, because this way i
                     .Options(o => o.Decorate<IPipeline>(c =>
                     {
                         var pipeline = c.Get<IPipeline>();
+                        var step = new ServiceProviderProviderStep(provider);
 
                         return new PipelineStepConcatenator(pipeline)
-                            .OnReceive(new ServiceProviderProviderStep(provider), PipelineAbsolutePosition.Front);
+                            .OnReceive(step, PipelineAbsolutePosition.Front)
+                            .OnSend(step, PipelineAbsolutePosition.Front);
                     }))
                     .Create();
 
