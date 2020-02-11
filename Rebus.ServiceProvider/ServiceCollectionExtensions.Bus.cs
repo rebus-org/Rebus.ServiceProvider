@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Rebus.Bus;
 using Rebus.Config;
 using Rebus.Pipeline;
-using Rebus.Startup;
 
 namespace Rebus.ServiceProvider
 {

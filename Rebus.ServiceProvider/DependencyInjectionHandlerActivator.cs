@@ -38,7 +38,7 @@ namespace Rebus.ServiceProvider
             {
                 var scope = GetOrCreateScope(transactionContext);
 
-                transactionContext.OnDisposed(scope.Dispose);
+                transactionContext.OnDisposed(ctx => scope.Dispose());
 
                 var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>(scope);
 

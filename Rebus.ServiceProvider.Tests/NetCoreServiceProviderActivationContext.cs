@@ -51,8 +51,10 @@ namespace Rebus.ServiceProvider.Tests
 
             public IHandlerRegistry Register<THandler>() where THandler : class, IHandleMessages
             {
-                GetHandlerInterfaces(typeof(THandler))
-                    .ForEach(i => _services.AddTransient(i, typeof(THandler)));
+                foreach (var handlerInterface in GetHandlerInterfaces(typeof(THandler)))
+                {
+                    _services.AddTransient(handlerInterface, typeof(THandler));
+                }
 
                 return this;
             }
