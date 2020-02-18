@@ -8,6 +8,7 @@ using Rebus.Activation;
 using Rebus.Extensions;
 using Rebus.Handlers;
 using Rebus.Pipeline;
+using Rebus.Retry.Simple;
 using Rebus.Transport;
 // ReSharper disable UnusedMember.Global
 #pragma warning disable 1998
@@ -77,7 +78,17 @@ namespace Rebus.ServiceProvider
 
         static Type[] FigureOutTypesToResolve(Type messageType)
         {
-            var handledMessageTypes = new[] { messageType }.Concat(messageType.GetBaseTypes());
+            IEnumerable<Type> handledMessageTypes;
+
+            if (messageType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IFailed<>)))
+            {
+                var actualMessageType = messageType.GetGenericArguments()[0];
+                handledMessageTypes = new[] { actualMessageType }.Concat(messageType.GetBaseTypes()).Select(t => typeof(IFailed<>).MakeGenericType(t));
+            }
+            else
+            {
+                handledMessageTypes = new[] { messageType }.Concat(messageType.GetBaseTypes());
+            }
 
             return handledMessageTypes
                 .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
