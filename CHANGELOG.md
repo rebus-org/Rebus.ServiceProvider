@@ -35,6 +35,9 @@
 * Detect `ObjectDisposedException` when resolving handlers and interpret that as we're being shut down
 * Update to Rebus 6 - thanks [Slettan]
 
+## 5.0.1
+* Leave disposal of `ILifetimeScope` to creator, when a custom scope instance was provided by an incoming step
+
 [Hawxy]: https://github.com/Hawxy
 [komainu85]: https://github.com/komainu85
 [mattwhetton]: https://github.com/mattwhetton

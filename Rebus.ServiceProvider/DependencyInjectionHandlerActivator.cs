@@ -38,8 +38,6 @@ namespace Rebus.ServiceProvider
             {
                 var scope = GetOrCreateScope(transactionContext);
 
-                transactionContext.OnDisposed(ctx => scope.Dispose());
-
                 var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>(scope);
 
                 return resolvedHandlerInstances.ToArray();
@@ -57,7 +55,14 @@ namespace Rebus.ServiceProvider
             // can't think of any situations when there would NOT be an incoming step context in the transaction context, except in tests.... so...
             if (stepContext == null) return _provider.CreateScope();
 
-            return stepContext.Load<IServiceScope>() ?? stepContext.Save(_provider.CreateScope());
+            IServiceScope CreateAndInitializeNewScope()
+            {
+                var scope = _provider.CreateScope();
+                transactionContext.OnDisposed(ctx => scope.Dispose());
+                return stepContext.Save(scope);
+            }
+
+            return stepContext.Load<IServiceScope>() ?? CreateAndInitializeNewScope();
         }
 
         List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceScope scope)
