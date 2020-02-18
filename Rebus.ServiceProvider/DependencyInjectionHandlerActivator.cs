@@ -83,7 +83,7 @@ namespace Rebus.ServiceProvider
             if (messageType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IFailed<>)))
             {
                 var actualMessageType = messageType.GetGenericArguments()[0];
-                handledMessageTypes = new[] { actualMessageType }.Concat(messageType.GetBaseTypes()).Select(t => typeof(IFailed<>).MakeGenericType(t));
+                handledMessageTypes = new[] { actualMessageType }.Concat(actualMessageType.GetBaseTypes()).Select(t => typeof(IFailed<>).MakeGenericType(t));
             }
             else
             {
