@@ -38,10 +38,14 @@
 ## 5.0.1
 * Leave disposal of `ILifetimeScope` to creator, when a custom scope instance was provided by an incoming step
 
+## 5.0.2
+* Fix polymorphic resolution of handlers compatible with `IFailed<TMessage>` - thanks [Tsjunne]
+
 [Hawxy]: https://github.com/Hawxy
 [komainu85]: https://github.com/komainu85
 [mattwhetton]: https://github.com/mattwhetton
 [rosieks]: https://github.com/rosieks
 [Slettan]: nhttps://github.com/Slettan
 [trevorreeves]: https://github.com/trevorreeves
+[Tsjunne]: https://github.com/Tsjunne
 [weisro]: https://github.com/weisro
