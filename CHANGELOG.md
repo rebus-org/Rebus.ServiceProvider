@@ -41,7 +41,11 @@
 ## 5.0.2
 * Fix polymorphic resolution of handlers compatible with `IFailed<TMessage>` - thanks [Tsjunne]
 
+## 5.0.3
+* Duplicate handler resolution when using Lamar - thanks [jorenp]
+
 [Hawxy]: https://github.com/Hawxy
+[jorenp]: https://github.com/jorenp
 [komainu85]: https://github.com/komainu85
 [mattwhetton]: https://github.com/mattwhetton
 [rosieks]: https://github.com/rosieks
