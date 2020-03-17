@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Rebus.Activation;
 using Rebus.Extensions;
 using Rebus.Handlers;
 using Rebus.Pipeline;
 using Rebus.Retry.Simple;
 using Rebus.Transport;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 // ReSharper disable UnusedMember.Global
 #pragma warning disable 1998
 
@@ -72,6 +72,7 @@ namespace Rebus.ServiceProvider
 
             return typesToResolve
                 .SelectMany(type => scope.ServiceProvider.GetServices(type).Cast<IHandleMessages>())
+                .Distinct(new TypeEqualityComparer())
                 .Cast<IHandleMessages<TMessage>>()
                 .ToList();
         }
