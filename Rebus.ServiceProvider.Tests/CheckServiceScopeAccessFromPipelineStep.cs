@@ -10,7 +10,6 @@ using Rebus.Pipeline;
 using Rebus.Pipeline.Receive;
 using Rebus.Tests.Contracts;
 using Rebus.Tests.Contracts.Extensions;
-using Rebus.Transport;
 using Rebus.Transport.InMem;
 // ReSharper disable SuggestBaseTypeForParameter
 // ReSharper disable ArgumentsStyleLiteral
@@ -67,7 +66,7 @@ namespace Rebus.ServiceProvider.Tests
                 var step = new MyCustomStep();
 
                 return new PipelineStepInjector(pipeline)
-                    .OnReceive(step, PipelineRelativePosition.After, typeof(DeserializeIncomingMessageStep));
+                    .OnReceive(step, PipelineRelativePosition.After, typeof(ActivateHandlersStep));
             });
         }
 
@@ -79,22 +78,9 @@ namespace Rebus.ServiceProvider.Tests
                 var serviceProvider = context.Load<IServiceProvider>();
 
                 // or we can create a scope and load stuff from that
-                var serviceScope = context.Load<IServiceScope>() 
-                                   ?? CreateServiceScope(serviceProvider, context);
+                var serviceScope = context.Load<IServiceScope>();
 
                 await next();
-            }
-
-            static IServiceScope CreateServiceScope(IServiceProvider serviceProvider, IncomingStepContext context)
-            {
-                var serviceScope = serviceProvider.CreateScope();
-
-                context.Save(serviceScope);
-
-                context.Load<ITransactionContext>()
-                    .OnDisposed(_ => serviceScope.Dispose());
-
-                return serviceScope;
             }
         }
     }
