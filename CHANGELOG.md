@@ -44,6 +44,9 @@
 ## 5.0.3
 * Duplicate handler resolution when using Lamar - thanks [jorenp]
 
+## 5.0.4
+* Additional handler registration overload
+
 [Hawxy]: https://github.com/Hawxy
 [jorenp]: https://github.com/jorenp
 [komainu85]: https://github.com/komainu85

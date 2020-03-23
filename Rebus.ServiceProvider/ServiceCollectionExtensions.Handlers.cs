@@ -58,6 +58,21 @@ namespace Rebus.ServiceProvider
         /// Automatically picks up all handler types from the specified assembly and registers them in the container
         /// </summary>
         /// <param name="services">The services</param>
+        /// <param name="assembly">The assembly to scan</param>
+        public static IServiceCollection AutoRegisterHandlersFromAssembly(this IServiceCollection services, Assembly assembly)
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+
+            RegisterAssembly(services, assembly);
+
+            return services;
+        }
+
+        /// <summary>
+        /// Automatically picks up all handler types from the specified assembly and registers them in the container
+        /// </summary>
+        /// <param name="services">The services</param>
         /// <param name="assemblyString">The long name of the assembly</param>
         public static IServiceCollection AutoRegisterHandlersFromAssembly(this IServiceCollection services, string assemblyString)
         {
