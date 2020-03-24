@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Rebus.Bus;
 using Rebus.Config;
+using Rebus.Exceptions;
 using Rebus.Pipeline;
 
 namespace Rebus.ServiceProvider
@@ -44,6 +45,8 @@ It is advised to use one container instance per bus instance, because this way i
             services.AddTransient(s => MessageContext.Current ?? throw new InvalidOperationException("Attempted to resolve IMessageContext outside of a Rebus handler, which is not possible. If you get this error, it's probably a sign that your service provider is being used outside of Rebus, where it's simply not possible to resolve a Rebus message context. Rebus' message context is only available to code executing inside a Rebus handler."));
             services.AddTransient(s => s.GetRequiredService<IBus>().Advanced.SyncBus);
 
+            BusLifetimeEvents busLifetimeEvents = null;
+
             // Register the Rebus Bus instance, to be created when it is first requested.
             services.AddSingleton(provider => new DependencyInjectionHandlerActivator(provider));
             services.AddSingleton(provider =>
@@ -55,6 +58,10 @@ It is advised to use one container instance per bus instance, because this way i
                 configure(configurer, provider);
 
                 var starter = configurer
+                    
+                    // little hack: we snatch the lifetime events here...
+                    .Options(o => o.Decorate(c => busLifetimeEvents = c.Get<BusLifetimeEvents>()))
+
                     .Options(o => o.Decorate<IPipeline>(c =>
                     {
                         var pipeline = c.Get<IPipeline>();
@@ -67,6 +74,16 @@ It is advised to use one container instance per bus instance, because this way i
                     .Create();
 
                 return starter;
+            });
+
+            // ...so we can install a resolver for it here:
+            services.AddSingleton(provider =>
+            {
+                // first, ensure that the busLifetimeEventsInstance has been set
+                provider.GetRequiredService<IBus>();
+               
+                // then return the instance
+                return busLifetimeEvents;
             });
 
             services.AddSingleton(provider => provider.GetRequiredService<IBusStarter>().Bus);

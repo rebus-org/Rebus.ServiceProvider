@@ -21,7 +21,7 @@ namespace Rebus.ServiceProvider.Tests
 
             serviceCollection.AddRebus(configure => configure
                 .Logging(l => l.Console(minLevel: LogLevel.Debug))
-                .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "ioc-text")));
+                .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "ioc-test")));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             
