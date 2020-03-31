@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Rebus.Handlers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
-using Rebus.Handlers;
 // ReSharper disable UnusedMember.Global
 
 namespace Rebus.ServiceProvider
@@ -16,7 +16,7 @@ namespace Rebus.ServiceProvider
         /// <summary>
         /// Registers the given <typeparamref name="THandler"/> with a transient lifestyle
         /// </summary>
-        public static IServiceCollection AddRebusHandler<THandler>(this ServiceCollection services) where THandler : IHandleMessages
+        public static IServiceCollection AddRebusHandler<THandler>(this IServiceCollection services) where THandler : IHandleMessages
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
@@ -28,7 +28,7 @@ namespace Rebus.ServiceProvider
         /// <summary>
         /// Registers the given <typeparamref name="THandler"/> with a transient lifestyle
         /// </summary>
-        public static IServiceCollection AddRebusHandler<THandler>(this ServiceCollection services, Func<IServiceProvider, THandler> factory) where THandler : IHandleMessages
+        public static IServiceCollection AddRebusHandler<THandler>(this IServiceCollection services, Func<IServiceProvider, THandler> factory) where THandler : IHandleMessages
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
