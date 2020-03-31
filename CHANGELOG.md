@@ -50,6 +50,9 @@
 ## 5.0.5
 * Provide access to `BusLifetimeEvents` through container
 
+## 5.0.6
+* Reference abstractions library containing `IServiceCollection` instead of implementation library - thanks [jorenp]
+
 [Hawxy]: https://github.com/Hawxy
 [jorenp]: https://github.com/jorenp
 [komainu85]: https://github.com/komainu85
