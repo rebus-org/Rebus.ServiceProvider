@@ -22,6 +22,9 @@ Cache generic types:
     100000 resolutions took 0,9 s - that's 114627,3 /s
     100000 resolutions took 0,9 s - that's 115224,8 /s
 
+After updating some package versions:
+    100000 resolutions took 0,9 s - that's 116519,3 /s
+
          */
         [TestCase(100000)]
         public async Task JustResolveManyTimes(int count)

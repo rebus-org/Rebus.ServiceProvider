@@ -3,8 +3,8 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Rebus.Bus;
 using Rebus.Config;
-using Rebus.Exceptions;
 using Rebus.Pipeline;
+using Rebus.ServiceProvider.Internals;
 
 namespace Rebus.ServiceProvider
 {

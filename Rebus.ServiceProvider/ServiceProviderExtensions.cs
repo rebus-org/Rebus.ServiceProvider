@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Rebus.Bus;
 using Rebus.Config;
+using Rebus.ServiceProvider.Internals;
 
 // ReSharper disable UnusedMember.Global
 

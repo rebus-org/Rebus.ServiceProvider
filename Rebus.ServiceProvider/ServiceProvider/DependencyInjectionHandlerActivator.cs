@@ -10,6 +10,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Rebus.ServiceProvider.Internals;
+
 // ReSharper disable UnusedMember.Global
 #pragma warning disable 1998
 
@@ -39,9 +41,7 @@ namespace Rebus.ServiceProvider
             {
                 var scope = GetOrCreateScope(transactionContext);
 
-                var resolvedHandlerInstances = GetMessageHandlersForMessage<TMessage>(scope);
-
-                return resolvedHandlerInstances.ToArray();
+                return GetMessageHandlersForMessage<TMessage>(scope);
             }
             catch (ObjectDisposedException exception)
             {
@@ -66,12 +66,14 @@ namespace Rebus.ServiceProvider
             return stepContext.Load<IServiceScope>() ?? CreateAndInitializeNewScope();
         }
 
-        List<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceScope scope)
+        IReadOnlyList<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceScope scope)
         {
             var typesToResolve = _typesToResolveByMessage.GetOrAdd(typeof(TMessage), FigureOutTypesToResolve);
 
+            var serviceProvider = scope.ServiceProvider;
+
             return typesToResolve
-                .SelectMany(type => scope.ServiceProvider.GetServices(type).Cast<IHandleMessages>())
+                .SelectMany(type => serviceProvider.GetServices(type).Cast<IHandleMessages>())
                 .Distinct(new TypeEqualityComparer())
                 .Cast<IHandleMessages<TMessage>>()
                 .ToList();
