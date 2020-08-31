@@ -53,7 +53,7 @@
 ## 5.0.6
 * Reference abstractions library containing `IServiceCollection` instead of implementation library - thanks [jorenp]
 
-## 6.0.0
+## 6.0.0-a1
 * Update Microsoft.Extensions.DependencyInjection.Abstractions dependency to 3.0.0
 
 
