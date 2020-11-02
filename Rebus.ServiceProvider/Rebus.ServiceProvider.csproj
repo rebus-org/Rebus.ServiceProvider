@@ -26,7 +26,7 @@
     <None Include="Config\ServiceCollectionExtensions.Bus.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Rebus" Version="6.0.0" />
+    <PackageReference Include="Rebus" Version="[6.0.0,)" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
