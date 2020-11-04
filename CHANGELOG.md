@@ -53,10 +53,12 @@
 ## 5.0.6
 * Reference abstractions library containing `IServiceCollection` instead of implementation library - thanks [jorenp]
 
-## 6.0.0-a1
+## 6.0.0-a2
 * Update Microsoft.Extensions.DependencyInjection.Abstractions dependency to 3.0.0
+* Add additional targets for .NET Standard 2.1 and .NET 5 - thanks [dariogriffo]
 
 
+[dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
 [jorenp]: https://github.com/jorenp
 [komainu85]: https://github.com/komainu85
