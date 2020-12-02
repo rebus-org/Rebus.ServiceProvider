@@ -32,7 +32,7 @@ namespace Rebus.ServiceProvider.Tests
                 .BuildServiceProvider()
                 .UseRebus();
 
-            var activator = provider.GetRequiredService<DependencyInjectionHandlerActivator>();
+            var activator = provider.GetRequiredService<IHandlerActivator>();
 
             // Assert
             using (var scope = new RebusTransactionScope())
