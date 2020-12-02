@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Rebus.Activation;
 using Rebus.Handlers;
 using Rebus.Routing.TypeBased;
 using Rebus.Transport;
@@ -32,7 +33,7 @@ namespace Rebus.ServiceProvider.Tests
                 .BuildServiceProvider()
                 .UseRebus();
 
-            var activator = provider.GetRequiredService<DependencyInjectionHandlerActivator>();
+            var activator = provider.GetRequiredService<IHandlerActivator>();
 
             // Assert
             using (var scope = new RebusTransactionScope())
