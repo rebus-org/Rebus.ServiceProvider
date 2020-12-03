@@ -18,9 +18,18 @@ namespace Rebus.ServiceProvider
         /// </summary>
         public static IServiceCollection AddRebusHandler<THandler>(this IServiceCollection services) where THandler : IHandleMessages
         {
-            if (services == null) throw new ArgumentNullException(nameof(services));
+            return AddRebusHandler(services, typeof(THandler));
+        }
 
-            RegisterType(services, typeof(THandler));
+        /// <summary>
+        /// Register the given <paramref name="typeToRegister"/> with a transient lifestyle
+        /// </summary>
+        public static IServiceCollection AddRebusHandler(this IServiceCollection services, Type typeToRegister)
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if(typeToRegister == null) throw new ArgumentNullException(nameof(typeToRegister));
+
+            RegisterType(services, typeToRegister);
 
             return services;
         }
