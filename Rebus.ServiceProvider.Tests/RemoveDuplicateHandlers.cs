@@ -6,6 +6,7 @@ using Rebus.Routing.TypeBased;
 using Rebus.Transport;
 using Rebus.Transport.InMem;
 using System.Threading.Tasks;
+using Rebus.Activation;
 
 namespace Rebus.ServiceProvider.Tests
 {
@@ -32,7 +33,7 @@ namespace Rebus.ServiceProvider.Tests
                 .BuildServiceProvider()
                 .UseRebus();
 
-            var activator = provider.GetRequiredService<DependencyInjectionHandlerActivator>();
+            var activator = provider.GetRequiredService<IHandlerActivator>();
 
             // Assert
             using (var scope = new RebusTransactionScope())

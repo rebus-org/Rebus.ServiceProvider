@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Rebus.Activation;
 using Rebus.Bus;
 using Rebus.Config;
 using Rebus.Pipeline;
@@ -48,10 +49,10 @@ It is advised to use one container instance per bus instance, because this way i
             BusLifetimeEvents busLifetimeEvents = null;
 
             // Register the Rebus Bus instance, to be created when it is first requested.
-            services.AddSingleton(provider => new DependencyInjectionHandlerActivator(provider));
+            services.AddSingleton<IHandlerActivator>(provider => new DependencyInjectionHandlerActivator(provider));
             services.AddSingleton(provider =>
             {
-                var activator = provider.GetRequiredService<DependencyInjectionHandlerActivator>();
+                var activator = provider.GetRequiredService<IHandlerActivator>();
 
                 var configurer = Configure.With(activator);
 
