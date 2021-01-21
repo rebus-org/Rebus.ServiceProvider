@@ -57,6 +57,9 @@
 * Update Microsoft.Extensions.DependencyInjection.Abstractions dependency to 3.0.0
 * Add `AddRebusHandler` overload that accepts a `Type` parameter instead of a type argument via generics - thanks [zlepper]
 
+## 6.1.0
+
+* Resolve handler activator as IHandlerActivator from container to enable decoration, replacement, etc. - thanks [skwasjer]
 
 
 [Hawxy]: https://github.com/Hawxy
@@ -64,6 +67,7 @@
 [komainu85]: https://github.com/komainu85
 [mattwhetton]: https://github.com/mattwhetton
 [rosieks]: https://github.com/rosieks
+[skwasjer]: https://github.com/skwasjer
 [Slettan]: nhttps://github.com/Slettan
 [trevorreeves]: https://github.com/trevorreeves
 [Tsjunne]: https://github.com/Tsjunne
