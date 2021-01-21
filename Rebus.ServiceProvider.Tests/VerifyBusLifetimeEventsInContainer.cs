@@ -1,12 +1,10 @@
 ﻿using System.Collections.Concurrent;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Rebus.Bus;
 using Rebus.Logging;
 using Rebus.Tests.Contracts;
 using Rebus.Transport.InMem;
-
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable ArgumentsStyleNamedExpression
 
@@ -16,7 +14,7 @@ namespace Rebus.ServiceProvider.Tests
     public class VerifyBusLifetimeEventsInContainer : FixtureBase
     {
         [Test]
-        public async Task CanAddEventListenersAfterTheFact()
+        public void CanAddEventListenersAfterTheFact()
         {
             var serviceCollection = new ServiceCollection();
 

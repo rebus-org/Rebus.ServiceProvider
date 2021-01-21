@@ -55,13 +55,18 @@
 
 ## 6.0.0
 * Update Microsoft.Extensions.DependencyInjection.Abstractions dependency to 3.0.0
+* Resolve handler activator as `IHandlerActivator` from container to enable decoration, replacement, etc. - thanks [skwasjer]
 * Add `AddRebusHandler` overload that accepts a `Type` parameter instead of a type argument via generics - thanks [zlepper]
 
 ## 6.1.0
 
 * Resolve handler activator as IHandlerActivator from container to enable decoration, replacement, etc. - thanks [skwasjer]
 
+## 6.2.0
+* Add additional targets for .NET Standard 2.1 and .NET 5 - thanks [dariogriffo]
 
+
+[dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
 [jorenp]: https://github.com/jorenp
 [komainu85]: https://github.com/komainu85
@@ -69,6 +74,7 @@
 [rosieks]: https://github.com/rosieks
 [skwasjer]: https://github.com/skwasjer
 [Slettan]: nhttps://github.com/Slettan
+[skwasjer]: https://github.com/skwasjer
 [trevorreeves]: https://github.com/trevorreeves
 [Tsjunne]: https://github.com/Tsjunne
 [weisro]: https://github.com/weisro
