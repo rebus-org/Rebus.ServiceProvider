@@ -53,9 +53,10 @@
 ## 5.0.6
 * Reference abstractions library containing `IServiceCollection` instead of implementation library - thanks [jorenp]
 
-## 6.0.0-a2
+## 6.0.0-a3
 * Update Microsoft.Extensions.DependencyInjection.Abstractions dependency to 3.0.0
 * Add additional targets for .NET Standard 2.1 and .NET 5 - thanks [dariogriffo]
+* Resolve handler activator as `IHandlerActivator` from container to enable decoration, replacement, etc. - thanks [skwasjer]
 
 
 [dariogriffo]: https://github.com/dariogriffo
@@ -65,6 +66,7 @@
 [mattwhetton]: https://github.com/mattwhetton
 [rosieks]: https://github.com/rosieks
 [Slettan]: nhttps://github.com/Slettan
+[skwasjer]: https://github.com/skwasjer
 [trevorreeves]: https://github.com/trevorreeves
 [Tsjunne]: https://github.com/Tsjunne
 [weisro]: https://github.com/weisro
