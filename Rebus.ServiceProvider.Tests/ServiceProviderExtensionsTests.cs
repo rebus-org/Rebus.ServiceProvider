@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 using NUnit.Framework;
@@ -48,6 +50,20 @@ namespace Rebus.ServiceProvider.Tests
         }
 
         [Test]
+        public void UseRebus_WithNullProvider_Throws()
+        {
+            IServiceProvider provider = null;
+
+            // Act
+            void Act() => provider.UseRebus();
+
+            // Assert
+            var ex = Assert.Throws<ArgumentNullException>(Act);
+            Assert.AreEqual(nameof(provider), ex.ParamName);
+            _busStarterMock.Verify(m => m.Start(), Times.Never);
+        }
+
+        [Test]
         public void UseRebus_WithSyncDelegate_ExecutesAndStartsBus()
         {
             // Act
@@ -63,6 +79,36 @@ namespace Rebus.ServiceProvider.Tests
         }
 
         [Test]
+        public void UseRebus_WithSyncDelegateAndNullProvider_Throws()
+        {
+            IServiceProvider provider = null;
+            Mock<Action<IBus>> onBusStarted = new Mock<Action<IBus>>();
+
+            // Act
+            void Act() => provider.UseRebus(onBusStarted.Object);
+
+            // Assert
+            var ex = Assert.Throws<ArgumentNullException>(Act);
+            Assert.AreEqual(nameof(provider), ex.ParamName);
+            _busStarterMock.Verify(m => m.Start(), Times.Never);
+            onBusStarted.Verify(m => m.Invoke(It.IsAny<IBus>()), Times.Never);
+        }
+
+        [Test]
+        public void UseRebus_WithNullSyncDelegateAndProvider_Throws()
+        {
+            Action<IBus> onBusStarted = null;
+
+            // Act
+            void Act() => _serviceProvider.UseRebus(onBusStarted);
+
+            // Assert
+            var ex = Assert.Throws<ArgumentNullException>(Act);
+            Assert.AreEqual(nameof(onBusStarted), ex.ParamName);
+            _busMock.Verify(m => m.Advanced.SyncBus.Subscribe<TestMessage>(), Times.Never);
+        }
+
+        [Test]
         public void UseRebus_WithAsyncDelegate_StartsBusAndExecutes()
         {
 	        // Act
@@ -75,6 +121,37 @@ namespace Rebus.ServiceProvider.Tests
 	        // Assert
 	        _busStarterMock.Verify(m => m.Start(), Times.Once);
 	        _busMock.Verify(m => m.Subscribe<TestMessage>(), Times.Once);
+        }
+
+        [Test]
+        public void UseRebus_WithAsyncDelegateAndNullProvider_Throws()
+        {
+	        IServiceProvider provider = null;
+	        Mock<Func<IBus, Task>> onBusStarted = new Mock<Func<IBus, Task>>();
+	        onBusStarted.SetReturnsDefault(Task.CompletedTask);
+
+	        // Act
+	        void Act() => provider.UseRebus(onBusStarted.Object);
+
+	        // Assert
+	        var ex = Assert.Throws<ArgumentNullException>(Act);
+	        Assert.AreEqual(nameof(provider), ex.ParamName);
+	        _busStarterMock.Verify(m => m.Start(), Times.Never);
+	        onBusStarted.Verify(m => m.Invoke(It.IsAny<IBus>()), Times.Never);
+        }
+
+        [Test]
+        public void UseRebus_WithNullAsyncDelegateAndProvider_Throws()
+        {
+	        Func<IBus, Task> onBusStarted = null;
+
+	        // Act
+	        void Act() => _serviceProvider.UseRebus(onBusStarted);
+
+	        // Assert
+	        var ex = Assert.Throws<ArgumentNullException>(Act);
+	        Assert.AreEqual(nameof(onBusStarted), ex.ParamName);
+	        _busMock.Verify(m => m.Subscribe<TestMessage>(), Times.Never);
         }
     }
 }
