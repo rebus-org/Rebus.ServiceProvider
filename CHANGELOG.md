@@ -65,6 +65,9 @@
 ## 6.2.0
 * Add additional targets for .NET Standard 2.1 and .NET 5 - thanks [dariogriffo]
 
+## 6.3.0
+* Add async overload of `UseRebus`, so you can `serviceProvider.UseRebus(async bus => /* do async stuff */)` - thanks [skwasjer]
+
 
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
