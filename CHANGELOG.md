@@ -68,6 +68,9 @@
 ## 6.3.0
 * Add async overload of `UseRebus`, so you can `serviceProvider.UseRebus(async bus => /* do async stuff */)` - thanks [skwasjer]
 
+## 6.3.1
+* Make version range more tolerant, so .NET Standard 2.0 package can use the latest abstractions - thanks [zlepper]
+
 
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
