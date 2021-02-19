@@ -3,12 +3,12 @@ using Rebus.Activation;
 using Rebus.Extensions;
 using Rebus.Handlers;
 using Rebus.Pipeline;
-using Rebus.Retry.Simple;
 using Rebus.Transport;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Rebus.ServiceProvider.Internals;
 
@@ -78,24 +78,102 @@ namespace Rebus.ServiceProvider
                 .Cast<IHandleMessages<TMessage>>()
                 .ToList();
         }
-
+        
         static Type[] FigureOutTypesToResolve(Type messageType)
         {
-            IEnumerable<Type> handledMessageTypes;
-
-            if (messageType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IFailed<>)))
+            var handledMessageTypes = messageType.GetBaseTypes().ToHashSet();
+            handledMessageTypes.Add(messageType);
+            
+            var compatibleMessageTypes = new HashSet<Type>();
+            foreach (var type in handledMessageTypes)
             {
-                var actualMessageType = messageType.GetGenericArguments()[0];
-                handledMessageTypes = new[] { actualMessageType }.Concat(actualMessageType.GetBaseTypes()).Select(t => typeof(IFailed<>).MakeGenericType(t));
+                compatibleMessageTypes.UnionWith(GetCompatibleMessageHandlerTypes(type));
             }
-            else
-            {
-                handledMessageTypes = new[] { messageType }.Concat(messageType.GetBaseTypes());
-            }
-
+            handledMessageTypes.UnionWith(compatibleMessageTypes);
+            
             return handledMessageTypes
                 .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
                 .ToArray();
+        }
+
+        /**
+         * Returns all compatible message handler types,
+         * which a message with the given type should be dispatched to.
+         * Covariant interfaces are taken into account.
+         */
+        private static IEnumerable<Type> GetCompatibleMessageHandlerTypes(Type type) 
+        {
+            if (type.IsGenericType)
+            {
+                var genericDefinition = type.GetGenericTypeDefinition();
+                var combinations = genericDefinition.GetGenericArguments()
+                    .Zip(type.GetGenericArguments(), GenericTypePair.Create)
+                    .Select(GetBaseTypes)
+                    .CartesianProduct();
+                return combinations.Select(types => genericDefinition.MakeGenericType(types.ToArray()));
+            }
+            
+            return type.GetBaseTypes();
+        }
+
+        /// <summary>
+        ///     Returns the base types that can be constructed from
+        ///     the given type pair, taking parameter constraints into account.
+        /// </summary>
+        private static IEnumerable<Type> GetBaseTypes(GenericTypePair typePair)
+        {
+            
+            IEnumerable<Type> result = new[] {typePair.ActualType};
+            if (IsCovariant(typePair.GenericType))
+            {
+                var parameterConstraints = typePair.GenericType.GetGenericParameterConstraints();
+                var validBaseTypes = typePair.ActualType.GetBaseTypes()
+                    .Where(baseType => SatisfiesParameterConstraints(baseType, parameterConstraints));
+                return result.Concat(validBaseTypes);
+            }
+
+            return result;
+        }
+        
+        /// <summary>
+        ///     Returns true iff the given type satisfies the given parameter constraints.
+        /// </summary>
+        private static bool SatisfiesParameterConstraints(Type type, IEnumerable<Type> parameterConstraints)
+        {
+            var implementedTypes = type.GetBaseTypes().ToHashSet();
+            foreach (var constraint in parameterConstraints)
+            {
+                if (!implementedTypes.Contains(constraint))
+                    return false;
+            }
+
+            return true;
+        }
+        
+        /// <summary>
+        ///     Returns true iff the given type parameter is covariant.
+        /// </summary>
+        private static bool IsCovariant(Type type)
+        {
+            return (type.GenericParameterAttributes & GenericParameterAttributes.Covariant) != 0;
+        }
+
+        /// <summary>
+        ///     Represents a generic type argument and its corresponding actual type.
+        /// </summary>
+        private class GenericTypePair
+        {
+            public Type GenericType { get; private set; }
+            public Type ActualType { get; private set; }
+            
+            public static GenericTypePair Create(Type genericType, Type actualType)
+            {
+                return new()
+                {
+                    GenericType = genericType,
+                    ActualType = actualType
+                };
+            }
         }
     }
 }
