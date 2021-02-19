@@ -8,6 +8,7 @@ using Rebus.Activation;
 using Rebus.Handlers;
 using Rebus.Retry.Simple;
 using Rebus.Routing.TypeBased;
+using Rebus.Tests.Contracts;
 using Rebus.Transport;
 using Rebus.Transport.InMem;
 
@@ -17,9 +18,9 @@ namespace Rebus.ServiceProvider.Tests
     ///     Testing the polymorphic message handler activation.
     /// </summary>
     [TestFixture]
-    public class PolymorphicMessageHandlerActivation
+    public class PolymorphicMessageHandlerActivation : FixtureBase
     {
-        private static IHandlerActivator Setup(IHandleMessages testHandler, Type messageHandlerType)
+        private IHandlerActivator Setup(IHandleMessages testHandler, Type messageHandlerType)
         {
             var services = new ServiceCollection();
             
@@ -30,8 +31,7 @@ namespace Rebus.ServiceProvider.Tests
                     .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
                     .Routing(r => r.TypeBased().MapAssemblyOf<Parent>("Messages")));
 
-            var provider = services
-                .BuildServiceProvider()
+            var provider = Using(services.BuildServiceProvider())
                 .UseRebus();
 
             return provider.GetRequiredService<IHandlerActivator>();
