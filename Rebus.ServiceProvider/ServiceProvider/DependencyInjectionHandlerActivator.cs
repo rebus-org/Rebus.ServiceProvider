@@ -108,13 +108,30 @@ namespace Rebus.ServiceProvider
                 var genericDefinition = type.GetGenericTypeDefinition();
                 var combinations = genericDefinition.GetGenericArguments()
                     .Zip(type.GetGenericArguments(), GenericTypePair.Create)
-                    .Select(args => new[] {args.ActualType}.Concat(IsCovariant(args.GenericType) ? args.ActualType.GetBaseTypes() : Enumerable.Empty<Type>()))
+                    .Select(GetBaseTypes)
                     .CartesianProduct();
-                var newTypes = combinations.Select(types => genericDefinition.MakeGenericType(types.ToArray()));
-                return newTypes;
+                return combinations.Select(types => genericDefinition.MakeGenericType(types.ToArray()));
             }
             
             return type.GetBaseTypes();
+        }
+
+        /// <summary>
+        ///     Returns the base types that can be constructed from
+        ///     the given type pair.
+        ///     Note that we are conservative in the sense that if any parameter
+        ///     constraint exists for the generic type, we don't look for base types,
+        ///     since this might lead these constraints being violated.
+        /// </summary>
+        private static IEnumerable<Type> GetBaseTypes(GenericTypePair typePair)
+        {
+            IEnumerable<Type> result = new[] {typePair.ActualType};
+            if (IsCovariant(typePair.GenericType) && !typePair.GenericType.GetGenericParameterConstraints().Any())
+            {
+                return result.Concat(typePair.ActualType.GetBaseTypes());
+            }
+
+            return result;
         }
         
         /// <summary>
