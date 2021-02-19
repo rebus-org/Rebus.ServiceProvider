@@ -121,7 +121,7 @@ namespace Rebus.ServiceProvider
         ///     the given type pair.
         ///     Note that we are conservative in the sense that if any parameter
         ///     constraint exists for the generic type, we don't look for base types,
-        ///     since this might lead these constraints being violated.
+        ///     since this might lead to these constraints being violated.
         /// </summary>
         private static IEnumerable<Type> GetBaseTypes(GenericTypePair typePair)
         {
