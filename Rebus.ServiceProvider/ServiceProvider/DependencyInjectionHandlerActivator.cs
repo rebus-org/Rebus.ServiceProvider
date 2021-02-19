@@ -118,20 +118,36 @@ namespace Rebus.ServiceProvider
 
         /// <summary>
         ///     Returns the base types that can be constructed from
-        ///     the given type pair.
-        ///     Note that we are conservative in the sense that if any parameter
-        ///     constraint exists for the generic type, we don't look for base types,
-        ///     since this might lead to these constraints being violated.
+        ///     the given type pair, taking parameter constraints into account.
         /// </summary>
         private static IEnumerable<Type> GetBaseTypes(GenericTypePair typePair)
         {
+            
             IEnumerable<Type> result = new[] {typePair.ActualType};
-            if (IsCovariant(typePair.GenericType) && !typePair.GenericType.GetGenericParameterConstraints().Any())
+            if (IsCovariant(typePair.GenericType))
             {
-                return result.Concat(typePair.ActualType.GetBaseTypes());
+                var parameterConstraints = typePair.GenericType.GetGenericParameterConstraints();
+                var validBaseTypes = typePair.ActualType.GetBaseTypes()
+                    .Where(baseType => SatisfiesParameterConstraints(baseType, parameterConstraints));
+                return result.Concat(validBaseTypes);
             }
 
             return result;
+        }
+        
+        /// <summary>
+        ///     Returns true iff the given type satisfies the given parameter constraints.
+        /// </summary>
+        private static bool SatisfiesParameterConstraints(Type type, IEnumerable<Type> parameterConstraints)
+        {
+            var implementedTypes = type.GetBaseTypes().ToHashSet();
+            foreach (var constraint in parameterConstraints)
+            {
+                if (!implementedTypes.Contains(constraint))
+                    return false;
+            }
+
+            return true;
         }
         
         /// <summary>
