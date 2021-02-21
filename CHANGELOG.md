@@ -71,6 +71,8 @@
 ## 6.3.1
 * Make version range more tolerant, so .NET Standard 2.0 package can use the latest abstractions - thanks [zlepper]
 
+## 6.4.0
+* Better handling of polymorphic dispatch when using generics at multiple levels - thanks [TobiasNissen]
 
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
@@ -81,6 +83,7 @@
 [skwasjer]: https://github.com/skwasjer
 [Slettan]: nhttps://github.com/Slettan
 [skwasjer]: https://github.com/skwasjer
+[TobiasNissen]: https://github.com/TobiasNissen
 [trevorreeves]: https://github.com/trevorreeves
 [Tsjunne]: https://github.com/Tsjunne
 [weisro]: https://github.com/weisro
