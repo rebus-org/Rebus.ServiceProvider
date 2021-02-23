@@ -152,6 +152,18 @@ namespace Rebus.ServiceProvider.Tests
                 handlers.Should().HaveCount(1);
             }
         }
+        
+        [Test]
+        public async Task Handlers_ShouldHandleCovariantTypeParametersWithConstraints()
+        {
+            var activator = Setup(new ConstrainedCovariantMessageHandler(), typeof(IHandleMessages<IConstrainedCovariant<Parent>>));
+            
+            using (var scope = new RebusTransactionScope())
+            {
+                var handlers = await activator.GetHandlers(new ConcreteConstrainedCovariant(), scope.TransactionContext);
+                handlers.Should().HaveCount(1);
+            }
+        }
     }
     
     public class Parent { }
@@ -210,5 +222,14 @@ namespace Rebus.ServiceProvider.Tests
     public class FailedMessageHandler : IHandleMessages<IFailed<object>>
     {
         public Task Handle(IFailed<object> message) => Task.CompletedTask;
+    }
+    
+    public interface IConstrainedCovariant<out T> where T : Parent {}
+
+    public class ConcreteConstrainedCovariant : IConstrainedCovariant<Child> {}
+
+    public class ConstrainedCovariantMessageHandler : IHandleMessages<IConstrainedCovariant<Parent>>
+    {
+        public Task Handle(IConstrainedCovariant<Parent> message) => Task.CompletedTask;
     }
 }

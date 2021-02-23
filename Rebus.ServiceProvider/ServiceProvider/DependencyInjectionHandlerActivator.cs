@@ -141,13 +141,8 @@ namespace Rebus.ServiceProvider
         private static bool SatisfiesParameterConstraints(Type type, IEnumerable<Type> parameterConstraints)
         {
             var implementedTypes = type.GetBaseTypes().ToHashSet();
-            foreach (var constraint in parameterConstraints)
-            {
-                if (!implementedTypes.Contains(constraint))
-                    return false;
-            }
-
-            return true;
+            implementedTypes.Add(type);
+            return parameterConstraints.All(constraint => implementedTypes.Contains(constraint));
         }
         
         /// <summary>
@@ -155,7 +150,7 @@ namespace Rebus.ServiceProvider
         /// </summary>
         private static bool IsCovariant(Type type)
         {
-            return (type.GenericParameterAttributes & GenericParameterAttributes.Covariant) != 0;
+            return type.GenericParameterAttributes.HasFlag(GenericParameterAttributes.Covariant);
         }
 
         /// <summary>
