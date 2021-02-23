@@ -74,6 +74,9 @@
 ## 6.4.0
 * Better handling of polymorphic dispatch when using generics at multiple levels - thanks [TobiasNissen]
 
+## 6.4.1
+* Minor bugfix for constrained covariant type parameters - thanks [TobiasNissen]
+
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
 [jorenp]: https://github.com/jorenp
