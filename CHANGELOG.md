@@ -77,7 +77,7 @@
 ## 6.4.1
 * Minor bugfix for constrained covariant type parameters - thanks [TobiasNissen]
 
-## 7.0.0-b1
+## 7.0.0-b2
 * Depend on Microsoft.Extensions.Hosting.Abstractions instead, and take advantage of background services to dispose the bus properly
 
 [dariogriffo]: https://github.com/dariogriffo
