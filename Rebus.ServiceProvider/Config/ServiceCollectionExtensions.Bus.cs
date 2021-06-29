@@ -1,13 +1,17 @@
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Rebus.Activation;
 using Rebus.Bus;
-using Rebus.Config;
+using Rebus.Internals;
 using Rebus.Pipeline;
-using Rebus.ServiceProvider.Internals;
+using Rebus.ServiceProvider;
+#pragma warning disable 1998
 
-namespace Rebus.ServiceProvider
+namespace Rebus.Config
 {
     public static partial class ServiceCollectionExtensions
     {
@@ -21,7 +25,7 @@ namespace Rebus.ServiceProvider
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-            return AddRebus(services, (c, p) => configure(c));
+            return AddRebus(services, (c, _) => configure(c));
         }
 
         /// <summary>
@@ -43,7 +47,7 @@ namespace Rebus.ServiceProvider
 It is advised to use one container instance per bus instance, because this way it can be treated as an autonomous component with the container as the root.");
             }
 
-            services.AddTransient(s => MessageContext.Current ?? throw new InvalidOperationException("Attempted to resolve IMessageContext outside of a Rebus handler, which is not possible. If you get this error, it's probably a sign that your service provider is being used outside of Rebus, where it's simply not possible to resolve a Rebus message context. Rebus' message context is only available to code executing inside a Rebus handler."));
+            services.AddTransient(_ => MessageContext.Current ?? throw new InvalidOperationException("Attempted to resolve IMessageContext outside of a Rebus handler, which is not possible. If you get this error, it's probably a sign that your service provider is being used outside of Rebus, where it's simply not possible to resolve a Rebus message context. Rebus' message context is only available to code executing inside a Rebus handler."));
             services.AddTransient(s => s.GetRequiredService<IBus>().Advanced.SyncBus);
 
             BusLifetimeEvents busLifetimeEvents = null;
@@ -91,7 +95,19 @@ It is advised to use one container instance per bus instance, because this way i
             services.AddSingleton(provider => provider.GetRequiredService<IBusStarter>().Bus);
             services.AddSingleton(provider => new ServiceCollectionBusDisposalFacility(provider.GetRequiredService<IBus>()));
 
+            // in the event that we're in a context where hosting works, we take advantage of that to properly dispose the bus
+            services.AddHostedService<BusStop>();
+
             return services;
+        }
+
+        class BusStop : BackgroundService
+        {
+            readonly IBus _bus;
+
+            public BusStop(IBus bus) => _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+
+            protected override async Task ExecuteAsync(CancellationToken stoppingToken) => stoppingToken.Register(_bus.Dispose);
         }
     }
 }

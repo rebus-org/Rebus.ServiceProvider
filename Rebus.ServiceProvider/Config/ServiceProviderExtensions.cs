@@ -2,12 +2,11 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Rebus.Bus;
-using Rebus.Config;
-using Rebus.ServiceProvider.Internals;
+using Rebus.Internals;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Rebus.ServiceProvider
+namespace Rebus.Config
 {
     /// <summary>
     /// Defines common operations for Rebus the use an <see cref="IServiceProvider"/>.
@@ -56,7 +55,7 @@ namespace Rebus.ServiceProvider
             return provider;
         }
 
-        private static IBus StartBus(IServiceProvider provider)
+        static IBus StartBus(IServiceProvider provider)
         {
             if (provider == null) throw new ArgumentNullException(nameof(provider));
 

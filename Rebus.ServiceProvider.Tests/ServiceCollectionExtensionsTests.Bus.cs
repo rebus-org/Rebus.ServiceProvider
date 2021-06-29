@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Rebus.Bus;
+using Rebus.Config;
 using Rebus.Handlers;
 using Rebus.Routing.TypeBased;
 using Rebus.Tests.Contracts.Extensions;

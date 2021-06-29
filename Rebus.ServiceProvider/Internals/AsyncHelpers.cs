@@ -4,7 +4,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Rebus.ServiceProvider.Internals
+namespace Rebus.Internals
 {
     static class AsyncHelpers
     {

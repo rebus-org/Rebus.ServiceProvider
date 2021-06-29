@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Rebus.Bus;
+using Rebus.Config;
 using Rebus.Handlers;
 using Rebus.Persistence.InMem;
 using Rebus.Retry.Simple;

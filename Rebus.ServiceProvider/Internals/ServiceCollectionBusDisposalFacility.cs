@@ -1,7 +1,7 @@
 ﻿using System;
 using Rebus.Bus;
 
-namespace Rebus.ServiceProvider.Internals
+namespace Rebus.Internals
 {
     /// <summary>
     /// Sweet little hack that makes it possible for us to ensure that the bus is disposed with the container

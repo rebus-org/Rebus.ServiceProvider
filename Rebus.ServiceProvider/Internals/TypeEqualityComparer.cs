@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Rebus.ServiceProvider.Internals
+namespace Rebus.Internals
 {
     class TypeEqualityComparer : IEqualityComparer<object>
     {

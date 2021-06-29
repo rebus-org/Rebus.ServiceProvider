@@ -7,6 +7,7 @@ using Rebus.Routing.TypeBased;
 using Rebus.Transport;
 using Rebus.Transport.InMem;
 using System.Threading.Tasks;
+using Rebus.Config;
 
 namespace Rebus.ServiceProvider.Tests
 {

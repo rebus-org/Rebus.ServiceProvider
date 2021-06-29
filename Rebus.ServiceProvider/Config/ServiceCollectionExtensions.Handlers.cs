@@ -1,12 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Rebus.Handlers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using Rebus.Handlers;
+
 // ReSharper disable UnusedMember.Global
 
-namespace Rebus.ServiceProvider
+namespace Rebus.Config
 {
     /// <summary>
     /// Extension methods for making it easy to register Rebus handlers in your <see cref="IServiceCollection"/>

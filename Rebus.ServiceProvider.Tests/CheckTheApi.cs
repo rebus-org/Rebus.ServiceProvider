@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Rebus.Config;
 using Rebus.Logging;
 using Rebus.Tests.Contracts;
 using Rebus.Transport.InMem;

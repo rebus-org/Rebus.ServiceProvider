@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Rebus.Config;
 using Rebus.Routing.TypeBased;
 using Rebus.ServiceProvider;
 using Rebus.Transport.InMem;
