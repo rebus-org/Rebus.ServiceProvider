@@ -28,6 +28,7 @@ namespace Sample.WebApp
             // Register handlers 
             services.AutoRegisterHandlersFromAssemblyOf<Handler1>();
 
+            // when added here, the bus will be NOT have been disposed when the StopAsync method gets called
             services.AddHostedService<BackgroundServiceExample>();
 
             // Configure and register Rebus
@@ -35,6 +36,9 @@ namespace Sample.WebApp
                 .Logging(l => l.Use(new MSLoggerFactoryAdapter(_loggerFactory)))
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
                 .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
+        
+            // when added here, the bus will be disposed when the StopAsync method gets called
+            //services.AddHostedService<BackgroundServiceExample>();
         }
 
         class BackgroundServiceExample : IHostedService
