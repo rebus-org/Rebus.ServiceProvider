@@ -100,7 +100,7 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
          * which a message with the given type should be dispatched to.
          * Covariant interfaces are taken into account.
          */
-    private static IEnumerable<Type> GetCompatibleMessageHandlerTypes(Type type)
+    static IEnumerable<Type> GetCompatibleMessageHandlerTypes(Type type)
     {
         if (type.IsGenericType)
         {
@@ -146,7 +146,7 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
     /// <summary>
     ///     Returns true iff the given type parameter is covariant.
     /// </summary>
-    private static bool IsCovariant(Type type)
+    static bool IsCovariant(Type type)
     {
         return type.GenericParameterAttributes.HasFlag(GenericParameterAttributes.Covariant);
     }
@@ -154,7 +154,7 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
     /// <summary>
     ///     Represents a generic type argument and its corresponding actual type.
     /// </summary>
-    private class GenericTypePair
+    class GenericTypePair
     {
         public Type GenericType { get; private set; }
         public Type ActualType { get; private set; }
