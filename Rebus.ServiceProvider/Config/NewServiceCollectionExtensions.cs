@@ -30,17 +30,14 @@ public static class NewServiceCollectionExtensions
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-        services.AddSingleton<IHostedService>(p => new RebusHostedService(configure, p));
+        services.AddSingleton<IHostedService>(p => new RebusHostedService(configure, p, isDefaultBus));
 
         if (!services.Any(s => s.ImplementationType == typeof(RebusResolver)))
         {
             services.AddSingleton(new RebusResolver());
             services.AddTransient(p => p.GetRequiredService<RebusResolver>().GetBus(p));
-        }
-
-        if (isDefaultBus)
-        {
-
+            services.AddTransient(p => p.GetRequiredService<IBus>().Advanced.SyncBus);
+            services.AddTransient(_ => MessageContext.Current ?? throw new InvalidOperationException("Could not get current message context! The message context can only be resolved when handling a Rebus message, and it looks like this attempt was made from somewhere else."));
         }
     }
 
