@@ -42,9 +42,9 @@ Could not reproduce it though.
 
             var callsToSecondLevelHandler = new ConcurrentQueue<string>();
 
-            serviceCollection.AddSingleton(p => callsToSecondLevelHandler);
+            serviceCollection.AddSingleton(_ => callsToSecondLevelHandler);
 
-            GenerateProductVariantEventHandler GetHandler(IServiceProvider p) => new GenerateProductVariantEventHandler(
+            GenerateProductVariantEventHandler GetHandler(IServiceProvider p) => new(
                 bus: p.GetRequiredService<IBus>(),
                 callsToSecondLevelHandler: p.GetRequiredService<ConcurrentQueue<string>>()
             );
@@ -53,22 +53,21 @@ Could not reproduce it though.
             serviceCollection.AddTransient<IHandleMessages<IFailed<GenerateProductVariant>>>(GetHandler);
             //serviceCollection.AddTransient<IHandleMessages<IFailed<GenerateProductVariant>>>(GetHandler);
 
-            using (var provider = serviceCollection.BuildServiceProvider())
-            {
-                provider.UseRebus();
+            await using var provider = serviceCollection.BuildServiceProvider();
+            
+            provider.UseRebus();
 
-                var bus = provider.GetRequiredService<IBus>();
+            var bus = provider.GetRequiredService<IBus>();
 
-                var orderId = Guid.NewGuid().ToString();
+            var orderId = Guid.NewGuid().ToString();
 
-                await bus.SendLocal(new GenerateProductVariant("WHO CARES", orderId));
+            await bus.SendLocal(new GenerateProductVariant("WHO CARES", orderId));
 
-                await callsToSecondLevelHandler.WaitUntil(queue => queue.Count > 0);
+            await callsToSecondLevelHandler.WaitUntil(queue => queue.Count > 0);
 
-                await Task.Delay(TimeSpan.FromSeconds(3));
+            await Task.Delay(TimeSpan.FromSeconds(3));
 
-                Assert.That(callsToSecondLevelHandler.Count, Is.EqualTo(1));
-            }
+            Assert.That(callsToSecondLevelHandler.Count, Is.EqualTo(1));
         }
 
         public class GenerateProductVariantEventHandler :

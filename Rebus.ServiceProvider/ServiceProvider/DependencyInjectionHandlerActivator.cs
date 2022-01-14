@@ -23,7 +23,7 @@ namespace Rebus.ServiceProvider
     /// <seealso cref="IHandlerActivator" />
     public class DependencyInjectionHandlerActivator : IHandlerActivator
     {
-        readonly ConcurrentDictionary<Type, Type[]> _typesToResolveByMessage = new ConcurrentDictionary<Type, Type[]>();
+        readonly ConcurrentDictionary<Type, Type[]> _typesToResolveByMessage = new();
         readonly IServiceProvider _provider;
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Rebus.ServiceProvider
             IServiceScope CreateAndInitializeNewScope()
             {
                 var scope = _provider.CreateScope();
-                transactionContext.OnDisposed(ctx => scope.Dispose());
+                transactionContext.OnDisposed(_ => scope.Dispose());
                 return stepContext.Save(scope);
             }
 
@@ -78,19 +78,18 @@ namespace Rebus.ServiceProvider
                 .Cast<IHandleMessages<TMessage>>()
                 .ToList();
         }
-        
+
         static Type[] FigureOutTypesToResolve(Type messageType)
         {
-            var handledMessageTypes = messageType.GetBaseTypes().ToHashSet();
-            handledMessageTypes.Add(messageType);
-            
+            var handledMessageTypes = new HashSet<Type>(messageType.GetBaseTypes()) { messageType };
+
             var compatibleMessageTypes = new HashSet<Type>();
             foreach (var type in handledMessageTypes)
             {
                 compatibleMessageTypes.UnionWith(GetCompatibleMessageHandlerTypes(type));
             }
             handledMessageTypes.UnionWith(compatibleMessageTypes);
-            
+
             return handledMessageTypes
                 .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
                 .ToArray();
@@ -101,7 +100,7 @@ namespace Rebus.ServiceProvider
          * which a message with the given type should be dispatched to.
          * Covariant interfaces are taken into account.
          */
-        private static IEnumerable<Type> GetCompatibleMessageHandlerTypes(Type type) 
+        private static IEnumerable<Type> GetCompatibleMessageHandlerTypes(Type type)
         {
             if (type.IsGenericType)
             {
@@ -112,7 +111,7 @@ namespace Rebus.ServiceProvider
                     .CartesianProduct();
                 return combinations.Select(types => genericDefinition.MakeGenericType(types.ToArray()));
             }
-            
+
             return type.GetBaseTypes();
         }
 
@@ -120,10 +119,10 @@ namespace Rebus.ServiceProvider
         ///     Returns the base types that can be constructed from
         ///     the given type pair, taking parameter constraints into account.
         /// </summary>
-        private static IEnumerable<Type> GetBaseTypes(GenericTypePair typePair)
+        static IEnumerable<Type> GetBaseTypes(GenericTypePair typePair)
         {
-            
-            IEnumerable<Type> result = new[] {typePair.ActualType};
+            IEnumerable<Type> result = new[] { typePair.ActualType };
+
             if (IsCovariant(typePair.GenericType))
             {
                 var parameterConstraints = typePair.GenericType.GetGenericParameterConstraints();
@@ -134,17 +133,16 @@ namespace Rebus.ServiceProvider
 
             return result;
         }
-        
+
         /// <summary>
         ///     Returns true iff the given type satisfies the given parameter constraints.
         /// </summary>
-        private static bool SatisfiesParameterConstraints(Type type, IEnumerable<Type> parameterConstraints)
+        static bool SatisfiesParameterConstraints(Type type, IEnumerable<Type> parameterConstraints)
         {
-            var implementedTypes = type.GetBaseTypes().ToHashSet();
-            implementedTypes.Add(type);
+            var implementedTypes = new HashSet<Type>(type.GetBaseTypes()) { type };
             return parameterConstraints.All(constraint => implementedTypes.Contains(constraint));
         }
-        
+
         /// <summary>
         ///     Returns true iff the given type parameter is covariant.
         /// </summary>
@@ -160,7 +158,7 @@ namespace Rebus.ServiceProvider
         {
             public Type GenericType { get; private set; }
             public Type ActualType { get; private set; }
-            
+
             public static GenericTypePair Create(Type genericType, Type actualType)
             {
                 return new()

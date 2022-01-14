@@ -1,33 +1,33 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
- <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0;net6.0;</TargetFrameworks>
-    <Authors>mookid8000</Authors>
-    <PackageProjectUrl>https://rebus.fm/what-is-rebus/</PackageProjectUrl>
-    <Copyright>Copyright 2012</Copyright>
-    <PackageTags>rebus service-provider ioc dependency-injection</PackageTags>
-    <PackageDescription>Provides a service provider-based container adapter for Rebus</PackageDescription>
-    <RepositoryUrl>https://github.com/rebus-org/Rebus</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <LangVersion>latest</LangVersion>
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
-    <RootNamespace>Rebus</RootNamespace>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>little_rebusbus2_copy-200x200.png</PackageIcon>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\artwork\little_rebusbus2_copy-200x200.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-    <None Include="Config\ServiceCollectionExtensions.Bus.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Rebus" Version="[6.0.0,)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="[3.0.0,7)" />
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<LangVersion>10</LangVersion>
+		<Authors>mookid8000</Authors>
+		<PackageProjectUrl>https://rebus.fm/what-is-rebus/</PackageProjectUrl>
+		<Copyright>Copyright Rebus FM ApS 2012</Copyright>
+		<PackageTags>rebus service-provider ioc dependency-injection</PackageTags>
+		<PackageDescription>Provides a service provider-based container adapter for Rebus</PackageDescription>
+		<RepositoryUrl>https://github.com/rebus-org/Rebus</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<LangVersion>latest</LangVersion>
+		<AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+		<RootNamespace>Rebus</RootNamespace>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>little_rebusbus2_copy-200x200.png</PackageIcon>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\artwork\little_rebusbus2_copy-200x200.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="Config\ServiceCollectionExtensions.Bus.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Rebus" Version="[6.0.0,)" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="[3.0.0,7)" />
+	</ItemGroup>
 </Project>

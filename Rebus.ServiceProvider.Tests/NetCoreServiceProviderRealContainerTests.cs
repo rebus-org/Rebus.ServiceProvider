@@ -6,6 +6,5 @@ namespace Rebus.ServiceProvider.Tests
     [TestFixture]
     public class NetCoreServiceProviderRealContainerTests : RealContainerTests<NetCoreServiceProviderActivationContext>
     {
-
     }
 }

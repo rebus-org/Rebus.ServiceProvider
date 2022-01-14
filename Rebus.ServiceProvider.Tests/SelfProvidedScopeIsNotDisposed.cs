@@ -17,6 +17,7 @@ using Rebus.Transport.InMem;
 // ReSharper disable ArgumentsStyleLiteral
 // ReSharper disable ArgumentsStyleOther
 // ReSharper disable ArgumentsStyleStringLiteral
+// ReSharper disable ClassNeverInstantiated.Local
 #pragma warning disable 1998
 
 namespace Rebus.ServiceProvider.Tests

@@ -31,28 +31,26 @@ After updating some package versions:
         {
             var serviceCollection = new ServiceCollection();
 
-            serviceCollection.AddTransient<IHandleMessages<string>>(p => new StringHandler());
+            serviceCollection.AddTransient<IHandleMessages<string>>(_ => new StringHandler());
 
             serviceCollection.AddSingleton(p => new DependencyInjectionHandlerActivator(p));
 
-            using (var provider = serviceCollection.BuildServiceProvider())
+            await using var provider = serviceCollection.BuildServiceProvider();
+            
+            var handlerActivator = provider.GetRequiredService<DependencyInjectionHandlerActivator>();
+
+            var stopwatch = Stopwatch.StartNew();
+
+            for (var counter = 0; counter < count; counter++)
             {
-                var handlerActivator = provider.GetRequiredService<DependencyInjectionHandlerActivator>();
-
-                var stopwatch = Stopwatch.StartNew();
-
-                for (var counter = 0; counter < count; counter++)
-                {
-                    using (var scope = new RebusTransactionScope())
-                    {
-                        await handlerActivator.GetHandlers("this is my message", scope.TransactionContext);
-                    }
-                }
-
-                var elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
-
-                Console.WriteLine($"{count} resolutions took {elapsedSeconds:0.0} s - that's {count/elapsedSeconds:0.0} /s");
+                using var scope = new RebusTransactionScope();
+                
+                await handlerActivator.GetHandlers("this is my message", scope.TransactionContext);
             }
+
+            var elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
+
+            Console.WriteLine($"{count} resolutions took {elapsedSeconds:0.0} s - that's {count/elapsedSeconds:0.0} /s");
         }
 
         class StringHandler : IHandleMessages<string>

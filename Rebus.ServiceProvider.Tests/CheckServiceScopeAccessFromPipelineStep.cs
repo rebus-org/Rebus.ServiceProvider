@@ -23,17 +23,17 @@ namespace Rebus.ServiceProvider.Tests
         [Test]
         public async Task ItWorksLikeThis()
         {
-            var stringReceived = new ManualResetEvent(initialState:false);
+            var stringReceived = new ManualResetEvent(initialState: false);
 
             var services = new ServiceCollection();
-            
+
             services.AddRebus(
                 configure => configure
                     .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "who-cares"))
                     .Options(o => o.EnableMyCustomStep())
             );
 
-            services.AddRebusHandler(p => new StringHandler(stringReceived));
+            services.AddRebusHandler(_ => new StringHandler(stringReceived));
 
             var serviceProvider = Using(services.BuildServiceProvider());
 
@@ -75,10 +75,10 @@ namespace Rebus.ServiceProvider.Tests
             public async Task Process(IncomingStepContext context, Func<Task> next)
             {
                 // this is the global service provider - we can load stuff from it
-                var serviceProvider = context.Load<IServiceProvider>();
+                _ = context.Load<IServiceProvider>();
 
                 // or we can create a scope and load stuff from that
-                var serviceScope = context.Load<IServiceScope>();
+                _ = context.Load<IServiceScope>();
 
                 await next();
             }

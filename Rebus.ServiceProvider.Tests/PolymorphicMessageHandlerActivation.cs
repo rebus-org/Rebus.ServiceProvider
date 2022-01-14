@@ -12,6 +12,7 @@ using Rebus.Routing.TypeBased;
 using Rebus.Tests.Contracts;
 using Rebus.Transport;
 using Rebus.Transport.InMem;
+// ReSharper disable UnusedTypeParameter
 
 namespace Rebus.ServiceProvider.Tests
 {
@@ -42,91 +43,84 @@ namespace Rebus.ServiceProvider.Tests
         public async Task Handlers_ShouldHandleSameType()
         {
             var activator = Setup(new ChildMessageHandler(), typeof(IHandleMessages<Child>));
-            
-            using (var scope = new RebusTransactionScope())
-            {
-                var handlers = await activator.GetHandlers(new Child(), scope.TransactionContext);
 
-                handlers.Should().HaveCount(1);
-            }
+            using var scope = new RebusTransactionScope();
+            
+            var handlers = await activator.GetHandlers(new Child(), scope.TransactionContext);
+
+            handlers.Should().HaveCount(1);
         }
         
         [Test]
         public async Task Handlers_ShouldHandleSubtype()
         {
             var activator = Setup(new ParentMessageHandler(), typeof(IHandleMessages<Parent>));
-            
-            using (var scope = new RebusTransactionScope())
-            {
-                var handlers = await activator.GetHandlers(new Child(), scope.TransactionContext);
 
-                handlers.Should().HaveCount(1);
-            }
+            using var scope = new RebusTransactionScope();
+            
+            var handlers = await activator.GetHandlers(new Child(), scope.TransactionContext);
+
+            handlers.Should().HaveCount(1);
         }
         
         [Test]
         public async Task Handlers_ShouldNotHandleSupertype()
         {
             var activator = Setup(new ChildMessageHandler(), typeof(IHandleMessages<Child>));
-            
-            using (var scope = new RebusTransactionScope())
-            {
-                var handlers = await activator.GetHandlers(new Parent(), scope.TransactionContext);
 
-                handlers.Should().HaveCount(0);
-            }
+            using var scope = new RebusTransactionScope();
+            
+            var handlers = await activator.GetHandlers(new Parent(), scope.TransactionContext);
+
+            handlers.Should().HaveCount(0);
         }
 
         [Test]
         public async Task Handlers_ShouldHandleCovariantSubtype()
         {
             var activator = Setup(new CovariantGenericParentMessageHandler(), typeof(IHandleMessages<ICovariantGeneric<Parent>>));
-            
-            using (var scope = new RebusTransactionScope())
-            {
-                var handlers = await activator.GetHandlers(new ConcreteCovariantGeneric<Child>(), scope.TransactionContext);
 
-                handlers.Should().HaveCount(1);
-            }
+            using var scope = new RebusTransactionScope();
+            
+            var handlers = await activator.GetHandlers(new ConcreteCovariantGeneric<Child>(), scope.TransactionContext);
+
+            handlers.Should().HaveCount(1);
         }
         
         [Test]
         public async Task Handlers_ShouldHandleSameCovariantType()
         {
             var activator = Setup(new CovariantGenericParentMessageHandler(), typeof(IHandleMessages<ICovariantGeneric<Parent>>));
-            
-            using (var scope = new RebusTransactionScope())
-            {
-                var handlers = await activator.GetHandlers(new ConcreteCovariantGeneric<Parent>(), scope.TransactionContext);
 
-                handlers.Should().HaveCount(1);
-            }
+            using var scope = new RebusTransactionScope();
+            
+            var handlers = await activator.GetHandlers(new ConcreteCovariantGeneric<Parent>(), scope.TransactionContext);
+
+            handlers.Should().HaveCount(1);
         }
         
         [Test]
         public async Task Handlers_ShouldHandleMultipleCovariantTypeParameters()
         {
             var activator = Setup(new DoubleCovariantMixedMessageHandler(), typeof(IHandleMessages<IDoubleCovariantGeneric<Child, Parent>>));
-            
-            using (var scope = new RebusTransactionScope())
-            {
-                var handlers = await activator.GetHandlers(new ConcreteDoubleCovariantGeneric<Child, Child>(), scope.TransactionContext);
 
-                handlers.Should().HaveCount(1);
-            }
+            using var scope = new RebusTransactionScope();
+            
+            var handlers = await activator.GetHandlers(new ConcreteDoubleCovariantGeneric<Child, Child>(), scope.TransactionContext);
+
+            handlers.Should().HaveCount(1);
         }
         
         [Test]
         public async Task Handlers_ShouldHandleMultipleCovariantTypeParametersWithSameType()
         {
             var activator = Setup(new DoubleCovariantSameMessageHandler(), typeof(IHandleMessages<IDoubleCovariantGeneric<Child, Child>>));
-            
-            using (var scope = new RebusTransactionScope())
-            {
-                var handlers = await activator.GetHandlers(new ConcreteDoubleCovariantGeneric<Child, Child>(), scope.TransactionContext);
 
-                handlers.Should().HaveCount(1);
-            }
+            using var scope = new RebusTransactionScope();
+            
+            var handlers = await activator.GetHandlers(new ConcreteDoubleCovariantGeneric<Child, Child>(), scope.TransactionContext);
+
+            handlers.Should().HaveCount(1);
         }
         
         [Test]
@@ -134,36 +128,35 @@ namespace Rebus.ServiceProvider.Tests
         {
             var activator = Setup(new GenericParentMessageHandler(), typeof(IHandleMessages<IGeneric<Parent>>));
 
-            using (var scope = new RebusTransactionScope())
-            {
-                var handlers = await activator.GetHandlers(new ConcreteGeneric<Child>(), scope.TransactionContext);
+            using var scope = new RebusTransactionScope();
+            
+            var handlers = await activator.GetHandlers(new ConcreteGeneric<Child>(), scope.TransactionContext);
 
-                handlers.Should().HaveCount(0);
-            }
+            handlers.Should().HaveCount(0);
         }
 
         [Test]
         public async Task Handlers_ShouldHandleIFailedMessages()
         {
             var activator = Setup(new FailedMessageHandler(), typeof(IHandleMessages<IFailed<object>>));
+
+            using var scope = new RebusTransactionScope();
             
-            using (var scope = new RebusTransactionScope())
-            {
-                var handlers = await activator.GetHandlers(new FailedMessage<Child>(), scope.TransactionContext);
-                handlers.Should().HaveCount(1);
-            }
+            var handlers = await activator.GetHandlers(new FailedMessage<Child>(), scope.TransactionContext);
+            
+            handlers.Should().HaveCount(1);
         }
         
         [Test]
         public async Task Handlers_ShouldHandleCovariantTypeParametersWithConstraints()
         {
             var activator = Setup(new ConstrainedCovariantMessageHandler(), typeof(IHandleMessages<IConstrainedCovariant<Parent>>));
+
+            using var scope = new RebusTransactionScope();
             
-            using (var scope = new RebusTransactionScope())
-            {
-                var handlers = await activator.GetHandlers(new ConcreteConstrainedCovariant(), scope.TransactionContext);
-                handlers.Should().HaveCount(1);
-            }
+            var handlers = await activator.GetHandlers(new ConcreteConstrainedCovariant(), scope.TransactionContext);
+            
+            handlers.Should().HaveCount(1);
         }
     }
     

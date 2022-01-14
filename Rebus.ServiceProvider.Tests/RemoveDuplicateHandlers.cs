@@ -27,7 +27,7 @@ namespace Rebus.ServiceProvider.Tests
                 .AddSingleton<IHandleMessages<IMessage1>>(testHandler)
                 .AddRebus(config => config
                     .Logging(l => l.None())
-                    .Transport(t => t.UseInMemoryTransport(new InMemNetwork(false), "Messages"))
+                    .Transport(t => t.UseInMemoryTransport(new InMemNetwork(outputEventsToConsole: false), "Messages"))
                     .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
 
             var provider = services

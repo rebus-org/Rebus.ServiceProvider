@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Rebus.Activation;
 using Rebus.Bus;
 using Rebus.Config;
-using Rebus.Extensions;
 using Rebus.Handlers;
 using Rebus.Tests.Contracts.Activation;
 

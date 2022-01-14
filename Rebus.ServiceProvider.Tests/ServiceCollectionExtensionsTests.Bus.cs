@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Configuration;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +15,7 @@ using Rebus.Transport.InMem;
 namespace Rebus.ServiceProvider.Tests
 {
     [TestFixture]
-    public partial class ServiceCollectionExtensionsTests
+    public class ServiceCollectionExtensionsTests
     {
         [Test]
         public async Task AddRebus_ConfigureRebusOnce_StartsAndConfiguresBus()
@@ -42,7 +41,7 @@ namespace Rebus.ServiceProvider.Tests
                 .UseRebus();
 
             var rebus = provider.GetRequiredService<IBus>();
-            
+
             await rebus.Send(new TextMessage("HEJ"));
             await rebus.Send(new TextMessage("MED"));
             await rebus.Send(new TextMessage("DIG"));
@@ -52,7 +51,7 @@ namespace Rebus.ServiceProvider.Tests
 
             await Task.Delay(TimeSpan.FromSeconds(0.1));
 
-            Assert.That(handledMessages, Is.EqualTo(new[]{"HEJ", "MED", "DIG"}));
+            Assert.That(handledMessages, Is.EqualTo(new[] { "HEJ", "MED", "DIG" }));
         }
 
         class TextMessageHandler : IHandleMessages<TextMessage>
