@@ -1,17 +1,16 @@
 ﻿using System;
 using Rebus.Bus;
 
-namespace Rebus.Internals
+namespace Rebus.Internals;
+
+/// <summary>
+/// Sweet little hack that makes it possible for us to ensure that the bus is disposed with the container
+/// </summary>
+class ServiceCollectionBusDisposalFacility : IDisposable
 {
-    /// <summary>
-    /// Sweet little hack that makes it possible for us to ensure that the bus is disposed with the container
-    /// </summary>
-    class ServiceCollectionBusDisposalFacility : IDisposable
-    {
-        readonly IBus _bus;
+    readonly IBus _bus;
 
-        public ServiceCollectionBusDisposalFacility(IBus bus) => _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+    public ServiceCollectionBusDisposalFacility(IBus bus) => _bus = bus ?? throw new ArgumentNullException(nameof(bus));
 
-        public void Dispose() => _bus.Dispose();
-    }
+    public void Dispose() => _bus.Dispose();
 }

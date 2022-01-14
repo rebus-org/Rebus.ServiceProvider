@@ -8,82 +8,81 @@ using Rebus.Config;
 using Rebus.Handlers;
 using Rebus.Tests.Contracts.Activation;
 
-namespace Rebus.ServiceProvider.Tests
+namespace Rebus.ServiceProvider.Tests;
+
+public class NetCoreServiceProviderActivationContext : IActivationContext
 {
-    public class NetCoreServiceProviderActivationContext : IActivationContext
+    public IHandlerActivator CreateActivator(Action<IHandlerRegistry> handlerConfig, out IActivatedContainer container)
     {
-        public IHandlerActivator CreateActivator(Action<IHandlerRegistry> handlerConfig, out IActivatedContainer container)
-        {
-            var services = new ServiceCollection().AddSingleton(p => new DependencyInjectionHandlerActivator(p));
-            handlerConfig.Invoke(new HandlerRegistry(services));
+        var services = new ServiceCollection().AddSingleton(p => new DependencyInjectionHandlerActivator(p));
+        handlerConfig.Invoke(new HandlerRegistry(services));
             
-            var provider = services.BuildServiceProvider();
+        var provider = services.BuildServiceProvider();
 
-            container = new ActivatedContainer(provider);
+        container = new ActivatedContainer(provider);
 
-            return provider.GetRequiredService<DependencyInjectionHandlerActivator>();
+        return provider.GetRequiredService<DependencyInjectionHandlerActivator>();
+    }
+
+    public IBus CreateBus(Action<IHandlerRegistry> handlerConfig, Func<RebusConfigurer, RebusConfigurer> configureBus, out IActivatedContainer container)
+    {
+        var services = new ServiceCollection();
+        handlerConfig.Invoke(new HandlerRegistry(services));
+
+        services.AddRebus(configureBus);
+
+        var provider = services.BuildServiceProvider();
+        container = new ActivatedContainer(provider);
+
+        provider.UseRebus();
+
+        return container.ResolveBus();
+    }
+
+    class HandlerRegistry : IHandlerRegistry
+    {
+        readonly IServiceCollection _services;
+
+        public HandlerRegistry(IServiceCollection services)
+        {
+            _services = services;
         }
 
-        public IBus CreateBus(Action<IHandlerRegistry> handlerConfig, Func<RebusConfigurer, RebusConfigurer> configureBus, out IActivatedContainer container)
+        public IHandlerRegistry Register<THandler>() where THandler : class, IHandleMessages
         {
-            var services = new ServiceCollection();
-            handlerConfig.Invoke(new HandlerRegistry(services));
+            foreach (var handlerInterface in GetHandlerInterfaces(typeof(THandler)))
+            {
+                _services.AddTransient(handlerInterface, typeof(THandler));
+            }
 
-            services.AddRebus(configureBus);
-
-            var provider = services.BuildServiceProvider();
-            container = new ActivatedContainer(provider);
-
-            provider.UseRebus();
-
-            return container.ResolveBus();
+            return this;
         }
 
-        class HandlerRegistry : IHandlerRegistry
+        static IEnumerable<Type> GetHandlerInterfaces(Type type)
         {
-            readonly IServiceCollection _services;
+            return type.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
+                .ToArray();
+        }
+    }
 
-            public HandlerRegistry(IServiceCollection services)
-            {
-                _services = services;
-            }
+    class ActivatedContainer : IActivatedContainer
+    {
+        readonly Microsoft.Extensions.DependencyInjection.ServiceProvider _provider;
 
-            public IHandlerRegistry Register<THandler>() where THandler : class, IHandleMessages
-            {
-                foreach (var handlerInterface in GetHandlerInterfaces(typeof(THandler)))
-                {
-                    _services.AddTransient(handlerInterface, typeof(THandler));
-                }
-
-                return this;
-            }
-
-            static IEnumerable<Type> GetHandlerInterfaces(Type type)
-            {
-                return type.GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
-                    .ToArray();
-            }
+        public ActivatedContainer(Microsoft.Extensions.DependencyInjection.ServiceProvider provider)
+        {
+            _provider = provider;
         }
 
-        class ActivatedContainer : IActivatedContainer
+        public IBus ResolveBus()
         {
-            readonly Microsoft.Extensions.DependencyInjection.ServiceProvider _provider;
+            return _provider.GetRequiredService<IBus>();
+        }
 
-            public ActivatedContainer(Microsoft.Extensions.DependencyInjection.ServiceProvider provider)
-            {
-                _provider = provider;
-            }
-
-            public IBus ResolveBus()
-            {
-                return _provider.GetRequiredService<IBus>();
-            }
-
-            public void Dispose()
-            {
-               _provider.Dispose();
-            }
+        public void Dispose()
+        {
+            _provider.Dispose();
         }
     }
 }

@@ -10,27 +10,26 @@ using Rebus.Transport.InMem;
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable ArgumentsStyleNamedExpression
 
-namespace Rebus.ServiceProvider.Tests
+namespace Rebus.ServiceProvider.Tests;
+
+[TestFixture]
+public class CheckTheApi : FixtureBase
 {
-    [TestFixture]
-    public class CheckTheApi : FixtureBase
+    [Test]
+    public async Task ThisIsHowItWorks()
     {
-        [Test]
-        public async Task ThisIsHowItWorks()
-        {
-            var serviceCollection = new ServiceCollection();
+        var serviceCollection = new ServiceCollection();
 
-            serviceCollection.AddRebus(configure => configure
-                .Logging(l => l.Console(minLevel: LogLevel.Debug))
-                .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "ioc-test")));
+        serviceCollection.AddRebus(configure => configure
+            .Logging(l => l.Console(minLevel: LogLevel.Debug))
+            .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "ioc-test")));
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+        var serviceProvider = serviceCollection.BuildServiceProvider();
             
-            Using(serviceProvider);
+        Using(serviceProvider);
 
-            serviceProvider.UseRebus();
+        serviceProvider.UseRebus();
 
-            await Task.Delay(TimeSpan.FromSeconds(2));
-        }
+        await Task.Delay(TimeSpan.FromSeconds(2));
     }
 }

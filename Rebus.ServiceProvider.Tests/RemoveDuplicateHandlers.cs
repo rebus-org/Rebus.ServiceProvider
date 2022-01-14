@@ -9,49 +9,48 @@ using Rebus.Transport.InMem;
 using System.Threading.Tasks;
 using Rebus.Config;
 
-namespace Rebus.ServiceProvider.Tests
+namespace Rebus.ServiceProvider.Tests;
+
+[TestFixture]
+public class RemoveDuplicateHandlers
 {
-    [TestFixture]
-    public class RemoveDuplicateHandlers
+    [Test]
+    public async Task PolymorphicMessageHandling_RemoveDuplicateHandlers()
     {
-        [Test]
-        public async Task PolymorphicMessageHandling_RemoveDuplicateHandlers()
+        // Arrange
+        var services = new ServiceCollection();
+        var testHandler = new Message1Handler();
+
+        // Act            
+        services
+            .AddSingleton<IHandleMessages<Message1>>(testHandler)
+            .AddSingleton<IHandleMessages<IMessage1>>(testHandler)
+            .AddRebus(config => config
+                .Logging(l => l.None())
+                .Transport(t => t.UseInMemoryTransport(new InMemNetwork(outputEventsToConsole: false), "Messages"))
+                .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
+
+        var provider = services
+            .BuildServiceProvider()
+            .UseRebus();
+
+        var activator = provider.GetRequiredService<IHandlerActivator>();
+
+        // Assert
+        using (var scope = new RebusTransactionScope())
         {
-            // Arrange
-            var services = new ServiceCollection();
-            var testHandler = new Message1Handler();
+            var handlers = await activator.GetHandlers(new Message1(), scope.TransactionContext);
 
-            // Act            
-            services
-                .AddSingleton<IHandleMessages<Message1>>(testHandler)
-                .AddSingleton<IHandleMessages<IMessage1>>(testHandler)
-                .AddRebus(config => config
-                    .Logging(l => l.None())
-                    .Transport(t => t.UseInMemoryTransport(new InMemNetwork(outputEventsToConsole: false), "Messages"))
-                    .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
-
-            var provider = services
-                .BuildServiceProvider()
-                .UseRebus();
-
-            var activator = provider.GetRequiredService<IHandlerActivator>();
-
-            // Assert
-            using (var scope = new RebusTransactionScope())
-            {
-                var handlers = await activator.GetHandlers(new Message1(), scope.TransactionContext);
-
-                handlers.Should().HaveCount(1);
-            }
+            handlers.Should().HaveCount(1);
         }
+    }
 
-        public interface IMessage1 { }
+    public interface IMessage1 { }
 
-        public class Message1 : IMessage1 { }
+    public class Message1 : IMessage1 { }
 
-        public class Message1Handler : IHandleMessages<IMessage1>
-        {
-            public Task Handle(IMessage1 message) => Task.CompletedTask;
-        }
+    public class Message1Handler : IHandleMessages<IMessage1>
+    {
+        public Task Handle(IMessage1 message) => Task.CompletedTask;
     }
 }
