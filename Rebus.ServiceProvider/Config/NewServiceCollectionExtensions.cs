@@ -96,13 +96,15 @@ public static class NewServiceCollectionExtensions
     class IndependentRebusHostedService : RebusHostedService
     {
         public IndependentRebusHostedService(Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, Action<IServiceCollection> configureServices, IServiceProvider hostServiceProvider)
-        : base(configure, new(() => BuildServiceProvider(configureServices)), disposeServiceProvider: true)
+            : base(configure, new(() => BuildServiceProvider(configureServices, hostServiceProvider)), disposeServiceProvider: true)
         {
         }
 
-        static IServiceProvider BuildServiceProvider(Action<IServiceCollection> configureServices)
+        static IServiceProvider BuildServiceProvider(Action<IServiceCollection> configureServices, IServiceProvider hostServiceProvider)
         {
             var services = new ServiceCollection();
+
+            services.AddTransient(_ => hostServiceProvider.GetService<IHostApplicationLifetime>());
 
             configureServices(services);
 
