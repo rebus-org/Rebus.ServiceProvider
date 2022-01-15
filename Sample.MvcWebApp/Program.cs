@@ -24,19 +24,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-builder.Services.AddRebusNew(
-    configure => configure
-        .Transport(t => t.UseInMemoryTransport(network, "bus1"))
-        .Options(o => o.SetBusName("bus1"))
-);
+//builder.Services.AddRebusNew(
+//    configure => configure
+//        .Transport(t => t.UseInMemoryTransport(network, "bus1"))
+//        .Options(o => o.SetBusName("bus1"))
+//);
 
-builder.Services.AddRebusNew(
-    configure => configure
-        .Transport(t => t.UseInMemoryTransport(network, "bus2"))
-        .Options(o => o.SetBusName("bus2"))
-);
+//builder.Services.AddRebusNew(
+//    configure => configure
+//        .Transport(t => t.UseInMemoryTransport(network, "bus2"))
+//        .Options(o => o.SetBusName("bus2"))
+//);
 
-builder.Services.AddRebusHandler<PrintBusName>();
+//builder.Services.AddRebusHandler<PrintBusName>();
+
+builder.Host.AddRebus(
+    (configure, provider) => configure
+        .Transport(t => t.UseInMemoryTransport(network, "bus1")),
+    
+    services => services
+        .AddRebusHandler<PrintBusName>()
+);
 
 var app = builder.Build();
 
