@@ -30,7 +30,7 @@ public static class NewServiceCollectionExtensions
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-        services.AddSingleton<IHostedService>(p => new RebusHostedService(configure, p, isDefaultBus));
+        services.AddSingleton<IHostedService>(p => new RebusHostedService(configure, p));
 
         if (!services.Any(s => s.ImplementationType == typeof(RebusResolver)))
         {
