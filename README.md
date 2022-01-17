@@ -12,6 +12,65 @@ Provides an Microsoft.Extensions.DependencyInjection-based container adapter for
 
 This container adapter is meant to be used with the generic host introduced with .NET Core 2.1, which has evolved into the ubiquitous hosting model for .NET.
 
+### Quickstart
+
+When you configure your services, do this to invoke the Rebus configuration spell:
+
+```csharp
+services.AddRebus(
+	configure => configure
+		.Transport(t => t.UseAzureServiceBus(connectionString, queueName))
+);
+```
+
+If you need access to something that must be resolved from the container (e.g. configurations and stuff), there's an overload that passes the service provider to the
+configurer:
+
+services.AddRebus(
+	(configure, provider) => {
+		var asb = provider.GetRequiredService<IOptions<AsbSettings>>();
+		var connectionString = asb.ConnectionString;
+		var queueName = asb.InputQueueName;
+		
+		return configure
+			.Transport(t => t.UseAzureServiceBus(connectionString, queueName));
+	}
+);
+```
+
+If you want to subscribe to stuff at startup, use the `onCreated` callback:
+
+services.AddRebus(
+	(configure, provider) => {
+		var asb = provider.GetRequiredService<IOptions<AsbSettings>>();
+		var connectionString = asb.ConnectionString;
+		var queueName = asb.InputQueueName;
+		
+		return configure
+			.Transport(t => t.UseAzureServiceBus(connectionString, queueName));
+	},
+
+	onCreated: async bus => {
+		await bus.Subscribe<FirstEvent>();
+		await bus.Subscribe<SecondEvent>();
+	}
+);
+```
+
+and that's basically it.
+
+If you're interested in hosting multiple Rebus instances inside a single process, please read on. 🙂
+
+
+### Logging
+
+Please note that LOGGING WILL BE AUTOMATICALLY CONFIGURED. As logging is integrated with the host, Rebus will simply direct all of its logging to loggers created using
+the `ILoggerFactory` provided by the host. If you want to log by some other means (e.g. with Serilog), simply use the appropriate Serilog integration package and direct
+the host's logs to a Serilog sink.
+
+
+### Hosting outside of the generic host
+
 It can still be used outside of the generic host, but that will require usage to follow a pattern like this:
 
 ```csharp
