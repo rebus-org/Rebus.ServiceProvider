@@ -18,8 +18,8 @@ When you configure your services, do this to invoke the Rebus configuration spel
 
 ```csharp
 services.AddRebus(
-	configure => configure
-		.Transport(t => t.UseAzureServiceBus(connectionString, queueName))
+    configure => configure
+        .Transport(t => t.UseAzureServiceBus(connectionString, queueName))
 );
 ```
 
@@ -27,33 +27,33 @@ If you need access to something that must be resolved from the container (e.g. c
 configurer:
 
 services.AddRebus(
-	(configure, provider) => {
-		var asb = provider.GetRequiredService<IOptions<AsbSettings>>();
-		var connectionString = asb.ConnectionString;
-		var queueName = asb.InputQueueName;
-		
-		return configure
-			.Transport(t => t.UseAzureServiceBus(connectionString, queueName));
-	}
+    (configure, provider) => {
+        var asb = provider.GetRequiredService<IOptions<AsbSettings>>();
+        var connectionString = asb.ConnectionString;
+        var queueName = asb.InputQueueName;
+        
+        return configure
+            .Transport(t => t.UseAzureServiceBus(connectionString, queueName));
+    }
 );
 ```
 
 If you want to subscribe to stuff at startup, use the `onCreated` callback:
 
 services.AddRebus(
-	(configure, provider) => {
-		var asb = provider.GetRequiredService<IOptions<AsbSettings>>();
-		var connectionString = asb.ConnectionString;
-		var queueName = asb.InputQueueName;
-		
-		return configure
-			.Transport(t => t.UseAzureServiceBus(connectionString, queueName));
-	},
+    (configure, provider) => {
+        var asb = provider.GetRequiredService<IOptions<AsbSettings>>();
+        var connectionString = asb.ConnectionString;
+        var queueName = asb.InputQueueName;
+        
+        return configure
+            .Transport(t => t.UseAzureServiceBus(connectionString, queueName));
+    },
 
-	onCreated: async bus => {
-		await bus.Subscribe<FirstEvent>();
-		await bus.Subscribe<SecondEvent>();
-	}
+    onCreated: async bus => {
+        await bus.Subscribe<FirstEvent>();
+        await bus.Subscribe<SecondEvent>();
+    }
 );
 ```
 
@@ -121,9 +121,9 @@ When you add a Rebus instance with `AddRebus`, you can configure it the way you'
 
 ```csharp
 services.AddRebus(
-	configure => configure
-		.Transport(t => t.UseAzureServiceBus(connectionString, "my-queue-name"))
-		.Serializer(s => s.UseSystemTextJson())
+    configure => configure
+        .Transport(t => t.UseAzureServiceBus(connectionString, "my-queue-name"))
+        .Serializer(s => s.UseSystemTextJson())
 );
 ```
 
@@ -131,17 +131,17 @@ for a single bus instance (which is also the default), or something like
 
 ```csharp
 services.AddRebus(
-	configure => configure
-		.Transport(t => t.UseAzureServiceBus(connectionString, "some-kind-of-processor"))
-		.Serializer(s => s.UseSystemTextJson())
+    configure => configure
+        .Transport(t => t.UseAzureServiceBus(connectionString, "some-kind-of-processor"))
+        .Serializer(s => s.UseSystemTextJson())
 );
 
 services.AddRebus(
-	isPrimaryBus: false,
+    isPrimaryBus: false,
 
-	configure: configure => configure
-		.Transport(t => t.UseAzureServiceBus(connectionString, "some-kind-of-background-processor"))
-		.Serializer(s => s.UseSystemTextJson())
+    configure: configure => configure
+        .Transport(t => t.UseAzureServiceBus(connectionString, "some-kind-of-background-processor"))
+        .Serializer(s => s.UseSystemTextJson())
 );
 ```
 
@@ -149,14 +149,14 @@ to add two bus instances. If you want to subscribe to something when starting up
 
 ```csharp
 services.AddRebus(
-	configure => configure
-		.Transport(t => t.UseAzureServiceBus(connectionString, "my-queue-name"))
-		.Serializer(s => s.UseSystemTextJson()),
+    configure => configure
+        .Transport(t => t.UseAzureServiceBus(connectionString, "my-queue-name"))
+        .Serializer(s => s.UseSystemTextJson()),
 
-	onCreated: async bus => {
-		await bus.Subscribe<SomethingInterestingHappened>();
-		await bus.Subscribe<AnotherInterestingThingHappened>();
-	}
+    onCreated: async bus => {
+        await bus.Subscribe<SomethingInterestingHappened>();
+        await bus.Subscribe<AnotherInterestingThingHappened>();
+    }
 );
 ```
 
@@ -187,7 +187,7 @@ This builder has a `Host` property, which is where you will find the `AddRebusSe
 
 ```csharp
 builder.Host.AddRebusService(
-	services => (...)
+    services => (...)
 );
 ```
 
@@ -196,7 +196,7 @@ least ONE call be made to `AddRebus` like this:
 
 ```csharp
 builder.Host.AddRebusService(
-	services => services.AddRebus(...)
+    services => services.AddRebus(...)
 );
 ```
 
@@ -207,21 +207,21 @@ A typical configuraion could look like this (assuming that you're into the aesth
 
 ```csharp
 builder.Host.AddRebusService(
-	services => {
-		services.AddMyEfDatabaseContext();
+    services => {
+        services.AddMyEfDatabaseContext();
 
-		services.AddMyRepositories();
-		
-		services.AddMyApplicationServices();
+        services.AddMyRepositories();
+        
+        services.AddMyApplicationServices();
 
-		services.AddRebus(
-			configure => configure
-				.Transport(t => t.UseAzureServiceBus(connectionString, "my-queue-name"))
-		);
+        services.AddRebus(
+            configure => configure
+                .Transport(t => t.UseAzureServiceBus(connectionString, "my-queue-name"))
+        );
 
-		services.AddRebusHandler<SomeMessageHandler>();
-		services.AddRebusHandler<AnotherMessageHandler>();
-	}
+        services.AddRebusHandler<SomeMessageHandler>();
+        services.AddRebusHandler<AnotherMessageHandler>();
+    }
 );
 ```
 
@@ -249,7 +249,7 @@ or if you have an `IBus` injected:
 ```csharp
 public class SomethingPublisher
 {
-	public SomethingPublisher(IBus bus) => ... //< ???
+    public SomethingPublisher(IBus bus) => ... //< ???
 }
 ```
 
