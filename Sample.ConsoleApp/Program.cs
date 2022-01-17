@@ -30,10 +30,9 @@ namespace Sample.ConsoleApp
                 // 3. Application started pipeline...
 
                 // 3.1. Now application is running, lets trigger the 'start' of Rebus.
-                //provider.UseRebus();
-                //optionally...
-                //provider.UseRebus(async bus => await bus.Subscribe<Message1>());
-
+                // PLEASE NOTE THAT StartRebusManually SHOULD ONLY BE CALLED WHEN YOU'RE BUILDING THE SERVICE PROVIDER YOURSELF
+                provider.StartRebusManually();
+                
                 // 3.2. Begin the domain work for the application
                 var producer = provider.GetRequiredService<Producer>();
                 producer.Produce();
