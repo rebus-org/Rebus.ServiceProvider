@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Rebus.Bus;
 using Rebus.Pipeline;
 using Rebus.ServiceProvider.Internals;
-
 // ReSharper disable SimplifyLinqExpressionUseAll
 
 namespace Rebus.Config;
@@ -23,8 +23,8 @@ public static class HostBuilderExtensions
     /// <param name="builder">Reference to the host builder that will host this background service</param>
     /// <param name="configureServices">
     /// Configuration callback that must be used to configure the container. Making at least one call to
-    /// <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,RebusConfigurer},bool)"/>
-    /// or <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,IServiceProvider,RebusConfigurer},bool)"/>
+    /// <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,RebusConfigurer},bool,Func{IBus,Task})"/>
+    /// or <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,IServiceProvider,RebusConfigurer},bool,Func{IBus,Task})"/>
     /// from this callback is mandatory. 
     /// </param>
     public static IHostBuilder AddRebusService(this IHostBuilder builder, Action<IServiceCollection> configureServices)

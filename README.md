@@ -8,7 +8,7 @@ Provides an Microsoft.Extensions.DependencyInjection-based container adapter for
 
 ---
 
-## Usage
+## Intro
 
 This container adapter is meant to be used with the generic host introduced with .NET Core 2.1, which has evolved into the ubiquitous hosting model for .NET.
 
@@ -33,3 +33,147 @@ in this package rely on `IHostedService` and how the host uses these, and theref
 1. Starting one or more Rebus instances, using the host's container instance
 1. Starting one or more Rebus instances, using one or more separate container instances
 
+## Usage
+
+### Starting one or more Rebus instances, using the host's container instance
+
+When sharing the host's container instance, starting one or more Rebus instances is as easy as
+
+```csharp
+services.AddRebus(...);
+```
+
+as many times as you like. 
+
+⚠ But please note that there can be only ONE PRIMARY Rebus instance so you'll most likely follow a pattern like this:
+
+```csharp
+// This one 👇 will be the primary bus instance
+services.AddRebus(...);
+
+services.AddRebus(isPrimaryBus: false, ...);
+
+services.AddRebus(isPrimaryBus: false, ...);
+```
+
+if you want to add multiple Rebus instances. 
+
+When you add a Rebus instance with `AddRebus`, you can configure it the way you're used to via its `RebusConfigurer` and its extensions, so it could be something like
+
+```csharp
+services.AddRebus(
+	configure => configure
+		.Transport(t => t.UseAzureServiceBus(connectionString, "my-queue-name"))
+		.Serializer(s => s.UseSystemTextJson())
+);
+```
+
+for a single bus instance (which is also the default), or something like
+
+```csharp
+services.AddRebus(
+	configure => configure
+		.Transport(t => t.UseAzureServiceBus(connectionString, "some-kind-of-processor"))
+		.Serializer(s => s.UseSystemTextJson())
+);
+
+services.AddRebus(
+	isPrimaryBus: false,
+
+	configure: configure => configure
+		.Transport(t => t.UseAzureServiceBus(connectionString, "some-kind-of-background-processor"))
+		.Serializer(s => s.UseSystemTextJson())
+);
+```
+
+to add two bus instances. If you want to subscribe to something when starting up, there's an optional `onCreated` parameter that makes this possible, e.g. like this:
+
+```csharp
+services.AddRebus(
+	configure => configure
+		.Transport(t => t.UseAzureServiceBus(connectionString, "my-queue-name"))
+		.Serializer(s => s.UseSystemTextJson()),
+
+	onCreated: async bus => {
+		await bus.Subscribe<SomethingInterestingHappened>();
+		await bus.Subscribe<AnotherInterestingThingHappened>();
+	}
+);
+```
+
+The callback passed as `onCreated` will be executed when the bus is created and operational, but before it has begun consuming messages.
+
+### Starting one or more Rebus instances, using one or more separate container instances
+
+When you want to host additional Rebus instances in the same process, but you want an extra degree of separation from your host application (e.g. if you're following the
+"modular monolith" approach), you can call the `AddRebusService` on the host builder for each independent background service you would like to add.
+
+Since the background services are separate from the host, they each have their own container instance, and so you'll need to register whatever stuff they need to work.
+
+In your startup code, you'll most likely find something that goes like this:
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// register stuff in builder.Services here
+
+var app = builder.Build();
+
+// maybe configure web app middlewares here
+
+await app.RunAsync();
+```
+
+This builder has a `Host` property, which is where you will find the `AddRebusService` extension method:
+
+```csharp
+builder.Host.AddRebusService(
+	services => (...)
+);
+```
+
+It has a single callback, which is where you can configure the necessary services for the container instance dedicated to this background service. It requires that at
+least ONE call be made to `AddRebus` like this:
+
+```csharp
+builder.Host.AddRebusService(
+	services => services.AddRebus(...)
+);
+```
+
+but otherwise it works like your normal service collection. This also means that it's totally fine to add multiple Rebus instance to it as well, if you like (but you'll
+probably want to mostly stay away from that to avoid giving your team mates a headache 🤯).
+
+A typical configuraion could look like this (assuming that you're into the aesthetics of wrapping your registrations behind `IServiceCollection` extensions):
+
+```csharp
+builder.Host.AddRebusService(
+	services => {
+		services.AddMyEfDatabaseContext();
+
+		services.AddMyRepositories();
+		
+		services.AddMyApplicationServices();
+
+		services.AddRebus(
+			configure => configure
+				.Transport(t => t.UseAzureServiceBus(connectionString, "my-queue-name"))
+		);
+
+		services.AddRebusHandler<SomeMessageHandler>();
+		services.AddRebusHandler<AnotherMessageHandler>();
+	}
+);
+```
+
+ℹ When using the separate background service approach described here, the container will forward calls for
+
+* `Microsoft.Extensions.Hosting.IHostApplicationLifetime`
+* `Microsoft.Extensions.Logging.ILoggerFactory`
+
+to the host's container, which essentially makes these things transparently available to the separate Rebus service.
+
+
+### Primary bus instance?
+
+will elaborate later
