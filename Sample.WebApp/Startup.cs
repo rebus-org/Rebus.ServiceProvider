@@ -28,45 +28,11 @@ namespace Sample.WebApp
             // Register handlers 
             services.AutoRegisterHandlersFromAssemblyOf<Handler1>();
 
-            // when added here, the bus will be NOT have been disposed when the StopAsync method gets called
-            services.AddHostedService<BackgroundServiceExample>();
-
             // Configure and register Rebus
             services.AddRebus(configure => configure
                 .Logging(l => l.Use(new MSLoggerFactoryAdapter(_loggerFactory)))
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
                 .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
-        
-            // when added here, the bus will be disposed when the StopAsync method gets called
-            //services.AddHostedService<BackgroundServiceExample>();
-        }
-
-        class BackgroundServiceExample : IHostedService
-        {
-            readonly BusLifetimeEvents _busLifetimeEvents;
-            readonly ILogger<BackgroundServiceExample> _logger;
-
-            bool _disposed;
-
-            public BackgroundServiceExample(BusLifetimeEvents busLifetimeEvents, ILogger<BackgroundServiceExample> logger)
-            {
-                _busLifetimeEvents = busLifetimeEvents ?? throw new ArgumentNullException(nameof(busLifetimeEvents));
-                _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            }
-
-            public async Task StartAsync(CancellationToken cancellationToken)
-            {
-                _busLifetimeEvents.BusDisposed += () => _disposed = true;
-
-                _logger.LogInformation("BackgroundServiceExample is started");
-            }
-
-            public async Task StopAsync(CancellationToken cancellationToken)
-            {
-                var busDisposed = _disposed;
-
-                _logger.LogInformation("BackgroundServiceExample is stopped - bus disposed={busDisposed}", busDisposed);
-            }
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
