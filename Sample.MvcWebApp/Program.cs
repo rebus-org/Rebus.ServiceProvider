@@ -38,12 +38,25 @@ builder.Services.AddRazorPages();
 
 //builder.Services.AddRebusHandler<PrintBusName>();
 
-builder.Host.AddRebus(
-    (configure, provider) => configure
-        .Transport(t => t.UseInMemoryTransport(network, "bus1")),
-    
+//builder.Host.AddRebusService(
+//    services => services
+//        .AddRebus(configure => configure.Transport(t => t.UseInMemoryTransport(network, "bus1")))
+//        .AddRebusHandler<PrintBusName>()
+//);
+
+builder.Host.AddRebusService(
     services => services
         .AddRebusHandler<PrintBusName>()
+        .AddRebus(
+            configure => configure
+                .Transport(t => t.UseInMemoryTransport(network, "who-cares"))
+        )
+        .AddRebus(
+            isDefaultBus: false,
+
+            configure: configure => configure
+                .Transport(t => t.UseInMemoryTransport(network, "who-cares2"))
+        )
 );
 
 var app = builder.Build();
