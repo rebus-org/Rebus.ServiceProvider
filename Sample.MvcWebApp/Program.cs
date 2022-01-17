@@ -49,13 +49,13 @@ builder.Host.AddRebusService(
         .AddRebusHandler<PrintBusName>()
         .AddRebus(
             configure => configure
-                .Transport(t => t.UseInMemoryTransport(network, "who-cares"))
+                .Transport(t => t.UseInMemoryTransport(network, "bus1"))
         )
         .AddRebus(
             isDefaultBus: false,
 
             configure: configure => configure
-                .Transport(t => t.UseInMemoryTransport(network, "who-cares2"))
+                .Transport(t => t.UseInMemoryTransport(network, "bus2"))
         )
 );
 
