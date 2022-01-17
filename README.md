@@ -176,4 +176,22 @@ to the host's container, which essentially makes these things transparently avai
 
 ### Primary bus instance?
 
-will elaborate later
+When adding multiple bus instances to a single container instance, there's one big question that needs to be answered: Which bus instance will be returned if you resolve
+`IBus` from it?
+
+```csharp
+var bus = serviceProvider.GetRequiredService<IBus>();
+
+// ???
+```
+
+or if you have an `IBus` injected:
+
+```csharp
+public class SomethingPublisher
+{
+	public SomethingPublisher(IBus bus) => ... //< ???
+}
+```
+
+This where the concept of "default bus" is relevant.
