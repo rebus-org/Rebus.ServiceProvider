@@ -33,7 +33,7 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
                 .Routing(r => r.TypeBased().MapAssemblyOf<Parent>("Messages")));
 
-        var provider = Using(services.BuildServiceProvider()).UseRebus();
+        var provider = Using(services.BuildServiceProvider()).StartRebusManually();
 
         return new DependencyInjectionHandlerActivator(provider);
     }

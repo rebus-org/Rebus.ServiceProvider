@@ -1,66 +1,54 @@
-﻿//using System;
-//using System.Threading.Tasks;
-//using Microsoft.Extensions.DependencyInjection;
-//using Rebus.Bus;
-//using Rebus.Internals;
+﻿using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Rebus.Internals;
+using Rebus.ServiceProvider.Internals;
 
-//// ReSharper disable UnusedMember.Global
+namespace Rebus.Config;
 
-//namespace Rebus.Config;
+/// <summary>
+/// Rebus-relevant helper for <see cref="IServiceProvider"/>
+/// </summary>
+public static class ServiceProviderExtensions
+{
+    /// <summary>
+    /// Can be used to start registered Rebus instance(s) manually, instead of letting the hosting environment do it. This method should only
+    /// be called in situations where you've called AddRebus on your service collections and you are building your service provider OUTSIDE
+    /// of the generic host.
+    /// </summary>
+    public static IServiceProvider StartRebusManually(this IServiceProvider serviceProvider)
+    {
+        if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
-///// <summary>
-///// Defines common operations for Rebus the use an <see cref="IServiceProvider"/>.
-///// </summary>
-//public static class ServiceProviderExtensions
-//{
-//    /// <summary>
-//    /// Activates the Rebus engine, allowing it to start sending and receiving messages.
-//    /// </summary>
-//    /// <param name="provider">The service provider configured for Rebus.</param>
-//    /// <exception cref="ArgumentNullException">Thrown when the service provider is null.</exception>
-//    public static IServiceProvider UseRebus(this IServiceProvider provider)
-//    {
-//        if (provider == null) throw new ArgumentNullException(nameof(provider));
+        async Task StartHostedServices()
+        {
+            var disposalHelper = serviceProvider.GetRequiredService<RebusDisposalHelper>();
+            var services = serviceProvider.GetServices<IHostedService>().ToList();
 
-//        return UseRebus(provider, _ => { });
-//    }
+            foreach (var service in services)
+            {
+                await service.StartAsync(CancellationToken.None);
 
-//    /// <summary>
-//    /// Activates the Rebus engine, allowing it to start sending and receiving messages.
-//    /// </summary>
-//    /// <param name="provider">The service provider configured for Rebus.</param>
-//    /// <param name="onBusStarted">An action to perform immediately after the bus has started.</param>
-//    /// <exception cref="ArgumentNullException">Thrown when the service provider or action is null.</exception>
-//    public static IServiceProvider UseRebus(this IServiceProvider provider, Action<IBus> onBusStarted)
-//    {
-//        if (onBusStarted == null) throw new ArgumentNullException(nameof(onBusStarted));
+                Task StopService() => service.StopAsync(CancellationToken.None);
 
-//        var bus = StartBus(provider);
-//        onBusStarted(bus);
-//        return provider;
-//    }
+                disposalHelper.Add(new DisposableCallback(() => AsyncHelpers.RunSync(StopService)));
+            }
+        }
 
-//    /// <summary>
-//    /// Activates the Rebus engine, allowing it to start sending and receiving messages.
-//    /// </summary>
-//    /// <param name="provider">The service provider configured for Rebus.</param>
-//    /// <param name="onBusStarted">A function returning an asynchronous task, to perform immediately after the bus has started.</param>
-//    /// <exception cref="ArgumentNullException">Thrown when the service provider or delegate is null.</exception>
-//    public static IServiceProvider UseRebus(this IServiceProvider provider, Func<IBus, Task> onBusStarted)
-//    {
-//        if (onBusStarted == null) throw new ArgumentNullException(nameof(onBusStarted));
+        AsyncHelpers.RunSync(StartHostedServices);
 
-//        var bus = StartBus(provider);
-//        AsyncHelpers.RunSync(() => onBusStarted(bus));
-//        return provider;
-//    }
+        return serviceProvider;
+    }
 
-//    static IBus StartBus(IServiceProvider provider)
-//    {
-//        if (provider == null) throw new ArgumentNullException(nameof(provider));
+    class DisposableCallback : IDisposable
+    {
+        readonly Action _onDispose;
 
-//        provider.GetRequiredService<ServiceCollectionBusDisposalFacility>();
+        public DisposableCallback(Action onDispose) => _onDispose = onDispose ?? throw new ArgumentNullException(nameof(onDispose));
 
-//        return provider.GetRequiredService<IBusStarter>().Start();
-//    }
-//}
+        public void Dispose() => _onDispose();
+    }
+}

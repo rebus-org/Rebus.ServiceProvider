@@ -42,10 +42,6 @@ namespace Sample.WebApp
                 app.UseDeveloperExceptionPage();
             }
 
-            app.ApplicationServices.UseRebus();
-            //or optionally act on the bus
-            //app.ApplicationServices.UseRebus(async bus => await bus.Subscribe<Message1>());
-
             app.Run(async (context) =>
             {
                 var bus = app.ApplicationServices.GetRequiredService<IBus>();

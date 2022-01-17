@@ -5,11 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Rebus.Bus;
-using Rebus.Internals;
+using Rebus.Config;
 using Rebus.Pipeline;
-using Rebus.ServiceProvider;
 
-namespace Rebus.Config;
+namespace Rebus.ServiceProvider.Internals;
 
 class RebusHostedService : BackgroundService
 {
@@ -46,9 +45,13 @@ class RebusHostedService : BackgroundService
                 // snatch events here
                 return busLifetimeEventsHack = c.Get<BusLifetimeEvents>();
             }))
-            .Options(o => o.Decorate<IPipeline>(c => new PipelineStepConcatenator(c.Get<IPipeline>())
-                .OnReceive(new ServiceProviderProviderStep(_serviceProvider), PipelineAbsolutePosition.Front)
-                .OnReceive(new SetBusInstanceStep(c), PipelineAbsolutePosition.Front)));
+            .Options(o => o.Decorate<IPipeline>(context =>
+            {
+                var pipeline = context.Get<IPipeline>();
+                var serviceProviderProviderStep = new ServiceProviderProviderStep(_serviceProvider, context);
+                return new PipelineStepConcatenator(pipeline)
+                    .OnReceive(serviceProviderProviderStep, PipelineAbsolutePosition.Front);
+            }));
 
         var configurer = _configure(rebusConfigurer, _serviceProvider);
 

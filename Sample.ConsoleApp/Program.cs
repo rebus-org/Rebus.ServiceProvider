@@ -30,7 +30,7 @@ namespace Sample.ConsoleApp
                 // 3. Application started pipeline...
 
                 // 3.1. Now application is running, lets trigger the 'start' of Rebus.
-                provider.UseRebus();
+                //provider.UseRebus();
                 //optionally...
                 //provider.UseRebus(async bus => await bus.Subscribe<Message1>());
 

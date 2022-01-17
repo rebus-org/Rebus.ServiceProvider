@@ -55,7 +55,7 @@ public class CheckThisParticularPossibleBug
 
         await using var provider = serviceCollection.BuildServiceProvider();
             
-        provider.UseRebus();
+        provider.StartRebusManually();
 
         var bus = provider.GetRequiredService<IBus>();
 

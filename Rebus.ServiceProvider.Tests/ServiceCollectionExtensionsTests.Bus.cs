@@ -38,7 +38,7 @@ public class ServiceCollectionExtensionsTests
 
         var provider = services
             .BuildServiceProvider()
-            .UseRebus();
+            .StartRebusManually();
 
         var rebus = provider.GetRequiredService<IBus>();
 
@@ -112,7 +112,7 @@ public class ServiceCollectionExtensionsTests
 
         var provider = services
             .BuildServiceProvider()
-            .UseRebus();
+            .StartRebusManually();
 
         var rebus = provider.GetRequiredService<IBus>();
         await rebus.Send(new Message1());

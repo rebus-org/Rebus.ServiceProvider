@@ -6,7 +6,7 @@ using Rebus.Bus;
 using Rebus.Bus.Advanced;
 using Rebus.Pipeline;
 
-namespace Rebus.Config;
+namespace Rebus.ServiceProvider.Internals;
 
 class RebusResolver
 {

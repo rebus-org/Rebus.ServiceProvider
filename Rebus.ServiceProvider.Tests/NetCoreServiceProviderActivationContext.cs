@@ -34,7 +34,7 @@ public class NetCoreServiceProviderActivationContext : IActivationContext
         var provider = services.BuildServiceProvider();
         container = new ActivatedContainer(provider);
 
-        provider.UseRebus();
+        provider.StartRebusManually();
 
         return container.ResolveBus();
     }

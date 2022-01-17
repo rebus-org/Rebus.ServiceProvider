@@ -18,5 +18,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assumptions\" />
+    <Folder Include="Extensions\" />
   </ItemGroup>
 </Project>

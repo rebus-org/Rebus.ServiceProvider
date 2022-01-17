@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Rebus.Internals;
+namespace Rebus.ServiceProvider.Internals;
 
 public static class EnumerableExtensions
 {

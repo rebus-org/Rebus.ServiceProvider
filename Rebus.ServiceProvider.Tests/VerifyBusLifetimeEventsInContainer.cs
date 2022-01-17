@@ -27,7 +27,7 @@ public class VerifyBusLifetimeEventsInContainer : FixtureBase
             
         Using(serviceProvider);
 
-        serviceProvider.UseRebus();
+        serviceProvider.StartRebusManually();
 
         var events = serviceProvider.GetRequiredService<BusLifetimeEvents>();
         var queue = new ConcurrentQueue<string>();

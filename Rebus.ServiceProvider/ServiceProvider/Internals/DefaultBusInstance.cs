@@ -1,6 +1,6 @@
 ﻿using Rebus.Bus;
 
-namespace Rebus.Config;
+namespace Rebus.ServiceProvider.Internals;
 
 class DefaultBusInstance
 {

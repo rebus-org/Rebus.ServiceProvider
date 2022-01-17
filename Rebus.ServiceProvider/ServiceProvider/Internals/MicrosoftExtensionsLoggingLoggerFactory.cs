@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Rebus.Logging;
 
-namespace Rebus.Internals
+namespace Rebus.ServiceProvider.Internals
 {
     class MicrosoftExtensionsLoggingLoggerFactory : AbstractRebusLoggerFactory
     {

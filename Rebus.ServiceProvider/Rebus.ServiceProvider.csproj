@@ -21,7 +21,6 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="Config\ServiceCollectionExtensions.Bus.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Rebus" Version="[6.0.0,)" />
