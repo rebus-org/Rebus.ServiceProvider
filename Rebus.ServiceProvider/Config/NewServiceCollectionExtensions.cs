@@ -43,14 +43,24 @@ public static class NewServiceCollectionExtensions
 
         services.AddSingleton<IHostedService>(provider => new RebusHostedService(configure, provider, isDefaultBus));
 
-        if (!services.Any(s => s.ImplementationType == typeof(DefaultBusInstance)))
+        if (isDefaultBus)
         {
+            if (services.Any(s => s.ServiceType == typeof(DefaultBusInstance)))
+            {
+                throw new InvalidOperationException($"Detected that the service collection already contains a default bus registration - please make only one single AddRebus call with isDefaultBus:true");
+            }
+
             services.AddSingleton(new DefaultBusInstance());
+        }
+
+        if (!services.Any(s => s.ImplementationType == typeof(RebusResolver)))
+        {
             services.AddSingleton(new RebusResolver());
             services.AddTransient(p => p.GetRequiredService<RebusResolver>().GetBus(p));
             services.AddTransient(p => p.GetRequiredService<IBus>().Advanced.SyncBus);
             services.AddTransient(p => p.GetRequiredService<IBus>().Advanced.DataBus);
             services.AddTransient(_ => MessageContext.Current ?? throw new InvalidOperationException("Could not get current message context! The message context can only be resolved when handling a Rebus message, and it looks like this attempt was made from somewhere else."));
+            services.AddTransient(p => p.GetRequiredService<DefaultBusInstance>().BusLifetimeEvents);
         }
 
         return services;

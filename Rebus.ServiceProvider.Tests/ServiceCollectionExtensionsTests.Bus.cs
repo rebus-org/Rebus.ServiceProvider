@@ -80,7 +80,7 @@ public class ServiceCollectionExtensionsTests
             .AddSingleton<IHandleMessages<Message1>, Handler1>()
             .AddRebus(config => config
                 .Logging(l => l.None())
-                .Transport(t => t.UseInMemoryTransport(new InMemNetwork(false), "Messages")));
+                .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages")));
 
         // Act
         var invalidOperationException = Assert.Throws<InvalidOperationException>(() =>

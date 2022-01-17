@@ -49,6 +49,7 @@ class IndependentRebusHostedService : IHostedService
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     // we're on our way out
+                    _logger.LogDebug("Hosted service {hostedServiceType} startup cancelled", hostedService.GetType());
                     throw;
                 }
                 catch (Exception exception)
@@ -101,7 +102,7 @@ class IndependentRebusHostedService : IHostedService
                 _logger.LogDebug("Stopping {hostedServiceType}", hostedService.GetType());
 
                 await hostedService.StopAsync(cancellationToken);
-             
+
                 _logger.LogInformation("Hosted service {hostedServiceType} successfully stopped", hostedService.GetType());
             }
             catch (Exception exception)

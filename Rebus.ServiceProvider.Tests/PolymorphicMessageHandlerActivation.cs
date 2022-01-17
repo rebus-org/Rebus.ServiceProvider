@@ -22,7 +22,7 @@ namespace Rebus.ServiceProvider.Tests;
 [TestFixture]
 public class PolymorphicMessageHandlerActivation : FixtureBase
 {
-    private IHandlerActivator Setup(IHandleMessages testHandler, Type messageHandlerType)
+    IHandlerActivator Setup(IHandleMessages testHandler, Type messageHandlerType)
     {
         var services = new ServiceCollection();
             
@@ -33,10 +33,9 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
                 .Routing(r => r.TypeBased().MapAssemblyOf<Parent>("Messages")));
 
-        var provider = Using(services.BuildServiceProvider())
-            .UseRebus();
+        var provider = Using(services.BuildServiceProvider()).UseRebus();
 
-        return provider.GetRequiredService<IHandlerActivator>();
+        return new DependencyInjectionHandlerActivator(provider);
     }
         
     [Test]

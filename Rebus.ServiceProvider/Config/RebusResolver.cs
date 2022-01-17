@@ -18,8 +18,7 @@ class RebusResolver
         {
             try
             {
-                return serviceProvider.GetRequiredService<DefaultBusInstance>().Bus
-                    ?? throw new InvalidOperationException("No default bus configured");
+                return serviceProvider.GetService<DefaultBusInstance>()?.Bus ?? throw new InvalidOperationException("No default bus configured");
             }
             catch (Exception exception)
             {

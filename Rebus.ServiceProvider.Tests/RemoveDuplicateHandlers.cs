@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using Rebus.Activation;
 using Rebus.Handlers;
 using Rebus.Routing.TypeBased;
 using Rebus.Transport;
@@ -34,15 +33,14 @@ public class RemoveDuplicateHandlers
             .BuildServiceProvider()
             .UseRebus();
 
-        var activator = provider.GetRequiredService<IHandlerActivator>();
+        var activator = new DependencyInjectionHandlerActivator(provider);
 
         // Assert
-        using (var scope = new RebusTransactionScope())
-        {
-            var handlers = await activator.GetHandlers(new Message1(), scope.TransactionContext);
+        using var scope = new RebusTransactionScope();
+        
+        var handlers = await activator.GetHandlers(new Message1(), scope.TransactionContext);
 
-            handlers.Should().HaveCount(1);
-        }
+        handlers.Should().HaveCount(1);
     }
 
     public interface IMessage1 { }
