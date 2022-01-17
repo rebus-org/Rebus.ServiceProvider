@@ -10,7 +10,6 @@ using Rebus.Pipeline;
 using Rebus.ServiceProvider;
 using Rebus.Transport;
 // ReSharper disable ArgumentsStyleLiteral
-
 // ReSharper disable ArrangeModifiersOrder
 // ReSharper disable SimplifyLinqExpressionUseAll
 
@@ -18,7 +17,42 @@ namespace Rebus.Config;
 
 public static class NewServiceCollectionExtensions
 {
-    public static IHostBuilder AddRebus(this IHostBuilder builder, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, Action<IServiceCollection> configureServices)
+    ///// <summary>
+    ///// Adds an independent <see cref="IHostedService"/> to the host's container, containing its own service provider. This means that the
+    ///// <paramref name="configureServices"/> callback must be used to make any container registrations necessary for the service to work.
+    ///// </summary>
+    ///// <param name="builder">Reference to the host builder that will host this background service</param>
+    ///// <param name="configure">Configuration callback that allows for executing Rebus' configuration spell</param>
+    ///// <param name="configureServices">Configuration callback that must be used to configure the container</param>
+    //public static IHostBuilder AddRebusService(this IHostBuilder builder, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, Action<IServiceCollection> configureServices)
+    //{
+    //    return builder.ConfigureServices((_, hostServices) =>
+    //    {
+    //        hostServices.AddSingleton<IHostedService>(provider =>
+    //        {
+    //            void ConfigureServices(IServiceCollection services)
+    //            {
+    //                configureServices(services);
+
+    //                services.AddSingleton(new RebusResolver());
+    //                services.AddTransient(p => p.GetRequiredService<RebusResolver>().GetBus(p));
+    //                services.AddTransient(p => p.GetRequiredService<IBus>().Advanced.SyncBus);
+    //                services.AddTransient(_ => MessageContext.Current ?? throw new InvalidOperationException("Could not get current message context! The message context can only be resolved when handling a Rebus message, and it looks like this attempt was made from somewhere else."));
+    //            }
+
+    //            return new IndependentRebusHostedService(configure, ConfigureServices, provider);
+    //        });
+    //    });
+    //}
+
+    /// <summary>
+    /// Adds an independent <see cref="IHostedService"/> to the host's container, containing its own service provider. This means that the
+    /// <paramref name="configureServices"/> callback must be used to make any container registrations necessary for the service to work.
+    /// </summary>
+    /// <param name="builder">Reference to the host builder that will host this background service</param>
+    /// <param name="configure">Configuration callback that allows for executing Rebus' configuration spell</param>
+    /// <param name="configureServices">Configuration callback that must be used to configure the container</param>
+    public static IHostBuilder AddRebusService(this IHostBuilder builder, Action<IServiceCollection> configureServices)
     {
         return builder.ConfigureServices((_, hostServices) =>
         {
@@ -39,15 +73,28 @@ public static class NewServiceCollectionExtensions
         });
     }
 
-    public static void AddRebusNew(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = false)
+    /// <summary>
+    /// Adds Rebus to the service collection, invoking the <paramref name="configure"/> callback to allow for executing Rebus' configuration spell.
+    /// The <paramref name="isDefaultBus"/> parameter indicates whether resolving <see cref="IBus"/> from the resulting service provider outside of a Rebus
+    /// handler should yield THIS particular bus instance. Please note that there can be only 1 default bus per container instance! And please note that
+    /// Rebus handlers (and any services injected into them) will always have the <see cref="IBus"/> from the current message context injected into them.
+    /// </summary>
+    /// <param name="services">Reference to the service collection that this extension method is invoked on</param>
+    /// <param name="configure">Configuration callback that can be used to invoke the Rebus configuration spell</param>
+    /// <param name="isDefaultBus">
+    /// Indicates whether resolving <see cref="IBus"/> from the resulting service provider outside of a Rebus
+    /// handler should yield this particular bus instance. Please note that there can be only 1 default bus per container instance! And please note that
+    /// Rebus handlers (and any services injected into them) will always have the <see cref="IBus"/> from the current message context injected into them.
+    /// </param>
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = false)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-        AddRebusNew(services, (configurer, _) => configure(configurer), isDefaultBus: isDefaultBus);
+        return AddRebus(services, (configurer, _) => configure(configurer), isDefaultBus: isDefaultBus);
     }
 
-    public static void AddRebusNew(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = false)
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
@@ -61,6 +108,8 @@ public static class NewServiceCollectionExtensions
             services.AddTransient(p => p.GetRequiredService<IBus>().Advanced.SyncBus);
             services.AddTransient(_ => MessageContext.Current ?? throw new InvalidOperationException("Could not get current message context! The message context can only be resolved when handling a Rebus message, and it looks like this attempt was made from somewhere else."));
         }
+
+        return services;
     }
 
     class RebusResolver

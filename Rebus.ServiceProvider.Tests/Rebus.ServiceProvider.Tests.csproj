@@ -16,4 +16,7 @@
     <PackageReference Include="Rebus" Version="6.0.0" />
     <PackageReference Include="Rebus.Tests.Contracts" Version="6.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assumptions\" />
+  </ItemGroup>
 </Project>

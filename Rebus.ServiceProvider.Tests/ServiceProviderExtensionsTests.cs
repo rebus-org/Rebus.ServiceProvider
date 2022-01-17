@@ -67,7 +67,7 @@ public class ServiceProviderExtensionsTests : FixtureBase
     public void UseRebus_WithSyncDelegate_ExecutesAndStartsBus()
     {
         // Act
-        _serviceProvider.UseRebus(bus =>
+        _serviceProvider.UseRebus(async bus =>
         {
             Assert.AreEqual(_busMock.Object, bus);
             bus.Advanced.SyncBus.Subscribe<TestMessage>();
@@ -82,7 +82,7 @@ public class ServiceProviderExtensionsTests : FixtureBase
     public void UseRebus_WithSyncDelegateAndNullProvider_Throws()
     {
         IServiceProvider provider = null;
-        Mock<Action<IBus>> onBusStarted = new Mock<Action<IBus>>();
+        Mock<Func<IBus, Task>> onBusStarted = new Mock<Func<IBus, Task>>();
 
         // Act
         void Act() => provider.UseRebus(onBusStarted.Object);
@@ -97,7 +97,7 @@ public class ServiceProviderExtensionsTests : FixtureBase
     [Test]
     public void UseRebus_WithNullSyncDelegateAndProvider_Throws()
     {
-        Action<IBus> onBusStarted = null;
+        Func<IBus, Task> onBusStarted = null;
 
         // Act
         void Act() => _serviceProvider.UseRebus(onBusStarted);
