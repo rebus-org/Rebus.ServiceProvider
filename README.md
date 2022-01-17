@@ -22,6 +22,7 @@ services.AddRebus(
         .Transport(t => t.UseAzureServiceBus(connectionString, queueName))
 );
 ```
+and that is all there is to it! 😁 Rebus will use an `IHostedService` behind the covers to manage the Rebus instance, so it'll be started and stopped as the host conducts its background services.
 
 If you need access to something that must be resolved from the container (e.g. configurations and stuff), there's an overload that passes the service provider to the
 configurer:
