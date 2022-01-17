@@ -10,25 +10,23 @@ using Rebus.Pipeline;
 
 namespace Rebus.ServiceProvider.Internals;
 
-class RebusHostedService : BackgroundService
+class RebusBackgroundService : BackgroundService
 {
     readonly Func<RebusConfigurer, IServiceProvider, RebusConfigurer> _configure;
     readonly IServiceProvider _serviceProvider;
     readonly bool _isDefaultBus;
 
-    public RebusHostedService(Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, IServiceProvider serviceProvider, bool isDefaultBus)
+    public RebusBackgroundService(Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, IServiceProvider serviceProvider, bool isDefaultBus)
     {
         _configure = configure ?? throw new ArgumentNullException(nameof(configure));
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _isDefaultBus = isDefaultBus;
     }
 
-    public bool IsStarted { get; private set; }
-
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var loggerFactory = _serviceProvider.GetService<ILoggerFactory>();
-        var logger = loggerFactory?.CreateLogger<RebusHostedService>();
+        var logger = loggerFactory?.CreateLogger<RebusBackgroundService>();
 
         BusLifetimeEvents busLifetimeEventsHack = null;
 
@@ -74,9 +72,13 @@ class RebusHostedService : BackgroundService
 
         var bus = starter.Start();
 
-        stoppingToken.Register(() => bus.Dispose());
-
-        IsStarted = true;
+        // stopping the bus here will ensure that we've finished executing all message handlers when the container is disposed
+        stoppingToken.Register(() =>
+        {
+            logger?.LogDebug("Stopping token signaled - disposing bus instance {busInstance}", bus);
+            bus.Dispose();
+            logger?.LogInformation("Bus instance {busInstance} successfully disposed", bus);
+        });
 
         return Task.CompletedTask;
     }

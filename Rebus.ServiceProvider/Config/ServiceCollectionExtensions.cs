@@ -58,13 +58,13 @@ public static class ServiceCollectionExtensions
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-        services.AddSingleton<IHostedService>(provider => new RebusHostedService(configure, provider, isDefaultBus));
-
         if (!services.Any(s => s.ServiceType == typeof(RebusDisposalHelper)))
         {
             // important to create this one in a way where the container assumes responsibility of disposing it
             services.AddSingleton<RebusDisposalHelper>();
         }
+
+        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus));
 
         if (isDefaultBus)
         {
