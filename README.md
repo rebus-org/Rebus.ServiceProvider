@@ -1,4 +1,4 @@
-# Rebus.ServiceProvider
+﻿# Rebus.ServiceProvider
 
 [![install from nuget](https://img.shields.io/nuget/v/Rebus.ServiceProvider.svg?style=flat-square)](https://www.nuget.org/packages/Rebus.ServiceProvider)
 
@@ -10,79 +10,26 @@ Provides an Microsoft.Extensions.DependencyInjection-based container adapter for
 
 ## Usage
 
-### In ASP.NET Core 2.0+ Startup.cs
+This container adapter is meant to be used with the generic host introduced with .NET Core 2.1, which has evolved into the ubiquitous hosting model for .NET.
 
-```c#
-public void ConfigureServices(IServiceCollection services)
-{
-    // Register handlers 
-    services.AutoRegisterHandlersFromAssemblyOf<Handler1>();
+It can still be used outside of the generic host, but that will require usage to follow a pattern like this:
 
-    // Configure and register Rebus
-    services.AddRebus(configure => configure
-        .Logging(l => l.Use(new MSLoggerFactoryAdapter(_loggerFactory)))
-        .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
-        .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
-}
-       
-public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-{
-    if (env.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-    }
-
-    app.ApplicationServices.UseRebus();
-    //or optionally act on the bus
-    //app.ApplicationServices.UseRebus(async bus => await bus.Subscribe<Message1>());
-
-    app.Run(async (context) =>
-    {
-        var bus = app.ApplicationServices.GetRequiredService<IBus>();
-        var logger = _loggerFactory.CreateLogger<Startup>();
-
-        logger.LogInformation("Publishing {MessageCount} messages", 10);
-
-        await Task.WhenAll(
-            Enumerable.Range(0, 10)
-                .Select(i => new Message1())
-                .Select(message => bus.Send(message)));
-
-        await context.Response.WriteAsync("Rebus sent another 10 messages!");
-    });
-}
-```
-
-(See the WebApp sample)
-
-### A vanilla console app
-
-```c#
+```csharp
 var services = new ServiceCollection();
 
-// Automatically register all handlers from the assembly of a given type...
-services.AutoRegisterHandlersFromAssemblyOf<Handler1>();
+services.AddRebus(...);
 
-//Configure Rebus
-services.AddRebus(configure => configure
-    .Logging(l => l.ColoredConsole())
-    .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
-    .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
+using var provider = services.BuildServiceProvider();
 
-// Potentially add more service registrations for the application, some of which
-// could be required by handlers.
-
-// Make sure we correctly dispose of the provider (and therefore the bus) on application shutdown
-using (var provider = services.BuildServiceProvider())
-{
-    // Application starting...
-
-    // Now application is running, lets trigger the 'start' of Rebus.
-    provider.UseRebus();
-    
-    //optionally...
-    //provider.UseRebus(async bus => await bus.Subscribe<Message1>());
-}
+// THIS 👇 will start the bus(es)  
+provider.StartRebusManually();
 ```
 
-(See the ConsoleApp sample)
+⚠ With the generic host (which is what you're using, if you've created a console app, a background worker, or a web app), the configuration extensions
+in this package rely on `IHostedService` and how the host uses these, and therefore the above call to `StartRebusManually` shoule NOT be called.
+
+ℹ With the generic host, there's two major modes of operation:
+
+1. Starting one or more Rebus instances, using the host's container instance
+1. Starting one or more Rebus instances, using one or more separate container instances
+
