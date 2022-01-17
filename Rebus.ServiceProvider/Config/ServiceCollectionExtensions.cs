@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Rebus.Bus;
@@ -25,19 +26,26 @@ public static class ServiceCollectionExtensions
     /// handler should yield THIS particular bus instance. Please note that there can be only 1 default bus per container instance! And please note that
     /// Rebus handlers (and any services injected into them) will always have the <see cref="IBus"/> from the current message context injected into them.
     /// </summary>
-    /// <param name="services">Reference to the service collection that this extension method is invoked on</param>
-    /// <param name="configure">Configuration callback that can be used to invoke the Rebus configuration spell</param>
+    /// <param name="services">
+    /// Reference to the service collection that this extension method is invoked on
+    /// </param>
+    /// <param name="configure">
+    /// Configuration callback that can be used to invoke the Rebus configuration spell
+    /// </param>
     /// <param name="isDefaultBus">
     /// Indicates whether resolving <see cref="IBus"/> from the resulting service provider outside of a Rebus
     /// handler should yield this particular bus instance. Please note that there can be only 1 default bus per container instance! And please note that
     /// Rebus handlers (and any services injected into them) will always have the <see cref="IBus"/> from the current message context injected into them.
     /// </param>
-    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = true)
+    /// <param name="onCreated">
+    /// Optionally provides an asynchronous callback, which will be executed once the bus is operational, but before it has been started (i.e. begun receiving messages). This is a good place to establish any subscriptions required for the bus.
+    /// </param>
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-        return AddRebus(services, (configurer, _) => configure(configurer), isDefaultBus: isDefaultBus);
+        return AddRebus(services, (configurer, _) => configure(configurer), isDefaultBus: isDefaultBus, onCreated: onCreated);
     }
 
     /// <summary>
@@ -46,14 +54,21 @@ public static class ServiceCollectionExtensions
     /// handler should yield THIS particular bus instance. Please note that there can be only 1 default bus per container instance! And please note that
     /// Rebus handlers (and any services injected into them) will always have the <see cref="IBus"/> from the current message context injected into them.
     /// </summary>
-    /// <param name="services">Reference to the service collection that this extension method is invoked on</param>
-    /// <param name="configure">Configuration callback that can be used to invoke the Rebus configuration spell</param>
+    /// <param name="services">
+    /// Reference to the service collection that this extension method is invoked on
+    /// </param>
+    /// <param name="configure">
+    /// Configuration callback that can be used to invoke the Rebus configuration spell
+    /// </param>
     /// <param name="isDefaultBus">
     /// Indicates whether resolving <see cref="IBus"/> from the resulting service provider outside of a Rebus
     /// handler should yield this particular bus instance. Please note that there can be only 1 default bus per container instance! And please note that
     /// Rebus handlers (and any services injected into them) will always have the <see cref="IBus"/> from the current message context injected into them.
     /// </param>
-    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true)
+    /// <param name="onCreated">
+    /// Optionally provides an asynchronous callback, which will be executed once the bus is operational, but before it has been started (i.e. begun receiving messages). This is a good place to establish any subscriptions required for the bus.
+    /// </param>
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
@@ -62,15 +77,16 @@ public static class ServiceCollectionExtensions
         {
             // important to create this one in a way where the container assumes responsibility of disposing it
             services.AddSingleton<RebusDisposalHelper>();
+            // NOTE: this was added to support disposal in scenarios where Rebus is hosted with a service provider OUTSIDE of the generic host
         }
 
-        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus));
+        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus, onCreated));
 
         if (isDefaultBus)
         {
             if (services.Any(s => s.ServiceType == typeof(DefaultBusInstance)))
             {
-                throw new InvalidOperationException($"Detected that the service collection already contains a default bus registration - please make only one single AddRebus call with isDefaultBus:true");
+                throw new InvalidOperationException("Detected that the service collection already contains a default bus registration - please make only one single AddRebus call with isDefaultBus:true");
             }
 
             services.AddSingleton(new DefaultBusInstance());

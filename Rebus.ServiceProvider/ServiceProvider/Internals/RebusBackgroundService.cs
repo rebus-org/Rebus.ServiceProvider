@@ -14,16 +14,19 @@ class RebusBackgroundService : BackgroundService
 {
     readonly Func<RebusConfigurer, IServiceProvider, RebusConfigurer> _configure;
     readonly IServiceProvider _serviceProvider;
+    readonly Func<IBus, Task> _onCreated;
     readonly bool _isDefaultBus;
 
-    public RebusBackgroundService(Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, IServiceProvider serviceProvider, bool isDefaultBus)
+    public RebusBackgroundService(Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure,
+        IServiceProvider serviceProvider, bool isDefaultBus, Func<IBus, Task> onCreated)
     {
         _configure = configure ?? throw new ArgumentNullException(nameof(configure));
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _isDefaultBus = isDefaultBus;
+        _onCreated = onCreated;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var loggerFactory = _serviceProvider.GetService<ILoggerFactory>();
         var logger = loggerFactory?.CreateLogger<RebusBackgroundService>();
@@ -55,6 +58,8 @@ class RebusBackgroundService : BackgroundService
 
         var starter = configurer.Create();
 
+        logger?.LogInformation("Successfully created bus instance {busInstance} (isDefaultBus: {flag})", starter.Bus, _isDefaultBus);
+
         if (_isDefaultBus)
         {
             var defaultBusInstance = _serviceProvider.GetRequiredService<DefaultBusInstance>();
@@ -64,13 +69,11 @@ class RebusBackgroundService : BackgroundService
                 throw new InvalidOperationException($"Cannot set {starter.Bus} as the default bus instance, as it seems like the bus instance {defaultBusInstance.Bus} was already configured to be it! There can only be one default bus instance in a container instance, so please remember to set isDefaultBus:true in only one of the calls to AddRebus");
             }
 
-            logger?.LogInformation("Setting default bus instance to {busInstance}", starter.Bus);
-
             defaultBusInstance.Bus = starter.Bus;
             defaultBusInstance.BusLifetimeEvents = busLifetimeEventsHack;
         }
 
-        var bus = starter.Start();
+        var bus = starter.Bus;
 
         // stopping the bus here will ensure that we've finished executing all message handlers when the container is disposed
         stoppingToken.Register(() =>
@@ -80,6 +83,13 @@ class RebusBackgroundService : BackgroundService
             logger?.LogInformation("Bus instance {busInstance} successfully disposed", bus);
         });
 
-        return Task.CompletedTask;
+        if (_onCreated != null)
+        {
+            logger?.LogDebug("Invoking onCreated callback on bus instance {busInstance}", bus);
+            await _onCreated(bus);
+        }
+
+        logger?.LogDebug("Starting bus instance {busInstance}", bus);
+        starter.Start();
     }
 }

@@ -10,8 +10,4 @@
     <ProjectReference Include="..\Rebus.ServiceProvider\Rebus.ServiceProvider.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Handlers\" />
-  </ItemGroup>
-
 </Project>
