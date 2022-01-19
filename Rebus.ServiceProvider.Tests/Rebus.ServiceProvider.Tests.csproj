@@ -5,19 +5,23 @@
     <TargetFrameworks>net6.0</TargetFrameworks>
       <LangVersion>10</LangVersion>
   </PropertyGroup>
+ <ItemGroup>
+   <Compile Remove="Extensions\**" />
+   <EmbeddedResource Remove="Extensions\**" />
+   <None Remove="Extensions\**" />
+ </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Rebus.ServiceProvider\Rebus.ServiceProvider.csproj" />
-    <PackageReference Include="FluentAssertions" Version="5.6.0" />
+    <PackageReference Include="FluentAssertions" Version="6.3.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Moq" Version="4.16.0" />
-    <PackageReference Include="nunit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-    <PackageReference Include="Rebus" Version="6.0.0" />
-    <PackageReference Include="Rebus.Tests.Contracts" Version="6.0.0" />
+    <PackageReference Include="nunit" Version="3.13.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.2.0" />
+    <PackageReference Include="Rebus.Tests.Contracts" Version="6.5.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assumptions\" />
-    <Folder Include="Extensions\" />
+    <Folder Include="Bugs\" />
   </ItemGroup>
 </Project>

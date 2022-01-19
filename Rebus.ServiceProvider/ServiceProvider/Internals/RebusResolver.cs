@@ -18,7 +18,9 @@ class RebusResolver
         {
             try
             {
-                return serviceProvider.GetService<DefaultBusInstance>()?.Bus ?? throw new InvalidOperationException("No default bus configured");
+                var busToReturn = serviceProvider.GetService<DefaultBusInstance>()?.Bus ?? throw new InvalidOperationException("No default bus configured");
+                
+                return new BusWrapper(busToReturn);
             }
             catch (Exception exception)
             {
@@ -37,6 +39,9 @@ class RebusResolver
         return new BusWrapper(bus);
     }
 
+    /// <summary>
+    /// All TRANSIENT resolutions of IBus must be wrapped in this to avoid having the container dispose the bus prematurely!
+    /// </summary>
     class BusWrapper : IBus
     {
         readonly IBus _bus;
