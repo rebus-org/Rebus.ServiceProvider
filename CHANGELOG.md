@@ -81,8 +81,9 @@
 * Depend on Microsoft.Extensions.Hosting.Abstractions instead, and take advantage of background services to dispose the bus properly
 * Add target for .NET 6.0 - thanks [meronz]
 
-## 8.0.0-b02
+## 8.0.0-b03
 * First attempt at implementing multi-hosting support: Now multiple calls can be made to `AddRebus`, just remember to pass `isDefaultBus:false` to all but one of them. The default is that `AddRebus` results in the registration of a primary bus to keep behavior as true to the original behavior as possible.
+* Add ability to add a key to each bus instance via `key: "whatever"` when calling `AddRebus`, allowing for later retrieval via `IBusRegistry`
 
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy

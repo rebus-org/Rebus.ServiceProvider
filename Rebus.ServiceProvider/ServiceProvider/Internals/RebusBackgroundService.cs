@@ -17,14 +17,16 @@ class RebusBackgroundService : BackgroundService
     readonly IServiceProvider _serviceProvider;
     readonly Func<IBus, Task> _onCreated;
     readonly bool _isDefaultBus;
+    readonly string _key;
 
     public RebusBackgroundService(Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure,
-        IServiceProvider serviceProvider, bool isDefaultBus, Func<IBus, Task> onCreated)
+        IServiceProvider serviceProvider, bool isDefaultBus, Func<IBus, Task> onCreated, string key = null)
     {
         _configure = configure ?? throw new ArgumentNullException(nameof(configure));
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _isDefaultBus = isDefaultBus;
         _onCreated = onCreated;
+        _key = key;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -104,6 +106,14 @@ class RebusBackgroundService : BackgroundService
         {
             logger?.LogDebug("Invoking onCreated callback on bus instance {busInstance}", bus);
             await _onCreated(bus);
+        }
+
+        if (_key != null)
+        {
+            var registry = _serviceProvider
+                .GetRequiredService<ServiceProviderBusRegistry>();
+
+            registry.AddBus(bus, _key);
         }
 
         logger?.LogDebug("Starting bus instance {busInstance}", bus);

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Rebus.Bus;
 using Rebus.Handlers;
 using Rebus.Pipeline;
+using Rebus.ServiceProvider;
 using Rebus.ServiceProvider.Internals;
 
 // ReSharper disable SimplifyLinqExpressionUseAll
@@ -40,12 +41,15 @@ public static class ServiceCollectionExtensions
     /// <param name="onCreated">
     /// Optionally provides an asynchronous callback, which will be executed once the bus is operational, but before it has been started (i.e. begun receiving messages). This is a good place to establish any subscriptions required for the bus.
     /// </param>
-    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null)
+    /// <param name="key">
+    /// Optional key for the bus, which enables later retrieval of this specific bus instance by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.GetBus"/>
+    /// </param>
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-        return AddRebus(services, (configurer, _) => configure(configurer), isDefaultBus: isDefaultBus, onCreated: onCreated);
+        return AddRebus(services, (configurer, _) => configure(configurer), isDefaultBus: isDefaultBus, onCreated: onCreated, key: key);
     }
 
     /// <summary>
@@ -68,7 +72,10 @@ public static class ServiceCollectionExtensions
     /// <param name="onCreated">
     /// Optionally provides an asynchronous callback, which will be executed once the bus is operational, but before it has been started (i.e. begun receiving messages). This is a good place to establish any subscriptions required for the bus.
     /// </param>
-    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null)
+    /// <param name="key">
+    /// Optional key for the bus, which enables later retrieval of this specific bus instance by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.GetBus"/>
+    /// </param>
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
@@ -80,7 +87,7 @@ public static class ServiceCollectionExtensions
             // NOTE: this was added to support disposal in scenarios where Rebus is hosted with a service provider OUTSIDE of the generic host
         }
 
-        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus, onCreated));
+        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus, onCreated, key));
 
         if (isDefaultBus)
         {
@@ -95,6 +102,8 @@ public static class ServiceCollectionExtensions
         if (!services.Any(s => s.ImplementationType == typeof(RebusResolver)))
         {
             services.AddSingleton(new RebusResolver());
+            services.AddSingleton(new ServiceProviderBusRegistry());
+            services.AddSingleton<IBusRegistry>(p => p.GetRequiredService<ServiceProviderBusRegistry>());
             services.AddTransient(p => p.GetRequiredService<RebusResolver>().GetBus(p));
             services.AddTransient(p => p.GetRequiredService<IBus>().Advanced.SyncBus);
             services.AddTransient(p => p.GetRequiredService<IBus>().Advanced.DataBus);
