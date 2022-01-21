@@ -67,11 +67,14 @@ If you're interested in hosting multiple Rebus instances inside a single process
 
 ### Logging
 
-Please note that logging will be automatically configured, unless you have configured it, and if it's possible.
+Please note that logging will be automatically configured (if possible, and if you haven't configured anything yourself).
 
 As logging is integrated with the host, Rebus will simply direct all of its logging to loggers created using
 the `ILoggerFactory` provided by the host, so if you want to log by some other means (e.g. with Serilog), you can 
 simply use the appropriate Serilog integration package and direct the host's logs to a Serilog sink.
+
+It's still possible to e.g. append the usual `.Logging(l => l.Serilog())` if you want to do that, but it's often easier
+to just let Rebus use the host logging mechanism, and then configure logging in the host like you would anyway.
 
 
 ### Hosting outside of the generic host
