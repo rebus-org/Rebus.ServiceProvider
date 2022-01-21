@@ -44,7 +44,11 @@ public static class ServiceCollectionExtensions
     /// <param name="key">
     /// Optional key for the bus, which enables later retrieval of this specific bus instance by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.GetBus"/>
     /// </param>
-    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null)
+    /// <param name="startAutomatically">
+    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
+    /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
+    /// </param>
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null, bool startAutomatically = true)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
@@ -75,10 +79,19 @@ public static class ServiceCollectionExtensions
     /// <param name="key">
     /// Optional key for the bus, which enables later retrieval of this specific bus instance by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.GetBus"/>
     /// </param>
-    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null)
+    /// <param name="startAutomatically">
+    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
+    /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
+    /// </param>
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null, bool startAutomatically = true)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
+
+        if (!startAutomatically && key == null)
+        {
+            throw new ArgumentException($"Cannot add bus with startAutomatically=false and key=null. When configuring the bus to not automatically be started, a key must be provided, so that it's possible to look up the bus instance later on via IBusRegistry");
+        }
 
         if (!services.Any(s => s.ServiceType == typeof(RebusDisposalHelper)))
         {

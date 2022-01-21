@@ -74,10 +74,11 @@ class RebusBackgroundService : BackgroundService
                     // and so we should ignore that... 
                 }
             })
-
             .Create();
 
-        logger?.LogInformation("Successfully created bus instance {busInstance} (isDefaultBus: {flag})", starter.Bus, _isDefaultBus);
+        var bus = starter.Bus;
+
+        logger?.LogInformation("Successfully created bus instance {busInstance} (isDefaultBus: {flag})", bus, _isDefaultBus);
 
         if (_isDefaultBus)
         {
@@ -85,14 +86,12 @@ class RebusBackgroundService : BackgroundService
 
             if (defaultBusInstance.Bus != null)
             {
-                throw new InvalidOperationException($"Cannot set {starter.Bus} as the default bus instance, as it seems like the bus instance {defaultBusInstance.Bus} was already configured to be it! There can only be one default bus instance in a container instance, so please remember to set isDefaultBus:true in only one of the calls to AddRebus");
+                throw new InvalidOperationException($"Cannot set {bus} as the default bus instance, as it seems like the bus instance {defaultBusInstance.Bus} was already configured to be it! There can only be one default bus instance in a container instance, so please remember to set isDefaultBus:true in only one of the calls to AddRebus");
             }
 
-            defaultBusInstance.Bus = starter.Bus;
+            defaultBusInstance.Bus = bus;
             defaultBusInstance.BusLifetimeEvents = busLifetimeEventsHack;
         }
-
-        var bus = starter.Bus;
 
         // stopping the bus here will ensure that we've finished executing all message handlers when the container is disposed
         stoppingToken.Register(() =>
@@ -102,18 +101,17 @@ class RebusBackgroundService : BackgroundService
             logger?.LogInformation("Bus instance {busInstance} successfully disposed", bus);
         });
 
+        if (_key != null)
+        {
+            var registry = _serviceProvider.GetRequiredService<ServiceProviderBusRegistry>();
+            registry.AddBus(bus, starter, _key);
+            logger?.LogDebug("Bus instance {busInstance} was registered in IBusRegistry with key {key}", bus, _key);
+        }
+
         if (_onCreated != null)
         {
             logger?.LogDebug("Invoking onCreated callback on bus instance {busInstance}", bus);
             await _onCreated(bus);
-        }
-
-        if (_key != null)
-        {
-            var registry = _serviceProvider
-                .GetRequiredService<ServiceProviderBusRegistry>();
-
-            registry.AddBus(bus, _key);
         }
 
         logger?.LogDebug("Starting bus instance {busInstance}", bus);
