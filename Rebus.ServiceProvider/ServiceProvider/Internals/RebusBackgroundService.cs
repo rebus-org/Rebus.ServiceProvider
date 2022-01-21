@@ -16,17 +16,20 @@ class RebusBackgroundService : BackgroundService
     readonly Func<RebusConfigurer, IServiceProvider, RebusConfigurer> _configure;
     readonly IServiceProvider _serviceProvider;
     readonly Func<IBus, Task> _onCreated;
+    readonly bool _startAutomatically;
     readonly bool _isDefaultBus;
     readonly string _key;
 
     public RebusBackgroundService(Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure,
-        IServiceProvider serviceProvider, bool isDefaultBus, Func<IBus, Task> onCreated, string key = null)
+        IServiceProvider serviceProvider, bool isDefaultBus, Func<IBus, Task> onCreated, string key = null,
+        bool startAutomatically = true)
     {
         _configure = configure ?? throw new ArgumentNullException(nameof(configure));
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _isDefaultBus = isDefaultBus;
         _onCreated = onCreated;
         _key = key;
+        _startAutomatically = startAutomatically;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -114,7 +117,14 @@ class RebusBackgroundService : BackgroundService
             await _onCreated(bus);
         }
 
-        logger?.LogDebug("Starting bus instance {busInstance}", bus);
-        starter.Start();
+        if (_startAutomatically)
+        {
+            logger?.LogDebug("Starting bus instance {busInstance}", bus);
+            starter.Start();
+        }
+        else
+        {
+            logger?.LogDebug("NOT starting bus instance {busInstance}, because it has been configured with startAutomatically:false", bus);
+        }
     }
 }

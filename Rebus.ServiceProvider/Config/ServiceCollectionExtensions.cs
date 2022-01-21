@@ -53,7 +53,7 @@ public static class ServiceCollectionExtensions
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-        return AddRebus(services, (configurer, _) => configure(configurer), isDefaultBus: isDefaultBus, onCreated: onCreated, key: key);
+        return AddRebus(services, (configurer, _) => configure(configurer), isDefaultBus: isDefaultBus, onCreated: onCreated, key: key, startAutomatically: startAutomatically);
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public static class ServiceCollectionExtensions
             // NOTE: this was added to support disposal in scenarios where Rebus is hosted with a service provider OUTSIDE of the generic host
         }
 
-        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus, onCreated, key));
+        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus, onCreated, key, startAutomatically));
 
         if (isDefaultBus)
         {

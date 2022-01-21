@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Rebus.Bus;
 using Rebus.Config;
+using Rebus.ServiceProvider.Tests.Internals;
 using Rebus.Transport.InMem;
 // ReSharper disable ArgumentsStyleLiteral
 
@@ -75,15 +76,12 @@ public class CheckMutlipleBusesAndResolutionByName
     [Test]
     public void CanDelayStartingTheBus()
     {
-        var services = new ServiceCollection();
+        var services = new ServiceCollection().WithTestLogger();
         var network = new InMemNetwork();
 
         services.AddRebus(
-            configure => configure
-                .Transport(t => t.UseInMemoryTransport(network, "queue1")),
-
-            key: "bus1",
-
+            configure => configure.Transport(t => t.UseInMemoryTransport(network, "queue1")),
+            key: "my-nifty-bus-key",
             startAutomatically: false
         );
 
@@ -93,10 +91,13 @@ public class CheckMutlipleBusesAndResolutionByName
 
         var registry = provider.GetRequiredService<IBusRegistry>();
 
-        var bus1 = registry.GetBus("bus1");
-        var bus2 = registry.GetBus("bus2");
+        var bus = registry.GetBus("my-nifty-bus-key");
 
-        Assert.That(bus1.ToString(), Is.Not.EqualTo(bus2.ToString()));
+        Assert.That(bus.Advanced.Workers.Count, Is.EqualTo(0));
+
+        registry.StartBus("my-nifty-bus-key");
+
+        Assert.That(bus.Advanced.Workers.Count, Is.EqualTo(1));
     }
 
     [Test]
@@ -141,7 +142,6 @@ public class CheckMutlipleBusesAndResolutionByName
             serviceCollection.AddRebus(
                 configure => configure.Transport(t => t.UseInMemoryTransport(network, $"queue-for-{key}")),
                 key: key,
-                startAutomatically: false,
                 isDefaultBus: false
             );
         }
