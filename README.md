@@ -27,6 +27,7 @@ and that is all there is to it! 😁 Rebus will use an `IHostedService` behind t
 If you need access to something that must be resolved from the container (e.g. configurations and stuff), there's an overload that passes the service provider to the
 configurer:
 
+```csharp
 services.AddRebus(
     (configure, provider) => {
         var asb = provider.GetRequiredService<IOptions<AsbSettings>>();
@@ -41,6 +42,7 @@ services.AddRebus(
 
 If you want to subscribe to stuff at startup, use the `onCreated` callback:
 
+```csharp
 services.AddRebus(
     (configure, provider) => {
         var asb = provider.GetRequiredService<IOptions<AsbSettings>>();
