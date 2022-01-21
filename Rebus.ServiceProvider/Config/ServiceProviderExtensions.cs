@@ -18,7 +18,7 @@ public static class ServiceProviderExtensions
     /// be called in situations where you've called AddRebus on your service collections and you are building your service provider OUTSIDE
     /// of the generic host.
     /// </summary>
-    public static IServiceProvider StartRebusManually(this IServiceProvider serviceProvider)
+    public static IServiceProvider StartRebus(this IServiceProvider serviceProvider)
     {
         if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 

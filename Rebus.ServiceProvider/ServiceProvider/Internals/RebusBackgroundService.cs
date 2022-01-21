@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Rebus.Bus;
 using Rebus.Config;
+using Rebus.Logging;
 using Rebus.Pipeline;
 
 namespace Rebus.ServiceProvider.Internals;
@@ -35,12 +36,6 @@ class RebusBackgroundService : BackgroundService
 
         var rebusConfigurer = Configure
             .With(new DependencyInjectionHandlerActivator(_serviceProvider))
-            .Logging(l =>
-            {
-                if (loggerFactory == null) return;
-
-                l.Use(new MicrosoftExtensionsLoggingLoggerFactory(loggerFactory));
-            })
             .Options(o => o.Decorate(c =>
             {
                 // snatch events here
@@ -56,7 +51,29 @@ class RebusBackgroundService : BackgroundService
 
         var configurer = _configure(rebusConfigurer, _serviceProvider);
 
-        var starter = configurer.Create();
+        var starter = configurer
+            .Logging(l =>
+            {
+                if (loggerFactory == null) return;
+
+                try
+                {
+                    // wild hack: Reflect into Injectionist to see, if a logger factory has already been registered
+                    if (l.ReflectWhetherItHasRegistration<IRebusLoggerFactory>())
+                    {
+                        return;
+                    }
+
+                    l.Use(new MicrosoftExtensionsLoggingLoggerFactory(loggerFactory));
+                }
+                catch (InvalidOperationException)
+                {
+                    // ignore this exception, because it'll simply mean that a logger factory has already been configured,
+                    // and so we should ignore that... 
+                }
+            })
+
+            .Create();
 
         logger?.LogInformation("Successfully created bus instance {busInstance} (isDefaultBus: {flag})", starter.Bus, _isDefaultBus);
 

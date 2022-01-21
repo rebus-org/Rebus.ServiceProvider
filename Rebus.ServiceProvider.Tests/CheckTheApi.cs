@@ -28,7 +28,7 @@ public class CheckTheApi : FixtureBase
             
         Using(serviceProvider);
 
-        serviceProvider.StartRebusManually();
+        serviceProvider.StartRebus();
 
         await Task.Delay(TimeSpan.FromSeconds(2));
     }

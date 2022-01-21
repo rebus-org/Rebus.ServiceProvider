@@ -52,7 +52,7 @@ public class SelfProvidedScopeIsNotDisposed : FixtureBase
 
         var provider = Using(services.BuildServiceProvider());
 
-        provider.StartRebusManually();
+        provider.StartRebus();
 
         await provider.GetRequiredService<IBus>().SendLocal("hej søde ven!");
 

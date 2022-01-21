@@ -33,7 +33,7 @@ public class SendAndReceiveBunchOfMessages : FixtureBase
 
         await using var provider = services.BuildServiceProvider();
 
-        provider.StartRebusManually();
+        provider.StartRebus();
 
         await Task.WhenAll(Enumerable.Range(0, count)
             .Select(async _ =>

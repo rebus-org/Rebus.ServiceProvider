@@ -31,7 +31,7 @@ public class RemoveDuplicateHandlers
 
         var provider = services
             .BuildServiceProvider()
-            .StartRebusManually();
+            .StartRebus();
 
         var activator = new DependencyInjectionHandlerActivator(provider);
 

@@ -20,7 +20,7 @@ public class CheckHowServiceProviderWorks : FixtureBase
 
         using (var provider = services.BuildServiceProvider())
         {
-            provider.StartRebusManually();
+            provider.StartRebus();
         }
     }
 

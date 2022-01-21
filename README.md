@@ -65,9 +65,11 @@ If you're interested in hosting multiple Rebus instances inside a single process
 
 ### Logging
 
-Please note that LOGGING WILL BE AUTOMATICALLY CONFIGURED. As logging is integrated with the host, Rebus will simply direct all of its logging to loggers created using
-the `ILoggerFactory` provided by the host. If you want to log by some other means (e.g. with Serilog), simply use the appropriate Serilog integration package and direct
-the host's logs to a Serilog sink.
+Please note that logging will be automatically configured, unless you have configured it, and if it's possible.
+
+As logging is integrated with the host, Rebus will simply direct all of its logging to loggers created using
+the `ILoggerFactory` provided by the host, so if you want to log by some other means (e.g. with Serilog), you can 
+simply use the appropriate Serilog integration package and direct the host's logs to a Serilog sink.
 
 
 ### Hosting outside of the generic host
@@ -82,11 +84,11 @@ services.AddRebus(...);
 using var provider = services.BuildServiceProvider();
 
 // THIS 👇 will start the bus(es)  
-provider.StartRebusManually();
+provider.StartRebus();
 ```
 
 ⚠ With the generic host (which is what you're using, if you've created a console app, a background worker, or a web app), the configuration extensions
-in this package rely on `IHostedService` and how the host uses these, and therefore the above call to `StartRebusManually` shoule NOT be called.
+in this package rely on `IHostedService` and how the host uses these, and therefore the above call to `StartRebus()` shoule NOT be made.
 
 ℹ With the generic host, there's two major modes of operation:
 
