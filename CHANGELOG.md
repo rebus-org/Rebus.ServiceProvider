@@ -84,6 +84,7 @@
 ## 8.0.0-b03
 * First attempt at implementing multi-hosting support: Now multiple calls can be made to `AddRebus`, just remember to pass `isDefaultBus:false` to all but one of them. The default is that `AddRebus` results in the registration of a primary bus to keep behavior as true to the original behavior as possible.
 * Add ability to add a key to each bus instance via `key: "whatever"` when calling `AddRebus`, allowing for later retrieval via `IBusRegistry`
+* Add ability to not automatically start a bus instance when starting up, thus deferring to when `StartBus(key)` is called on `IBusRegistry`
 
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
