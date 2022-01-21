@@ -92,6 +92,8 @@ using var provider = services.BuildServiceProvider();
 provider.StartRebus();
 ```
 
+### Hosting inside the generic host
+
 ⚠ With the generic host (which is what you're using, if you've created a console app, a background worker, or a web app), the configuration extensions
 in this package rely on `IHostedService` and how the host uses these, and therefore the above call to `StartRebus()` shoule NOT be made.
 
@@ -99,67 +101,6 @@ in this package rely on `IHostedService` and how the host uses these, and theref
 
 1. Starting one or more Rebus instances, using the host's container instance
 1. Starting one or more Rebus instances, using one or more separate container instances
-
-
-### Specific bus instances
-
-If you need to be able to later resolve a specific bus instance from the service provider, you can register a bus with a key:
-```csharp
-services.AddRebus(
-    configure => configure
-        .Transport(t => t.UseAzureServiceBus(connectionString, queueName)),
-    
-    key: "my-favorite-bus"
-);
-```
-
-Later, when your app is running, you will then be able to retrieve that specific bus instance via `IBusRegistry` like so:
-```
-var registry = provider.GetRequiredService<IBusRegistry>(); //< or have this injected
-
-var bus = registry.GetBus("my-favorite-bus");
-
-// voilá! 🎉
-```
-
-
-### Delayed start of the bus
-
-When you configure the bus, e.g. with
-```csharp
-services.AddRebus(
-    configure => configure
-        .Transport(t => t.UseAzureServiceBus(connectionString, queueName)),
-
-    key: "my-favorite-bus"
-);
-```
-and then the host starts up (or you call the `StartRebus()` extension method on the service provider), the bus will automatically be started (i.e.
-it will start consuming messages).
-
-You can delay the time of when message consumption is begun by setting `startAutomatically: false` in the call to `AddRebus`:
-```csharp
-services.AddRebus(
-    configure => configure
-        .Transport(t => t.UseAzureServiceBus(connectionString, queueName)),
-
-    key: "my-favorite-bus",
-    startAutomatically: false //< the bus will be "started" with 0 workers, i.e. it will not consume anything
-);
-```
-
-At a later time, when you think it's about time the bus gets to taste some sweet message goodness, you can start it via the registry:
-
-```
-var registry = provider.GetRequiredService<IBusRegistry>(); //< or have this injected
-
-registry.StartBus("my-favorite-bus");
-
-// voilá! 🎉
-```
-
-Since starting the bus this way requires that you retrieve it via the bus registry, it's a hard requirement that a KEY is provided when calling `AddRebus`.
-
 
 ## Usage
 
@@ -323,3 +264,63 @@ public class SomethingPublisher
 ```
 
 This where the concept of "default bus" is relevant.
+
+### Specific bus instances
+
+If you need to be able to later resolve a specific bus instance from the service provider, you can register a bus with a key:
+```csharp
+services.AddRebus(
+    configure => configure
+        .Transport(t => t.UseAzureServiceBus(connectionString, queueName)),
+    
+    key: "my-favorite-bus"
+);
+```
+
+Later, when your app is running, you will then be able to retrieve that specific bus instance via `IBusRegistry` like so:
+```
+var registry = provider.GetRequiredService<IBusRegistry>(); //< or have this injected
+
+var bus = registry.GetBus("my-favorite-bus");
+
+// voilá! 🎉
+```
+
+
+### Delayed start of the bus
+
+When you configure the bus, e.g. with
+```csharp
+services.AddRebus(
+    configure => configure
+        .Transport(t => t.UseAzureServiceBus(connectionString, queueName)),
+
+    key: "my-favorite-bus"
+);
+```
+and then the host starts up (or you call the `StartRebus()` extension method on the service provider), the bus will automatically be started (i.e.
+it will start consuming messages).
+
+You can delay the time of when message consumption is begun by setting `startAutomatically: false` in the call to `AddRebus`:
+```csharp
+services.AddRebus(
+    configure => configure
+        .Transport(t => t.UseAzureServiceBus(connectionString, queueName)),
+
+    key: "my-favorite-bus",
+    startAutomatically: false //< the bus will be "started" with 0 workers, i.e. it will not consume anything
+);
+```
+
+At a later time, when you think it's about time the bus gets to taste some sweet message goodness, you can start it via the registry:
+
+```
+var registry = provider.GetRequiredService<IBusRegistry>(); //< or have this injected
+
+registry.StartBus("my-favorite-bus");
+
+// voilá! 🎉
+```
+
+Since starting the bus this way requires that you retrieve it via the bus registry, it's a hard requirement that a KEY is provided when calling `AddRebus`.
+
