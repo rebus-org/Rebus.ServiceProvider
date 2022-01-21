@@ -67,7 +67,7 @@ If you're interested in hosting multiple Rebus instances inside a single process
 
 ### Logging
 
-ℹ️ Please note that logging will be automatically configured  - if possible, and if you haven't configured anything yourself. ℹ️
+ℹ️ Please note that logging will be automatically configured  - if possible, and if you haven't configured anything yourself.
 
 As logging is integrated with the host, Rebus will simply direct all of its logging to loggers created using
 the `ILoggerFactory` provided by the host, so if you want to log by some other means (e.g. with Serilog), you can 
