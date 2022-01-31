@@ -10,6 +10,8 @@ before_build:
   - appveyor-retry dotnet restore -v Minimal
 
 build_script:
-  - dotnet build Rebus.ServiceProvider -c Release 
-  - dotnet build Rebus.ServiceProvider.Tests -c Release 
+  - dotnet build Rebus.ServiceProvider -c Release --no-restore
+
+test_script:
+  - dotnet test Rebus.ServiceProvider.Tests --no-restore
 
