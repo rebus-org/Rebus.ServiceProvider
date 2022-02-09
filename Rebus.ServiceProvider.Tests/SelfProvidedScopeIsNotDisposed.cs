@@ -14,6 +14,7 @@ using Rebus.Tests.Contracts;
 using Rebus.Tests.Contracts.Extensions;
 using Rebus.Tests.Contracts.Utilities;
 using Rebus.Transport.InMem;
+
 // ReSharper disable ArgumentsStyleLiteral
 // ReSharper disable ArgumentsStyleOther
 // ReSharper disable ArgumentsStyleStringLiteral
@@ -23,7 +24,8 @@ using Rebus.Transport.InMem;
 namespace Rebus.ServiceProvider.Tests;
 
 [TestFixture]
-[Description("When the scope is provided by custom incoming step, it should also be disposed by that step, and not automatically")]
+[Description(
+    "When the scope is provided by custom incoming step, it should also be disposed by that step, and not automatically")]
 public class SelfProvidedScopeIsNotDisposed : FixtureBase
 {
     [Test]
@@ -47,7 +49,8 @@ public class SelfProvidedScopeIsNotDisposed : FixtureBase
                 var pipeline = c.Get<IPipeline>();
 
                 return new PipelineStepInjector(pipeline)
-                    .OnReceive(new MyScopeStep(), PipelineRelativePosition.Before, typeof(DeserializeIncomingMessageStep));
+                    .OnReceive(new MyScopeStep(), PipelineRelativePosition.Before,
+                        typeof(DeserializeIncomingMessageStep));
             })));
 
         var provider = Using(services.BuildServiceProvider());
@@ -58,13 +61,14 @@ public class SelfProvidedScopeIsNotDisposed : FixtureBase
 
         gotTheMessage.WaitOrDie(
             timeout: TimeSpan.FromSeconds(3),
-            errorMessage: "Message was not received within 3 s timeout, which means that an exception must have occurred somewhere");
+            errorMessage:
+            "Message was not received within 3 s timeout, which means that an exception must have occurred somewhere");
 
         await Task.Delay(TimeSpan.FromSeconds(2));
 
         var foundWarningOrError = loggerFactory.Any(log => log.Level > LogLevel.Info);
 
-        Assert.That(foundWarningOrError, Is.False, 
+        Assert.That(foundWarningOrError, Is.False,
             "The log contained one or more warnings/errors, which is an indication that something went wrong when dispatching the message");
     }
 
@@ -81,7 +85,8 @@ public class SelfProvidedScopeIsNotDisposed : FixtureBase
         readonly SomethingDisposable _somethingDisposable;
         readonly IMessageContext _messageContext;
 
-        public StringHandler(ManualResetEvent gotTheMessage, SomethingDisposable somethingDisposable, IMessageContext messageContext)
+        public StringHandler(ManualResetEvent gotTheMessage, SomethingDisposable somethingDisposable,
+            IMessageContext messageContext)
         {
             _gotTheMessage = gotTheMessage;
             _somethingDisposable = somethingDisposable;

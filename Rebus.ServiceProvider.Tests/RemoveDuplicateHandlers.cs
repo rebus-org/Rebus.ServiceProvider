@@ -37,15 +37,19 @@ public class RemoveDuplicateHandlers
 
         // Assert
         using var scope = new RebusTransactionScope();
-        
+
         var handlers = await activator.GetHandlers(new Message1(), scope.TransactionContext);
 
         handlers.Should().HaveCount(1);
     }
 
-    public interface IMessage1 { }
+    public interface IMessage1
+    {
+    }
 
-    public class Message1 : IMessage1 { }
+    public class Message1 : IMessage1
+    {
+    }
 
     public class Message1Handler : IHandleMessages<IMessage1>
     {

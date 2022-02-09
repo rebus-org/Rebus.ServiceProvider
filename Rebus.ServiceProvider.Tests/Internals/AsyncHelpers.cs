@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+
 // ReSharper disable AsyncVoidLambda
 
 namespace Rebus.ServiceProvider.Tests.Internals;
@@ -44,7 +45,8 @@ static class AsyncHelpers
 
         public CustomSynchronizationContext(Func<Task> task)
         {
-            _task = task ?? throw new ArgumentNullException(nameof(task), "Please remember to pass a Task to be executed");
+            _task = task ??
+                    throw new ArgumentNullException(nameof(task), "Please remember to pass a Task to be executed");
         }
 
         public override void Post(SendOrPostCallback function, object state)

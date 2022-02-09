@@ -10,6 +10,7 @@ using Rebus.Persistence.InMem;
 using Rebus.Retry.Simple;
 using Rebus.Tests.Contracts.Extensions;
 using Rebus.Transport.InMem;
+
 #pragma warning disable 1998
 
 namespace Rebus.ServiceProvider.Tests;
@@ -54,7 +55,7 @@ public class CheckThisParticularPossibleBug
         //serviceCollection.AddTransient<IHandleMessages<IFailed<GenerateProductVariant>>>(GetHandler);
 
         await using var provider = serviceCollection.BuildServiceProvider();
-            
+
         provider.StartRebus();
 
         var bus = provider.GetRequiredService<IBus>();
@@ -107,7 +108,7 @@ public class CheckThisParticularPossibleBug
             OrderId = orderId;
         }
 
-        public string ProductVariant { get;  }
+        public string ProductVariant { get; }
         public string OrderId { get; }
     }
 

@@ -13,6 +13,7 @@ using Rebus.Retry.Simple;
 using Rebus.Tests.Contracts;
 using Rebus.Tests.Contracts.Extensions;
 using Rebus.Transport.InMem;
+
 // ReSharper disable ArgumentsStyleLiteral
 // ReSharper disable ArgumentsStyleOther
 // ReSharper disable UnusedVariable
@@ -93,7 +94,8 @@ public class VerifyProviderAndScopeInStepContext : FixtureBase
         var step = new StepContextHooker(context =>
         {
             var serviceProvider = context.Load<IServiceProvider>()
-                                  ?? throw new ApplicationException("Could not find service provider in the current step context!");
+                                  ?? throw new ApplicationException(
+                                      "Could not find service provider in the current step context!");
         });
 
         AddRebusWithStep(serviceCollection, step);
@@ -137,7 +139,8 @@ public class VerifyProviderAndScopeInStepContext : FixtureBase
     {
         readonly Action<IncomingStepContext> _contextCallback;
 
-        public StepContextHooker(Action<IncomingStepContext> contextCallback) => _contextCallback = contextCallback ?? throw new ArgumentNullException(nameof(contextCallback));
+        public StepContextHooker(Action<IncomingStepContext> contextCallback) => _contextCallback =
+            contextCallback ?? throw new ArgumentNullException(nameof(contextCallback));
 
         public async Task Process(IncomingStepContext context, Func<Task> next)
         {

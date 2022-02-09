@@ -11,6 +11,7 @@ using Rebus.Pipeline.Receive;
 using Rebus.Tests.Contracts;
 using Rebus.Tests.Contracts.Extensions;
 using Rebus.Transport.InMem;
+
 // ReSharper disable SuggestBaseTypeForParameter
 // ReSharper disable ArgumentsStyleLiteral
 #pragma warning disable 1998

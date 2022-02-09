@@ -1,29 +1,27 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
- <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworks>net6.0</TargetFrameworks>
-      <LangVersion>10</LangVersion>
-  </PropertyGroup>
- <ItemGroup>
-   <Compile Remove="Extensions\**" />
-   <EmbeddedResource Remove="Extensions\**" />
-   <None Remove="Extensions\**" />
- </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Rebus.ServiceProvider\Rebus.ServiceProvider.csproj" />
-    <PackageReference Include="FluentAssertions" Version="6.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="microsoft.extensions.logging" Version="6.0.0" />
-    <PackageReference Include="microsoft.extensions.logging.console" Version="6.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
-    <PackageReference Include="Moq" Version="4.16.0" />
-    <PackageReference Include="nunit" Version="3.13.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.2.0" />
-    <PackageReference Include="Rebus.Tests.Contracts" Version="7.0.0-b04" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Assumptions\" />
-    <Folder Include="Bugs\" />
-  </ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net6.0</TargetFrameworks>
+		<LangVersion>10</LangVersion>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="Extensions\**" />
+		<EmbeddedResource Remove="Extensions\**" />
+		<None Remove="Extensions\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Rebus.ServiceProvider\Rebus.ServiceProvider.csproj" />
+		<PackageReference Include="FluentAssertions" Version="6.3.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+		<PackageReference Include="microsoft.extensions.logging" Version="6.0.0" />
+		<PackageReference Include="microsoft.extensions.logging.console" Version="6.0.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+		<PackageReference Include="Moq" Version="4.16.0" />
+		<PackageReference Include="nunit" Version="3.13.2" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.2.0" />
+		<PackageReference Include="Rebus.Tests.Contracts" Version="7.0.0-b04" />
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Assumptions\" />
+		<Folder Include="Bugs\" />
+	</ItemGroup>
 </Project>

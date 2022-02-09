@@ -8,6 +8,7 @@ using Rebus.Handlers;
 using Rebus.Tests.Contracts;
 using Rebus.Tests.Contracts.Utilities;
 using Rebus.Transport.InMem;
+
 // ReSharper disable AccessToDisposedClosure
 #pragma warning disable CS1998
 

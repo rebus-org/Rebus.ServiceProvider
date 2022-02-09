@@ -6,6 +6,7 @@ using Rebus.Bus;
 using Rebus.Config;
 using Rebus.ServiceProvider.Tests.Internals;
 using Rebus.Transport.InMem;
+
 // ReSharper disable ArgumentsStyleLiteral
 
 namespace Rebus.ServiceProvider.Tests;
@@ -21,14 +22,12 @@ public class CheckMutlipleBusesAndResolutionByName
         services.AddRebus(
             configure => configure
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "queue1")),
-
             key: "bus1"
         );
 
         services.AddRebus(
             configure => configure
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "queue2")),
-
             isDefaultBus: false,
             key: "bus1"
         );
@@ -49,14 +48,12 @@ public class CheckMutlipleBusesAndResolutionByName
         services.AddRebus(
             configure => configure
                 .Transport(t => t.UseInMemoryTransport(network, "queue1")),
-
             key: "bus1"
         );
 
         services.AddRebus(
             configure => configure
                 .Transport(t => t.UseInMemoryTransport(network, "queue2")),
-
             isDefaultBus: false,
             key: "bus2"
         );
@@ -128,7 +125,7 @@ public class CheckMutlipleBusesAndResolutionByName
 
         var keys = registry.GetAllKeys().OrderBy(k => k);
 
-        Assert.That(keys, Is.EqualTo(new[] { "bus1", "bus2", "bus3" }));
+        Assert.That(keys, Is.EqualTo(new[] {"bus1", "bus2", "bus3"}));
     }
 
     [Test]

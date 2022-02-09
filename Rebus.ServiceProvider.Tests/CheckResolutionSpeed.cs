@@ -36,7 +36,7 @@ After updating some package versions:
         serviceCollection.AddSingleton(p => new DependencyInjectionHandlerActivator(p));
 
         await using var provider = serviceCollection.BuildServiceProvider();
-            
+
         var handlerActivator = provider.GetRequiredService<DependencyInjectionHandlerActivator>();
 
         var stopwatch = Stopwatch.StartNew();
@@ -44,13 +44,13 @@ After updating some package versions:
         for (var counter = 0; counter < count; counter++)
         {
             using var scope = new RebusTransactionScope();
-                
+
             await handlerActivator.GetHandlers("this is my message", scope.TransactionContext);
         }
 
         var elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
 
-        Console.WriteLine($"{count} resolutions took {elapsedSeconds:0.0} s - that's {count/elapsedSeconds:0.0} /s");
+        Console.WriteLine($"{count} resolutions took {elapsedSeconds:0.0} s - that's {count / elapsedSeconds:0.0} /s");
     }
 
     class StringHandler : IHandleMessages<string>

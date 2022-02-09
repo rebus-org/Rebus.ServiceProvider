@@ -10,6 +10,7 @@ using Rebus.Handlers;
 using Rebus.Routing.TypeBased;
 using Rebus.Tests.Contracts.Extensions;
 using Rebus.Transport.InMem;
+
 #pragma warning disable 1998
 
 namespace Rebus.ServiceProvider.Tests;
@@ -51,7 +52,7 @@ public class ServiceCollectionExtensionsTests
 
         await Task.Delay(TimeSpan.FromSeconds(0.1));
 
-        Assert.That(handledMessages, Is.EqualTo(new[] { "HEJ", "MED", "DIG" }));
+        Assert.That(handledMessages, Is.EqualTo(new[] {"HEJ", "MED", "DIG"}));
     }
 
     class TextMessageHandler : IHandleMessages<TextMessage>
@@ -129,9 +130,13 @@ public class ServiceCollectionExtensionsTests
             .HandleCount.Should().Be(2);
     }
 
-    public abstract class MessageBase { }
+    public abstract class MessageBase
+    {
+    }
 
-    public class Message1 : MessageBase { }
+    public class Message1 : MessageBase
+    {
+    }
 
     public abstract class TestHandlerBase
     {

@@ -6,6 +6,7 @@ using Rebus.Config;
 using Rebus.Logging;
 using Rebus.Tests.Contracts;
 using Rebus.Transport.InMem;
+
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable ArgumentsStyleNamedExpression
 
@@ -24,7 +25,7 @@ public class VerifyBusLifetimeEventsInContainer : FixtureBase
             .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "bus lifetime events test")));
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-            
+
         Using(serviceProvider);
 
         serviceProvider.StartRebus();

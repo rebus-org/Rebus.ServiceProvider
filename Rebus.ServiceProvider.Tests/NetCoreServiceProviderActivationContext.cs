@@ -16,7 +16,7 @@ public class NetCoreServiceProviderActivationContext : IActivationContext
     {
         var services = new ServiceCollection().AddSingleton(p => new DependencyInjectionHandlerActivator(p));
         handlerConfig.Invoke(new HandlerRegistry(services));
-            
+
         var provider = services.BuildServiceProvider();
 
         container = new ActivatedContainer(provider);
@@ -24,7 +24,8 @@ public class NetCoreServiceProviderActivationContext : IActivationContext
         return provider.GetRequiredService<DependencyInjectionHandlerActivator>();
     }
 
-    public IBus CreateBus(Action<IHandlerRegistry> handlerConfig, Func<RebusConfigurer, RebusConfigurer> configureBus, out IActivatedContainer container)
+    public IBus CreateBus(Action<IHandlerRegistry> handlerConfig, Func<RebusConfigurer, RebusConfigurer> configureBus,
+        out IActivatedContainer container)
     {
         var services = new ServiceCollection();
         handlerConfig.Invoke(new HandlerRegistry(services));

@@ -86,6 +86,10 @@
 * Add ability to add a key to each bus instance via `key: "whatever"` when calling `AddRebus`, allowing for later retrieval via `IBusRegistry`
 * Add ability to not automatically start a bus instance when starting up, thus deferring to when `StartBus(key)` is called on `IBusRegistry`
 
+## 8.0.0-b04
+* Improved error messages when no default bus is registered, bus not started, etc.
+
+
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
 [jorenp]: https://github.com/jorenp

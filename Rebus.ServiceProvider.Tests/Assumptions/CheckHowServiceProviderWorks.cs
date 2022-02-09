@@ -4,6 +4,7 @@ using NUnit.Framework;
 using Rebus.Config;
 using Rebus.Tests.Contracts;
 using Rebus.Transport.InMem;
+
 // ReSharper disable ConvertToUsingDeclaration
 
 namespace Rebus.ServiceProvider.Tests.Assumptions;
@@ -42,7 +43,7 @@ public class CheckHowServiceProviderWorks : FixtureBase
         var instance = new OhTellMeIfYouHaveBeenDisposedLittleInstance();
         var services = new ServiceCollection();
         services.AddSingleton(_ => instance);
-        
+
         services.BuildServiceProvider().Dispose();
 
         Assert.That(instance.WasDisposed, Is.False);

@@ -6,11 +6,15 @@ using Rebus.Bus;
 using Rebus.Config;
 using Rebus.Tests.Contracts;
 using Rebus.Transport.InMem;
+
 // ReSharper disable ArgumentsStyleLiteral
+// ReSharper disable UnusedTypeParameter
+// ReSharper disable ClassNeverInstantiated.Local
 
 namespace Rebus.ServiceProvider.Tests;
 
 [TestFixture]
+[Description("Experiment using strongly typed keys to manage multiple bus instances")]
 public class TypedBusRegistrationsCheck : FixtureBase
 {
     [Test]
@@ -22,7 +26,6 @@ public class TypedBusRegistrationsCheck : FixtureBase
             configure => configure
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "bus1"))
                 .Options(o => o.SetBusName("mainbus")),
-
             isDefaultBus: true
         );
 
@@ -30,13 +33,13 @@ public class TypedBusRegistrationsCheck : FixtureBase
             configure => configure
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "bus2"))
                 .Options(o => o.SetBusName("secondarybus")),
-
             isDefaultBus: false,
             key: "bus2"
         );
 
         services.AddTransient<IBus<MainBus>>(p => new TypedBus<MainBus>(p.GetRequiredService<IBus>()));
-        services.AddTransient<IBus<SecondaryBus>>(p => new TypedBus<SecondaryBus>(p.GetRequiredService<IBusRegistry>().GetBus("bus2")));
+        services.AddTransient<IBus<SecondaryBus>>(p =>
+            new TypedBus<SecondaryBus>(p.GetRequiredService<IBusRegistry>().GetBus("bus2")));
 
         await using var provider = services.BuildServiceProvider();
 
@@ -45,47 +48,40 @@ public class TypedBusRegistrationsCheck : FixtureBase
         var bus1 = provider.GetRequiredService<IBus<MainBus>>();
         var bus2 = provider.GetRequiredService<IBus<SecondaryBus>>();
 
-        Assert.That(bus1.Bus.ToString(), Is.EqualTo("RebusBus mainbus"));
-        Assert.That(bus2.Bus.ToString(), Is.EqualTo("RebusBus secondarybus"));
+        Assert.That(bus1.Instance.ToString(), Is.EqualTo("RebusBus mainbus"));
+        Assert.That(bus2.Instance.ToString(), Is.EqualTo("RebusBus secondarybus"));
     }
 
-    [Test]
-    public async Task CanResolveDefaultBus()
-    {
-        var services = new ServiceCollection();
+    /// <summary>
+    /// Marker interface for a bus key
+    /// </summary>
+    interface IBusKey { }
 
-        services.AddRebus(
-            configure => configure
-                .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "bus1"))
-                .Options(o => o.SetBusName("default_bus"))
-        );
-
-        await using var provider = services.BuildServiceProvider();
-
-        provider.StartRebus();
-
-        var bus = provider.GetRequiredService<IBus>();
-        Assert.That(bus.ToString(), Is.EqualTo("RebusBus default_bus"));
-    }
-
+    /// <summary>
+    /// Define key of main bus
+    /// </summary>
     record MainBus : IBusKey;
 
+    /// <summary>
+    /// Define key of secondary bus
+    /// </summary>
     record SecondaryBus : IBusKey;
 
+    /// <summary>
+    /// Define keyed bus instance holder
+    /// </summary>
     interface IBus<TKey> where TKey : IBusKey
     {
-        IBus Bus { get; }
+        IBus Instance { get; }
     }
 
-    interface IBusKey
-    {
-    }
-
+    /// <summary>
+    /// Concrete keyed bus instance holder
+    /// </summary>
     class TypedBus<TKey> : IBus<TKey> where TKey : IBusKey
     {
-        public TypedBus(IBus bus) => Bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        public TypedBus(IBus bus) => Instance = bus ?? throw new ArgumentNullException(nameof(bus));
 
-        public IBus Bus { get; }
+        public IBus Instance { get; }
     }
 }
-

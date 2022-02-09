@@ -25,7 +25,7 @@ public class CheckTheApi : FixtureBase
             .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "ioc-test")));
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-            
+
         Using(serviceProvider);
 
         serviceProvider.StartRebus();
