@@ -15,7 +15,11 @@ class RebusResolver
         {
             try
             {
-                var busToReturn = serviceProvider.GetService<DefaultBusInstance>()?.Bus ?? throw new InvalidOperationException("No default bus configured");
+                var defaultBusInstance = serviceProvider.GetService<DefaultBusInstance>()
+                    ?? throw new InvalidOperationException("No default bus seems to have been configured! One (and only one!) of the calls to AddRebus must specify isDefaultBus:true to make that bus registration the default bus.");
+
+                var busToReturn = defaultBusInstance.Bus
+                    ?? throw new InvalidOperationException("Could not resolve default bus. Found that a bus registration was marked with isDefaultBus:true, but the bus instance could not be found, which indicates that the bus might not have been started! Please remember to call provider.StartRebus() after building the service provider, before trying to resolve the default bus.");
 
                 return new BusWrapper(busToReturn);
             }

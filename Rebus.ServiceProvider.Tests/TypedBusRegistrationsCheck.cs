@@ -40,11 +40,32 @@ public class TypedBusRegistrationsCheck : FixtureBase
 
         await using var provider = services.BuildServiceProvider();
 
+        provider.StartRebus();
+
         var bus1 = provider.GetRequiredService<IBus<MainBus>>();
         var bus2 = provider.GetRequiredService<IBus<SecondaryBus>>();
 
-        Assert.That(bus1.ToString(), Is.EqualTo("mainbus"));
-        Assert.That(bus2.ToString(), Is.EqualTo("secondarybus"));
+        Assert.That(bus1.Bus.ToString(), Is.EqualTo("RebusBus mainbus"));
+        Assert.That(bus2.Bus.ToString(), Is.EqualTo("RebusBus secondarybus"));
+    }
+
+    [Test]
+    public async Task CanResolveDefaultBus()
+    {
+        var services = new ServiceCollection();
+
+        services.AddRebus(
+            configure => configure
+                .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "bus1"))
+                .Options(o => o.SetBusName("default_bus"))
+        );
+
+        await using var provider = services.BuildServiceProvider();
+
+        provider.StartRebus();
+
+        var bus = provider.GetRequiredService<IBus>();
+        Assert.That(bus.ToString(), Is.EqualTo("RebusBus default_bus"));
     }
 
     record MainBus : IBusKey;
