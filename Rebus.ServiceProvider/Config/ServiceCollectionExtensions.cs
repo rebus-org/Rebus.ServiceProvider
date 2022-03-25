@@ -48,12 +48,16 @@ public static class ServiceCollectionExtensions
     /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
     /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
     /// </param>
-    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null, bool startAutomatically = true)
+    /// <param name="injectRootServiceProvider">
+    /// Configures whether this the root service provider or a scoped service provider should be injected.
+    /// Setting this to false should be result in a scoped service provider attached to the context, which can be used by Handlers, Event delegates etc.
+    /// </param>
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null, bool startAutomatically = true, bool injectRootServiceProvider = true)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-        return AddRebus(services, (configurer, _) => configure(configurer), isDefaultBus: isDefaultBus, onCreated: onCreated, key: key, startAutomatically: startAutomatically);
+        return AddRebus(services, (configurer, _) => configure(configurer), isDefaultBus: isDefaultBus, onCreated: onCreated, key: key, startAutomatically: startAutomatically, injectRootServiceProvider: injectRootServiceProvider);
     }
 
     /// <summary>
@@ -83,7 +87,11 @@ public static class ServiceCollectionExtensions
     /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
     /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
     /// </param>
-    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null, bool startAutomatically = true)
+    /// <param name="injectRootServiceProvider">
+    /// Configures whether this the root service provider or a scoped service provider should be injected.
+    /// Setting this to false should be result in a scoped service provider attached to the context, which can be used by Handlers, Event delegates etc.
+    /// </param>
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null, bool startAutomatically = true, bool injectRootServiceProvider = true)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
@@ -100,7 +108,7 @@ public static class ServiceCollectionExtensions
             // NOTE: this was added to support disposal in scenarios where Rebus is hosted with a service provider OUTSIDE of the generic host
         }
 
-        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus, onCreated, key, startAutomatically));
+        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus, onCreated, key, startAutomatically, injectRootServiceProvider));
 
         if (isDefaultBus)
         {
