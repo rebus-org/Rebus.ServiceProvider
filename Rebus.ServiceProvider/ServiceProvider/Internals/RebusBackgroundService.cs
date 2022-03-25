@@ -19,10 +19,11 @@ class RebusBackgroundService : BackgroundService
     readonly bool _startAutomatically;
     readonly bool _isDefaultBus;
     readonly string _key;
+    readonly bool _injectRootServiceProvider;
 
     public RebusBackgroundService(Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure,
         IServiceProvider serviceProvider, bool isDefaultBus, Func<IBus, Task> onCreated, string key = null,
-        bool startAutomatically = true)
+        bool startAutomatically = true, bool injectRootServiceProvider = true)
     {
         _configure = configure ?? throw new ArgumentNullException(nameof(configure));
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -30,6 +31,7 @@ class RebusBackgroundService : BackgroundService
         _onCreated = onCreated;
         _key = key;
         _startAutomatically = startAutomatically;
+        _injectRootServiceProvider = injectRootServiceProvider;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -49,9 +51,10 @@ class RebusBackgroundService : BackgroundService
             .Options(o => o.Decorate<IPipeline>(context =>
             {
                 var pipeline = context.Get<IPipeline>();
-                var serviceProviderProviderStep = new ServiceProviderProviderStep(_serviceProvider, context);
+                var serviceProviderProviderStep = new ServiceProviderProviderStep(_serviceProvider, context, _injectRootServiceProvider);
                 return new PipelineStepConcatenator(pipeline)
-                    .OnReceive(serviceProviderProviderStep, PipelineAbsolutePosition.Front);
+                    .OnReceive(serviceProviderProviderStep, PipelineAbsolutePosition.Front)
+                    .OnSend(serviceProviderProviderStep,PipelineAbsolutePosition.Front);
             }));
 
         var configurer = _configure(rebusConfigurer, _serviceProvider);
