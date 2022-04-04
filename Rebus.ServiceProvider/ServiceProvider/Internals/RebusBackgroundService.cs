@@ -19,9 +19,10 @@ class RebusBackgroundService : BackgroundService
     readonly bool _startAutomatically;
     readonly bool _isDefaultBus;
     readonly string _key;
+    readonly Lazy<Task<(IBus, BusLifetimeEvents)>> _busInitializer;
 
     public RebusBackgroundService(Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure,
-        IServiceProvider serviceProvider, bool isDefaultBus, Func<IBus, Task> onCreated, string key = null,
+        IServiceProvider serviceProvider, bool isDefaultBus, Func<IBus, Task> onCreated, DefaultBusInstance defaultBusInstance, string key = null,
         bool startAutomatically = true)
     {
         _configure = configure ?? throw new ArgumentNullException(nameof(configure));
@@ -30,9 +31,29 @@ class RebusBackgroundService : BackgroundService
         _onCreated = onCreated;
         _key = key;
         _startAutomatically = startAutomatically;
+
+        _busInitializer = new Lazy<Task<(IBus, BusLifetimeEvents)>>(async () => await InitializeBus(CancellationToken.None));
+
+        if (isDefaultBus)
+        {
+            if (defaultBusInstance == null)
+            {
+                throw new InvalidOperationException(
+                    $"The {nameof(isDefaultBus)} = true paramater said to configure this Rebus instance to be the default bus, but the {nameof(defaultBusInstance)} parameter was NULL!");
+            }
+
+            defaultBusInstance.SetInstanceResolver(_busInitializer);
+        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        var (bus, _) = await _busInitializer.Value;
+
+        stoppingToken.Register(bus.Dispose);
+    }
+
+    async Task<(IBus, BusLifetimeEvents)> InitializeBus(CancellationToken stoppingToken)
     {
         var loggerFactory = _serviceProvider.GetService<ILoggerFactory>();
         var logger = loggerFactory?.CreateLogger<RebusBackgroundService>();
@@ -83,19 +104,6 @@ class RebusBackgroundService : BackgroundService
 
         logger?.LogInformation("Successfully created bus instance {busInstance} (isDefaultBus: {flag})", bus, _isDefaultBus);
 
-        if (_isDefaultBus)
-        {
-            var defaultBusInstance = _serviceProvider.GetRequiredService<DefaultBusInstance>();
-
-            if (defaultBusInstance.Bus != null)
-            {
-                throw new InvalidOperationException($"Cannot set {bus} as the default bus instance, as it seems like the bus instance {defaultBusInstance.Bus} was already configured to be it! There can only be one default bus instance in a container instance, so please remember to set isDefaultBus:true in only one of the calls to AddRebus");
-            }
-
-            defaultBusInstance.Bus = bus;
-            defaultBusInstance.BusLifetimeEvents = busLifetimeEventsHack;
-        }
-
         // stopping the bus here will ensure that we've finished executing all message handlers when the container is disposed
         stoppingToken.Register(() =>
         {
@@ -126,5 +134,7 @@ class RebusBackgroundService : BackgroundService
         {
             logger?.LogDebug("NOT starting bus instance {busInstance}, because it has been configured with startAutomatically:false", bus);
         }
+
+        return (bus, busLifetimeEventsHack);
     }
 }

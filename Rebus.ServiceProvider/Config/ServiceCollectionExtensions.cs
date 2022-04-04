@@ -100,7 +100,7 @@ public static class ServiceCollectionExtensions
             // NOTE: this was added to support disposal in scenarios where Rebus is hosted with a service provider OUTSIDE of the generic host
         }
 
-        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus, onCreated, key, startAutomatically));
+        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus, onCreated, provider.GetService<DefaultBusInstance>(), key, startAutomatically));
 
         if (isDefaultBus)
         {
