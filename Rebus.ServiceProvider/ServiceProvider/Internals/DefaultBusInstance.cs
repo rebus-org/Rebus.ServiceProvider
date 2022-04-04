@@ -11,6 +11,8 @@ class DefaultBusInstance
 
     public void SetInstanceResolver(Lazy<Task<(IBus, BusLifetimeEvents)>> resolver)
     {
+        if (resolver == null) throw new ArgumentNullException(nameof(resolver));
+
         _instances = new(() =>
         {
             var task = resolver.Value;

@@ -89,6 +89,9 @@
 ## 8.0.0-b04
 * Improved error messages when no default bus is registered, bus not started, etc.
 
+## 8.0.0-b05
+* Move initialization of Rebus instances to a `Lazy<Task<>>`, thus making initialization oblivious of whether it was initiated by the background service hosting the instance, or because it was to be injected into something else (e.g. another background service)
+
 
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
