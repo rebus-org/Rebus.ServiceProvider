@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using Rebus.Bus;
 using Rebus.Config;
 using Rebus.ServiceProvider.Tests.Internals;
 using Rebus.Transport.InMem;

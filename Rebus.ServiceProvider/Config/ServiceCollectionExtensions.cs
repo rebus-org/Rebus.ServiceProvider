@@ -100,18 +100,27 @@ public static class ServiceCollectionExtensions
             // NOTE: this was added to support disposal in scenarios where Rebus is hosted with a service provider OUTSIDE of the generic host
         }
 
-        services.AddSingleton<IHostedService>(provider => new RebusBackgroundService(configure, provider, isDefaultBus, onCreated, provider.GetService<DefaultBusInstance>(), provider.GetService<IHostApplicationLifetime>(), key, startAutomatically));
-
         if (isDefaultBus)
         {
             if (services.Any(s => s.ServiceType == typeof(DefaultBusInstance)))
             {
                 throw new InvalidOperationException("Detected that the service collection already contains a default bus registration - please make only one single AddRebus call with isDefaultBus:true");
             }
-
-            services.AddSingleton(new DefaultBusInstance());
+            
+            services.AddSingleton(p => new RebusInitializer(startAutomatically, key, configure, onCreated, p, isDefaultBus, p.GetService<IHostApplicationLifetime>()));
+            services.AddSingleton(p =>
+                                  {
+                                      var defaultBusInstance = new DefaultBusInstance();
+                                      defaultBusInstance.SetInstanceResolver(p.GetRequiredService<RebusInitializer>()._busAndEvents);
+                                      return defaultBusInstance;
+                                  });
+            services.AddSingleton<IHostedService>(p => new RebusBackgroundService(p.GetRequiredService<RebusInitializer>()));
         }
-
+        else
+        {
+            services.AddSingleton<IHostedService>(p => new RebusBackgroundService(new RebusInitializer(startAutomatically, key, configure, onCreated, p, isDefaultBus, p.GetService<IHostApplicationLifetime>())));
+        }
+        
         if (!services.Any(s => s.ImplementationType == typeof(RebusResolver)))
         {
             services.AddSingleton(new RebusResolver());

@@ -108,9 +108,7 @@ public class TestErrorMessages : FixtureBase
 
         using var provider = services.BuildServiceProvider();
 
-        var exception = Assert.Throws<InvalidOperationException>(() => provider.GetRequiredService<IBus>());
-
-        Console.WriteLine(exception);
+        provider.GetRequiredService<IBus>();
     }
 
     [Test]
