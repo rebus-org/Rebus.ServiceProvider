@@ -23,5 +23,6 @@
 	<ItemGroup>
 		<Folder Include="Assumptions\" />
 		<Folder Include="Bugs\" />
+		<Folder Include="Examples\" />
 	</ItemGroup>
 </Project>
