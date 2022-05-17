@@ -7,7 +7,7 @@
 		<Copyright>Copyright Rebus FM ApS 2012</Copyright>
 		<PackageTags>rebus service-provider ioc dependency-injection</PackageTags>
 		<PackageDescription>Provides a service provider-based container adapter for Rebus</PackageDescription>
-		<RepositoryUrl>https://github.com/rebus-org/Rebus</RepositoryUrl>
+		<RepositoryUrl>https://github.com/rebus-org/Rebus.ServiceProvider</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
 		<RootNamespace>Rebus</RootNamespace>
