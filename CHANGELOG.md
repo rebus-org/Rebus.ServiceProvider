@@ -93,7 +93,7 @@
 * Move initialization of Rebus instances to a `Lazy<Task<>>`, thus making initialization oblivious of whether it was initiated by the background service hosting the instance, or because it was to be injected into something else (e.g. another background service)
 
 ## 8.0.0-b06
-* Fix bug that would prevent `IBus` from being resolve in certain situations - thanks [AYss]
+* Fix bug that would prevent `IBus` from being resolved in certain situations - thanks [AYss]
 
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo

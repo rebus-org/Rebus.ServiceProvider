@@ -24,5 +24,6 @@
 		<Folder Include="Assumptions\" />
 		<Folder Include="Bugs\" />
 		<Folder Include="Examples\" />
+		<Folder Include="Hacks\" />
 	</ItemGroup>
 </Project>
