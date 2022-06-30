@@ -242,6 +242,17 @@ builder.Host.AddRebusService(
 
 to the host's container, which essentially makes these things transparently available to the separate Rebus service.
 
+If you forward requests for other types to the host's container you can add to the list of forwarded types like this:
+
+```csharp
+builder.Host.AddRebusService(
+    services => services.AddRebus(...),
+    typeof(IMyDateTimeProvider),
+    typeof(IMyImportantService),
+    ... etc
+);
+```
+
 
 ### Primary bus instance?
 

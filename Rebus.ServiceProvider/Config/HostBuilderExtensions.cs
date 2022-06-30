@@ -25,9 +25,25 @@ public static class HostBuilderExtensions
     /// Configuration callback that must be used to configure the container. Making at least one call to
     /// <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,RebusConfigurer},bool,Func{IBus,Task})"/>
     /// or <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,IServiceProvider,RebusConfigurer},bool,Func{IBus,Task})"/>
-    /// from this callback is mandatory. 
     /// </param>
     public static IHostBuilder AddRebusService(this IHostBuilder builder, Action<IServiceCollection> configureServices)
+    {
+        return builder.AddRebusService(configureServices, typeof(IHostApplicationLifetime), typeof(ILoggerFactory));
+    }
+
+    /// <summary>
+    /// Adds an independent <see cref="IHostedService"/> to the host's container, containing its own service provider. This means that the
+    /// <paramref name="configureServices"/> callback must be used to make any container registrations necessary for the service to work.
+    /// </summary>
+    /// <param name="builder">Reference to the host builder that will host this background service</param>
+    /// <param name="configureServices">
+    /// Configuration callback that must be used to configure the container. Making at least one call to
+    /// <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,RebusConfigurer},bool,Func{IBus,Task})"/>
+    /// or <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,IServiceProvider,RebusConfigurer},bool,Func{IBus,Task})"/>
+    /// </param>
+    /// <param name="forwardedServiceTypes">Types available from the host's service provider which should be transiently forwarded into the hosted
+    /// service's container</param>
+    public static IHostBuilder AddRebusService(this IHostBuilder builder, Action<IServiceCollection> configureServices, params Type[] forwardedServiceTypes)
     {
         return builder.ConfigureServices((_, hostServices) =>
         {
@@ -36,8 +52,10 @@ public static class HostBuilderExtensions
                 void ConfigureServices(IServiceCollection services)
                 {
                     // add forwards to host service provider
-                    services.AddTransientForward<IHostApplicationLifetime>(provider);
-                    services.AddTransientForward<ILoggerFactory>(provider);
+                    foreach (Type forwardedType in forwardedServiceTypes)
+                    {
+                        services.AddTransientForward(forwardedType, provider);
+                    }
 
                     // configure user's services
                     configureServices(services);
@@ -60,5 +78,8 @@ public static class HostBuilderExtensions
         });
     }
 
-    static void AddTransientForward<TService>(this IServiceCollection services, IServiceProvider provider) where TService : class => services.AddTransient(_ => provider.GetService<TService>());
+    private static void AddTransientForward(this IServiceCollection services, Type forwardedType, IServiceProvider appProvider)
+    {
+        services.AddTransient(forwardedType, hostedProvider => appProvider.GetService(forwardedType));
+    }
 }
