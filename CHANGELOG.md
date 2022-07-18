@@ -95,6 +95,9 @@
 ## 8.0.0-b06
 * Fix bug that would prevent `IBus` from being resolved in certain situations - thanks [AYss]
 
+## 8.0.0
+* Publish real version (no changes compared to b06)
+
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
