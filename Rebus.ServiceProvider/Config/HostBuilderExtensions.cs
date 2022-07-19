@@ -41,9 +41,9 @@ public static class HostBuilderExtensions
     /// <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,RebusConfigurer},bool,Func{IBus,Task})"/>
     /// or <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,IServiceProvider,RebusConfigurer},bool,Func{IBus,Task})"/>
     /// </param>
-    /// <param name="forwardedServiceTypes">Types available from the host's service provider which should be transiently forwarded into the hosted
+    /// <param name="forwardedSingletonTypes">Types available from the host's service provider which should be transiently forwarded into the hosted
     /// service's container</param>
-    public static IHostBuilder AddRebusService(this IHostBuilder builder, Action<IServiceCollection> configureServices, params Type[] forwardedServiceTypes)
+    public static IHostBuilder AddRebusService(this IHostBuilder builder, Action<IServiceCollection> configureServices, params Type[] forwardedSingletonTypes)
     {
         return builder.ConfigureServices((_, hostServices) =>
         {
@@ -52,9 +52,9 @@ public static class HostBuilderExtensions
                 void ConfigureServices(IServiceCollection services)
                 {
                     // add forwards to host service provider
-                    foreach (Type forwardedType in forwardedServiceTypes)
+                    foreach (Type forwardedType in forwardedSingletonTypes)
                     {
-                        services.AddTransientForward(forwardedType, provider);
+                        services.AddSingletonForward(forwardedType, provider);
                     }
 
                     // configure user's services
@@ -78,8 +78,8 @@ public static class HostBuilderExtensions
         });
     }
 
-    private static void AddTransientForward(this IServiceCollection services, Type forwardedType, IServiceProvider appProvider)
+    private static void AddSingletonForward(this IServiceCollection services, Type forwardedType, IServiceProvider appProvider)
     {
-        services.AddTransient(forwardedType, hostedProvider => appProvider.GetService(forwardedType));
+        services.AddSingleton(forwardedType, hostedProvider => appProvider.GetRequiredService(forwardedType));
     }
 }
