@@ -98,6 +98,9 @@
 ## 8.0.0
 * Publish real version (no changes compared to b06)
 
+## 8.1.0
+* Add `AddRebusService` overload that accepts list of types to forward to the host container - thanks [sbyse]
+
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
@@ -106,6 +109,7 @@
 [mattwhetton]: https://github.com/mattwhetton
 [meronz]: https://github.com/meronz
 [rosieks]: https://github.com/rosieks
+[sbyse]: https://github.com/sbyse
 [skwasjer]: https://github.com/skwasjer
 [Slettan]: nhttps://github.com/Slettan
 [skwasjer]: https://github.com/skwasjer
