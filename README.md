@@ -240,7 +240,18 @@ builder.Host.AddRebusService(
 * `Microsoft.Extensions.Hosting.IHostApplicationLifetime`
 * `Microsoft.Extensions.Logging.ILoggerFactory`
 
-to the host's container, which essentially makes these things transparently available to the separate Rebus service.
+to the host's container, which essentially makes these things transparently available, as singletons, to the separate Rebus service.
+
+If you forward requests for other singletons to the host's container you can add to the list of forwarded singleton types:
+
+```csharp
+builder.Host.AddRebusService(
+    services => services.AddRebus(...),
+    typeof(IMyDateTimeProvider),
+    typeof(IMyImportantService),
+    ... etc
+);
+```
 
 
 ### Primary bus instance?
