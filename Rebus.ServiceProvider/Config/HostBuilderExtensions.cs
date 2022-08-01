@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -23,11 +22,14 @@ public static class HostBuilderExtensions
     /// <param name="builder">Reference to the host builder that will host this background service</param>
     /// <param name="configureServices">
     /// Configuration callback that must be used to configure the container. Making at least one call to
-    /// <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,RebusConfigurer},bool,Func{IBus,Task})"/>
-    /// or <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,IServiceProvider,RebusConfigurer},bool,Func{IBus,Task})"/>
+    /// <see cref="ServiceCollectionExtensions.AddRebus(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{Rebus.Config.RebusConfigurer,Rebus.Config.RebusConfigurer},bool,System.Func{Rebus.Bus.IBus,System.Threading.Tasks.Task},string,bool)(IServiceCollection,Func{RebusConfigurer,RebusConfigurer},bool,Func{IBus,Task})"/>
+    /// or <see cref="ServiceCollectionExtensions.AddRebus(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{Rebus.Config.RebusConfigurer,Rebus.Config.RebusConfigurer},bool,System.Func{Rebus.Bus.IBus,System.Threading.Tasks.Task},string,bool)(IServiceCollection,Func{RebusConfigurer,IServiceProvider,RebusConfigurer},bool,Func{IBus,Task})"/>
     /// </param>
     public static IHostBuilder AddRebusService(this IHostBuilder builder, Action<IServiceCollection> configureServices)
     {
+        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        if (configureServices == null) throw new ArgumentNullException(nameof(configureServices));
+        
         return builder.AddRebusService(configureServices, typeof(IHostApplicationLifetime), typeof(ILoggerFactory));
     }
 
@@ -38,23 +40,30 @@ public static class HostBuilderExtensions
     /// <param name="builder">Reference to the host builder that will host this background service</param>
     /// <param name="configureServices">
     /// Configuration callback that must be used to configure the container. Making at least one call to
-    /// <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,RebusConfigurer},bool,Func{IBus,Task})"/>
-    /// or <see cref="ServiceCollectionExtensions.AddRebus(IServiceCollection,Func{RebusConfigurer,IServiceProvider,RebusConfigurer},bool,Func{IBus,Task})"/>
+    /// <see cref="ServiceCollectionExtensions.AddRebus(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{Rebus.Config.RebusConfigurer,Rebus.Config.RebusConfigurer},bool,System.Func{Rebus.Bus.IBus,System.Threading.Tasks.Task},string,bool)(IServiceCollection,Func{RebusConfigurer,RebusConfigurer},bool,Func{IBus,Task})"/>
+    /// or <see cref="ServiceCollectionExtensions.AddRebus(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{Rebus.Config.RebusConfigurer,Rebus.Config.RebusConfigurer},bool,System.Func{Rebus.Bus.IBus,System.Threading.Tasks.Task},string,bool)(IServiceCollection,Func{RebusConfigurer,IServiceProvider,RebusConfigurer},bool,Func{IBus,Task})"/>
     /// </param>
-    /// <param name="forwardedSingletonTypes">Types available from the host's service provider which should be transiently forwarded into the hosted
-    /// service's container</param>
+    /// <param name="forwardedSingletonTypes">
+    /// Types available from the host's service provider which should be forwarded into the hosted service's container.
+    /// Please note that the registration will be made with the SINGLETON lifestyle, which in turn means that the target registration must also be a singleton, otherwise
+    /// things will get messy.
+    /// </param>
     public static IHostBuilder AddRebusService(this IHostBuilder builder, Action<IServiceCollection> configureServices, params Type[] forwardedSingletonTypes)
     {
+        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        if (configureServices == null) throw new ArgumentNullException(nameof(configureServices));
+        if (forwardedSingletonTypes == null) throw new ArgumentNullException(nameof(forwardedSingletonTypes));
+        
         return builder.ConfigureServices((_, hostServices) =>
         {
-            hostServices.AddSingleton<IHostedService>(provider =>
+            hostServices.AddSingleton<IHostedService>(hostProvider =>
             {
                 void ConfigureServices(IServiceCollection services)
                 {
                     // add forwards to host service provider
-                    foreach (Type forwardedType in forwardedSingletonTypes)
+                    foreach (var forwardedType in forwardedSingletonTypes)
                     {
-                        services.AddSingletonForward(forwardedType, provider);
+                        services.AddSingletonForward(forwardedType, hostProvider);
                     }
 
                     // configure user's services
@@ -68,8 +77,8 @@ public static class HostBuilderExtensions
 
                     // make Rebus base registrations
                     services.AddSingleton(new RebusResolver());
-                    services.AddTransient(p => p.GetRequiredService<RebusResolver>().GetBus(p));
-                    services.AddTransient(p => p.GetRequiredService<IBus>().Advanced.SyncBus);
+                    services.AddTransient(provider => provider.GetRequiredService<RebusResolver>().GetBus(provider));
+                    services.AddTransient(provider => provider.GetRequiredService<IBus>().Advanced.SyncBus);
                     services.AddTransient(_ => MessageContext.Current ?? throw new InvalidOperationException("Could not get current message context! The message context can only be resolved when handling a Rebus message, and it looks like this attempt was made from somewhere else."));
                 }
 
@@ -78,8 +87,12 @@ public static class HostBuilderExtensions
         });
     }
 
-    private static void AddSingletonForward(this IServiceCollection services, Type forwardedType, IServiceProvider appProvider)
+    static void AddSingletonForward(this IServiceCollection services, Type forwardedType, IServiceProvider hostProvider)
     {
-        services.AddSingleton(forwardedType, hostedProvider => appProvider.GetRequiredService(forwardedType));
+        if (services == null) throw new ArgumentNullException(nameof(services));
+        if (forwardedType == null) throw new ArgumentNullException(nameof(forwardedType));
+        if (hostProvider == null) throw new ArgumentNullException(nameof(hostProvider));
+
+        services.AddSingleton(forwardedType, _ => hostProvider.GetRequiredService(forwardedType));
     }
 }
