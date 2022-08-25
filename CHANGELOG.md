@@ -101,6 +101,9 @@
 ## 8.1.0
 * Add `AddRebusService` overload that accepts list of types to forward to the host container - thanks [sbyse]
 
+## 8.2.0
+* Add `AddRebusService` overloads that accept callbacks have `HostBuilderContext` passed to them - thanks [SamPersson]
+
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
@@ -109,6 +112,7 @@
 [mattwhetton]: https://github.com/mattwhetton
 [meronz]: https://github.com/meronz
 [rosieks]: https://github.com/rosieks
+[SamPersson]: https://github.com/SamPersson
 [sbyse]: https://github.com/sbyse
 [skwasjer]: https://github.com/skwasjer
 [Slettan]: nhttps://github.com/Slettan
