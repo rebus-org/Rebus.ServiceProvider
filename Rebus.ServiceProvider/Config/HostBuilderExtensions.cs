@@ -29,6 +29,24 @@ public static class HostBuilderExtensions
     {
         if (builder == null) throw new ArgumentNullException(nameof(builder));
         if (configureServices == null) throw new ArgumentNullException(nameof(configureServices));
+
+        return builder.AddRebusService((_, hostServices) => configureServices(hostServices));
+    }
+
+    /// <summary>
+    /// Adds an independent <see cref="IHostedService"/> to the host's container, containing its own service provider. This means that the
+    /// <paramref name="configureServices"/> callback must be used to make any container registrations necessary for the service to work.
+    /// </summary>
+    /// <param name="builder">Reference to the host builder that will host this background service</param>
+    /// <param name="configureServices">
+    /// Configuration callback that must be used to configure the container. Making at least one call to
+    /// <see cref="ServiceCollectionExtensions.AddRebus(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{Rebus.Config.RebusConfigurer,Rebus.Config.RebusConfigurer},bool,System.Func{Rebus.Bus.IBus,System.Threading.Tasks.Task},string,bool)(IServiceCollection,Func{RebusConfigurer,RebusConfigurer},bool,Func{IBus,Task})"/>
+    /// or <see cref="ServiceCollectionExtensions.AddRebus(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{Rebus.Config.RebusConfigurer,Rebus.Config.RebusConfigurer},bool,System.Func{Rebus.Bus.IBus,System.Threading.Tasks.Task},string,bool)(IServiceCollection,Func{RebusConfigurer,IServiceProvider,RebusConfigurer},bool,Func{IBus,Task})"/>
+    /// </param>
+    public static IHostBuilder AddRebusService(this IHostBuilder builder, Action<HostBuilderContext, IServiceCollection> configureServices)
+    {
+        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        if (configureServices == null) throw new ArgumentNullException(nameof(configureServices));
         
         return builder.AddRebusService(configureServices, typeof(IHostApplicationLifetime), typeof(ILoggerFactory));
     }
@@ -53,8 +71,32 @@ public static class HostBuilderExtensions
         if (builder == null) throw new ArgumentNullException(nameof(builder));
         if (configureServices == null) throw new ArgumentNullException(nameof(configureServices));
         if (forwardedSingletonTypes == null) throw new ArgumentNullException(nameof(forwardedSingletonTypes));
+
+        return builder.AddRebusService((_, hostServices) => configureServices(hostServices), forwardedSingletonTypes);
+    }
+
+    /// <summary>
+    /// Adds an independent <see cref="IHostedService"/> to the host's container, containing its own service provider. This means that the
+    /// <paramref name="configureServices"/> callback must be used to make any container registrations necessary for the service to work.
+    /// </summary>
+    /// <param name="builder">Reference to the host builder that will host this background service</param>
+    /// <param name="configureServices">
+    /// Configuration callback that must be used to configure the container. Making at least one call to
+    /// <see cref="ServiceCollectionExtensions.AddRebus(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{Rebus.Config.RebusConfigurer,Rebus.Config.RebusConfigurer},bool,System.Func{Rebus.Bus.IBus,System.Threading.Tasks.Task},string,bool)(IServiceCollection,Func{RebusConfigurer,RebusConfigurer},bool,Func{IBus,Task})"/>
+    /// or <see cref="ServiceCollectionExtensions.AddRebus(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{Rebus.Config.RebusConfigurer,Rebus.Config.RebusConfigurer},bool,System.Func{Rebus.Bus.IBus,System.Threading.Tasks.Task},string,bool)(IServiceCollection,Func{RebusConfigurer,IServiceProvider,RebusConfigurer},bool,Func{IBus,Task})"/>
+    /// </param>
+    /// <param name="forwardedSingletonTypes">
+    /// Types available from the host's service provider which should be forwarded into the hosted service's container.
+    /// Please note that the registration will be made with the SINGLETON lifestyle, which in turn means that the target registration must also be a singleton, otherwise
+    /// things will get messy.
+    /// </param>
+    public static IHostBuilder AddRebusService(this IHostBuilder builder, Action<HostBuilderContext, IServiceCollection> configureServices, params Type[] forwardedSingletonTypes)
+    {
+        if (builder == null) throw new ArgumentNullException(nameof(builder));
+        if (configureServices == null) throw new ArgumentNullException(nameof(configureServices));
+        if (forwardedSingletonTypes == null) throw new ArgumentNullException(nameof(forwardedSingletonTypes));
         
-        return builder.ConfigureServices((_, hostServices) =>
+        return builder.ConfigureServices((hostBuilderContext, hostServices) =>
         {
             hostServices.AddSingleton<IHostedService>(hostProvider =>
             {
@@ -67,7 +109,7 @@ public static class HostBuilderExtensions
                     }
 
                     // configure user's services
-                    configureServices(services);
+                    configureServices(hostBuilderContext, services);
 
                     // ensure that at least one bus instance was registered
                     if (!services.Any(s => s.ServiceType == typeof(IBus)))
