@@ -65,7 +65,8 @@ class RebusInitializer
                     var pipeline = context.Get<IPipeline>();
                     var serviceProviderProviderStep = new ServiceProviderProviderStep(_serviceProvider, context);
                     return new PipelineStepConcatenator(pipeline)
-                        .OnReceive(serviceProviderProviderStep, PipelineAbsolutePosition.Front);
+                        .OnReceive(serviceProviderProviderStep, PipelineAbsolutePosition.Front)
+                        .OnSend(serviceProviderProviderStep, PipelineAbsolutePosition.Front);
                 }));
 
             var configurer = _configure(rebusConfigurer, _serviceProvider);
