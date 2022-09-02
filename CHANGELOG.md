@@ -104,6 +104,9 @@
 ## 8.2.0
 * Add `AddRebusService` overloads that accept callbacks have `HostBuilderContext` passed to them - thanks [SamPersson]
 
+## 8.3.0
+*  Make ServiceProvider available in outgoing steps again - thanks [SamPersson]
+
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
