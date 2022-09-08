@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 
@@ -6,12 +7,9 @@ namespace Rebus.ServiceProvider.Internals;
 
 class RebusBackgroundService : BackgroundService
 {
-    private readonly RebusInitializer _rebusInitializer;
+    readonly RebusInitializer _rebusInitializer;
 
-    public RebusBackgroundService(RebusInitializer rebusInitializer)
-    {
-        _rebusInitializer = rebusInitializer;
-    }
+    public RebusBackgroundService(RebusInitializer rebusInitializer) => _rebusInitializer = rebusInitializer ?? throw new ArgumentNullException(nameof(rebusInitializer));
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
