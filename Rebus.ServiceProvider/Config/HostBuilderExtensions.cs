@@ -135,6 +135,9 @@ public static class HostBuilderExtensions
         if (forwardedType == null) throw new ArgumentNullException(nameof(forwardedType));
         if (hostProvider == null) throw new ArgumentNullException(nameof(hostProvider));
 
-        services.AddSingleton(forwardedType, _ => hostProvider.GetRequiredService(forwardedType));
+        foreach (var service in hostProvider.GetServices(forwardedType))
+        {
+            services.AddSingleton(forwardedType, service);
+        }
     }
 }
