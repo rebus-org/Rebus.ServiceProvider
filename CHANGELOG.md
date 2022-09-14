@@ -107,11 +107,17 @@
 ## 8.3.0
 *  Make ServiceProvider available in outgoing steps again - thanks [SamPersson]
 
+## 8.3.1
+* Fix host container type forwarding to work also in cases where a type has multiple implementations - thanks [mattwcole]
+
+
+
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
 [jorenp]: https://github.com/jorenp
 [komainu85]: https://github.com/komainu85
+[mattwcole]: https://github.com/mattwcole
 [mattwhetton]: https://github.com/mattwhetton
 [meronz]: https://github.com/meronz
 [rosieks]: https://github.com/rosieks
