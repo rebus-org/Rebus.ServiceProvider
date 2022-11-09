@@ -110,6 +110,8 @@
 ## 8.3.1
 * Fix host container type forwarding to work also in cases where a type has multiple implementations - thanks [mattwcole]
 
+## 8.4.0
+* Add ability to target .NET 7 by extending allowed version ranges of dependencies - thanks [SbiCA]
 
 
 [AYss]: https://github.com/AYss
@@ -122,6 +124,7 @@
 [meronz]: https://github.com/meronz
 [rosieks]: https://github.com/rosieks
 [SamPersson]: https://github.com/SamPersson
+[SbiCA]: https://github.com/SbiCA
 [sbyse]: https://github.com/sbyse
 [skwasjer]: https://github.com/skwasjer
 [Slettan]: nhttps://github.com/Slettan
