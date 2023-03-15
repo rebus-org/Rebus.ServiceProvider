@@ -53,6 +53,10 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
     {
         var stepContext = transactionContext.GetOrNull<IncomingStepContext>(StepContext.StepContextKey);
 
+        #if NET6_0
+        throw new Exception("RØVHUL");
+        #endif
+
         // can't think of any situations when there would NOT be an incoming step context in the transaction context, except in tests.... so...
         if (stepContext == null) return _provider.CreateScope();
 
