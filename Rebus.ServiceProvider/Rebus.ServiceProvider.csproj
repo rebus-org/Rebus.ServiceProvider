@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
-		<LangVersion>10</LangVersion>
+		<LangVersion>11</LangVersion>
 		<Authors>mookid8000</Authors>
 		<PackageProjectUrl>https://rebus.fm/what-is-rebus/</PackageProjectUrl>
 		<Copyright>Copyright Rebus FM ApS 2012</Copyright>
 		<PackageTags>rebus service-provider ioc dependency-injection</PackageTags>
-		<PackageDescription>Provides a service provider-based container adapter for Rebus</PackageDescription>
+		<PackageDescription>Provides a service provider-based container adapter for Rebus (i.e. integration with Microsoft.Extensions.DependencyInjection) as well as integration with the generic host</PackageDescription>
 		<RepositoryUrl>https://github.com/rebus-org/Rebus.ServiceProvider</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
