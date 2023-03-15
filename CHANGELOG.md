@@ -113,7 +113,7 @@
 ## 8.4.0
 * Add ability to target .NET 7 by extending allowed version ranges of dependencies - thanks [SbiCA]
 
-## 9.0.0-b01
+## 9.0.0-b02
 * Target .NET Standard and .NET 6 to be able to support async scopes (and thus disposing `IAsyncDisposable` things)
 
 [AYss]: https://github.com/AYss
