@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Rebus.Bus;
@@ -67,7 +66,7 @@ static class CorrelationIdConfigurationExtensions
         readonly IServiceProvider _serviceProvider;
         readonly string _httpRequestHeaderKey;
 
-        public SetCorrelationIdOutgoingStep([NotNull] IServiceProvider serviceProvider, [NotNull] string httpRequestHeaderKey)
+        public SetCorrelationIdOutgoingStep(IServiceProvider serviceProvider, string httpRequestHeaderKey)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _httpRequestHeaderKey = httpRequestHeaderKey ?? throw new ArgumentNullException(nameof(httpRequestHeaderKey));
