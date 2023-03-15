@@ -29,5 +29,6 @@
 		<PackageReference Include="Rebus" Version="[6.0.0,)" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[6, 8)" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="[6, 8)" />
+		<PackageReference Include="microsoft.extensions.logging.abstractions" Version="[6, 8)" />
 	</ItemGroup>
 </Project>

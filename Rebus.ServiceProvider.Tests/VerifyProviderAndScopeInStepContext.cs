@@ -40,12 +40,12 @@ public class VerifyProviderAndScopeInStepContext : FixtureBase
         var step = new StepContextHooker(context =>
         {
             var serviceProvider = context.Load<IServiceProvider>();
-            var scope = serviceProvider.CreateScope();
+            var scope = serviceProvider.CreateAsyncScope();
 
             guidFirstEncountered = scope.ServiceProvider.GetRequiredService<ScopedInstance>().Id;
 
             // this should make the handler activator use the same scope
-            context.Save(scope);
+            context.Save<AsyncServiceScope?>(scope);
         });
 
         AddRebusWithStep(serviceCollection, step);

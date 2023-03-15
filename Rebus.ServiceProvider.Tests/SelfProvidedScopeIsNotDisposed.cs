@@ -109,9 +109,9 @@ public class SelfProvidedScopeIsNotDisposed : FixtureBase
 
             SomethingDisposable somethingDisposable;
 
-            using (var scope = serviceProvider.CreateScope())
+            await using (var scope = serviceProvider.CreateAsyncScope())
             {
-                context.Save(scope);
+                context.Save<AsyncServiceScope?>(scope);
 
                 somethingDisposable = scope.ServiceProvider.GetRequiredService<SomethingDisposable>();
 

@@ -41,7 +41,7 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
         {
             var scope = GetOrCreateScope(transactionContext);
 
-            return GetMessageHandlersForMessage<TMessage>(scope);
+            return GetMessageHandlersForMessage<TMessage>(scope.ServiceProvider);
         }
         catch (ObjectDisposedException exception)
         {
@@ -49,13 +49,28 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
         }
     }
 
-    IServiceScope GetOrCreateScope(ITransactionContext transactionContext)
+#if NET6_0
+    AsyncServiceScope GetOrCreateScope(ITransactionContext transactionContext)
     {
         var stepContext = transactionContext.GetOrNull<IncomingStepContext>(StepContext.StepContextKey);
 
-        #if NET6_0
-        throw new Exception("RØVHUL");
-        #endif
+        // can't think of any situations when there would NOT be an incoming step context in the transaction context, except in tests.... so...
+        if (stepContext == null) return _provider.CreateAsyncScope();
+
+        AsyncServiceScope CreateAndInitializeNewScope()
+        {
+            var scope = _provider.CreateAsyncScope();
+            transactionContext.OnDisposed(_ => AsyncHelpers.RunSync(async () => await scope.DisposeAsync()));
+            stepContext.Save<AsyncServiceScope?>(scope);
+            return scope;
+        }
+
+        return stepContext.Load<AsyncServiceScope?>() ?? CreateAndInitializeNewScope();
+    }
+#else
+    IServiceScope GetOrCreateScope(ITransactionContext transactionContext)
+    {
+        var stepContext = transactionContext.GetOrNull<IncomingStepContext>(StepContext.StepContextKey);
 
         // can't think of any situations when there would NOT be an incoming step context in the transaction context, except in tests.... so...
         if (stepContext == null) return _provider.CreateScope();
@@ -64,17 +79,17 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
         {
             var scope = _provider.CreateScope();
             transactionContext.OnDisposed(_ => scope.Dispose());
-            return stepContext.Save(scope);
+            stepContext.Save(scope);
+            return scope;
         }
 
         return stepContext.Load<IServiceScope>() ?? CreateAndInitializeNewScope();
     }
+#endif
 
-    IReadOnlyList<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceScope scope)
+    IReadOnlyList<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceProvider serviceProvider)
     {
         var typesToResolve = _typesToResolveByMessage.GetOrAdd(typeof(TMessage), FigureOutTypesToResolve);
-
-        var serviceProvider = scope.ServiceProvider;
 
         return typesToResolve
             .SelectMany(type => serviceProvider.GetServices(type).Cast<IHandleMessages>())
