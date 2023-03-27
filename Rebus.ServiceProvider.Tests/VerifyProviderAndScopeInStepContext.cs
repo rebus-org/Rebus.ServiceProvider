@@ -119,7 +119,7 @@ public class VerifyProviderAndScopeInStepContext : FixtureBase
                 {
                     var pipeline = c.Get<IPipeline>();
                     return new PipelineStepInjector(pipeline)
-                        .OnReceive(step, PipelineRelativePosition.After, typeof(SimpleRetryStrategyStep));
+                        .OnReceive(step, PipelineRelativePosition.After, typeof(DefaultRetryStep));
                 });
 
                 o.LogPipeline(verbose: true);

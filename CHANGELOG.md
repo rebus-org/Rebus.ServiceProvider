@@ -116,6 +116,9 @@
 ## 9.0.0
 * Target .NET Standard and .NET 6 to be able to support async scopes (and thus disposing `IAsyncDisposable` things)
 
+## 10.0.0-alpha01
+* Update to Rebus 8
+
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
