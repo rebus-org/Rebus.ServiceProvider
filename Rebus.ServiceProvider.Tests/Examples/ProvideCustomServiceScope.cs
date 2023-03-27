@@ -75,7 +75,7 @@ static class CustomScopeExtensions
         {
             var step = new ProvideCustomScopeStep(serviceProvider);
             return new PipelineStepInjector(c.Get<IPipeline>())
-                .OnReceive(step, PipelineRelativePosition.After, typeof(SimpleRetryStrategyStep));
+                .OnReceive(step, PipelineRelativePosition.After, typeof(DefaultRetryStep));
         });
     }
 

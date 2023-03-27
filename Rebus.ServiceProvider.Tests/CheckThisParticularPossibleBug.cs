@@ -6,7 +6,6 @@ using NUnit.Framework;
 using Rebus.Bus;
 using Rebus.Config;
 using Rebus.Handlers;
-using Rebus.Persistence.InMem;
 using Rebus.Retry.Simple;
 using Rebus.Tests.Contracts.Extensions;
 using Rebus.Transport.InMem;
@@ -38,7 +37,6 @@ public class CheckThisParticularPossibleBug
             configure
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "doesn't matter'"))
                 .Options(o => o.SimpleRetryStrategy(secondLevelRetriesEnabled: true, maxDeliveryAttempts: 3))
-                .Subscriptions(s => s.StoreInMemory(new InMemorySubscriberStore()))
         );
 
         var callsToSecondLevelHandler = new ConcurrentQueue<string>();
