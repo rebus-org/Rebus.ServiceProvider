@@ -116,8 +116,9 @@
 ## 9.0.0
 * Target .NET Standard and .NET 6 to be able to support async scopes (and thus disposing `IAsyncDisposable` things)
 
-## 10.0.0-alpha01
+## 10.0.0-alpha02
 * Update to Rebus 8
+* Extend allowed dependency version range to 7 for .NET Standard 2.0 build - thanks [talisker77]
 
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
@@ -132,8 +133,9 @@
 [SbiCA]: https://github.com/SbiCA
 [sbyse]: https://github.com/sbyse
 [skwasjer]: https://github.com/skwasjer
-[Slettan]: nhttps://github.com/Slettan
+[Slettan]: https://github.com/Slettan
 [skwasjer]: https://github.com/skwasjer
+[talisker77]: https://github.com/talisker77
 [TobiasNissen]: https://github.com/TobiasNissen
 [trevorreeves]: https://github.com/trevorreeves
 [Tsjunne]: https://github.com/Tsjunne

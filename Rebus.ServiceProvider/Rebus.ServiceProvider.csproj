@@ -21,7 +21,7 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard20'">
-		<PackageReference Include="Rebus" Version="[8.0.0-alpha01,)" />
+		<PackageReference Include="Rebus" Version="8.0.0-alpha09" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[3, 7)" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="[3, 7)" />
 	</ItemGroup>

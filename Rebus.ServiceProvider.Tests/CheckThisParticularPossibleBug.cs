@@ -36,7 +36,7 @@ public class CheckThisParticularPossibleBug
         serviceCollection.AddRebus(configure =>
             configure
                 .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "doesn't matter'"))
-                .Options(o => o.SimpleRetryStrategy(secondLevelRetriesEnabled: true, maxDeliveryAttempts: 3))
+                .Options(o => o.RetryStrategy(secondLevelRetriesEnabled: true, maxDeliveryAttempts: 3))
         );
 
         var callsToSecondLevelHandler = new ConcurrentQueue<string>();
