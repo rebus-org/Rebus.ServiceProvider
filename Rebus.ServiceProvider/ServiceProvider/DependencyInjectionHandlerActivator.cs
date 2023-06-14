@@ -39,9 +39,9 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
     {
         try
         {
-            var scope = GetOrCreateScope(transactionContext);
+            var serviceProvider = GetOrCreateScopeAndReturnServiceProvider(transactionContext);
 
-            return GetMessageHandlersForMessage<TMessage>(scope.ServiceProvider);
+            return GetMessageHandlersForMessage<TMessage>(serviceProvider);
         }
         catch (ObjectDisposedException exception)
         {
@@ -49,13 +49,12 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
         }
     }
 
-#if NET6_0
-    AsyncServiceScope GetOrCreateScope(ITransactionContext transactionContext)
+    IServiceProvider GetOrCreateScopeAndReturnServiceProvider(ITransactionContext transactionContext)
     {
         var stepContext = transactionContext.GetOrNull<IncomingStepContext>(StepContext.StepContextKey);
 
         // can't think of any situations when there would NOT be an incoming step context in the transaction context, except in tests.... so...
-        if (stepContext == null) return _provider.CreateAsyncScope();
+        if (stepContext == null) return _provider.CreateAsyncScope().ServiceProvider;
 
         AsyncServiceScope CreateAndInitializeNewScope()
         {
@@ -65,27 +64,30 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
             return scope;
         }
 
-        return stepContext.Load<AsyncServiceScope?>() ?? CreateAndInitializeNewScope();
+        var scope = stepContext.Load<AsyncServiceScope?>() ?? CreateAndInitializeNewScope();
+
+        return scope.ServiceProvider;
     }
-#else
-    IServiceScope GetOrCreateScope(ITransactionContext transactionContext)
-    {
-        var stepContext = transactionContext.GetOrNull<IncomingStepContext>(StepContext.StepContextKey);
 
-        // can't think of any situations when there would NOT be an incoming step context in the transaction context, except in tests.... so...
-        if (stepContext == null) return _provider.CreateScope();
+    //IServiceProvider GetOrCreateScopeAndReturnServiceProvider(ITransactionContext transactionContext)
+    //{
+    //    var stepContext = transactionContext.GetOrNull<IncomingStepContext>(StepContext.StepContextKey);
 
-        IServiceScope CreateAndInitializeNewScope()
-        {
-            var scope = _provider.CreateScope();
-            transactionContext.OnDisposed(_ => scope.Dispose());
-            stepContext.Save(scope);
-            return scope;
-        }
+    //    // can't think of any situations when there would NOT be an incoming step context in the transaction context, except in tests.... so...
+    //    if (stepContext == null) return _provider.CreateScope().ServiceProvider;
 
-        return stepContext.Load<IServiceScope>() ?? CreateAndInitializeNewScope();
-    }
-#endif
+    //    IServiceScope CreateAndInitializeNewScope()
+    //    {
+    //        var scope = _provider.CreateScope();
+    //        transactionContext.OnDisposed(_ => scope.Dispose());
+    //        stepContext.Save(scope);
+    //        return scope;
+    //    }
+
+    //    var scope = stepContext.Load<IServiceScope>() ?? CreateAndInitializeNewScope();
+
+    //    return scope.ServiceProvider;
+    //}
 
     IReadOnlyList<IHandleMessages<TMessage>> GetMessageHandlersForMessage<TMessage>(IServiceProvider serviceProvider)
     {

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard20;net60</TargetFrameworks>
+		<TargetFrameworks>netstandard20;netstandard21</TargetFrameworks>
 		<LangVersion>11</LangVersion>
 		<Authors>mookid8000</Authors>
 		<PackageProjectUrl>https://rebus.fm/what-is-rebus/</PackageProjectUrl>
@@ -9,7 +9,6 @@
 		<PackageDescription>Provides a service provider-based container adapter for Rebus (i.e. integration with Microsoft.Extensions.DependencyInjection) as well as integration with the generic host</PackageDescription>
 		<RepositoryUrl>https://github.com/rebus-org/Rebus.ServiceProvider</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
 		<RootNamespace>Rebus</RootNamespace>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>little_rebusbus2_copy-200x200.png</PackageIcon>
@@ -20,13 +19,14 @@
 			<PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard20'">
-		<PackageReference Include="Rebus" Version="8.0.0-alpha09" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[3, 7)" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="[3, 7)" />
+	<ItemGroup Condition="'$(TargetFramework)'=='netstandard20'">
+		<PackageReference Include="Rebus" Version="[8.0.0-alpha09,)" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[6, 8)" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="[6, 8)" />
+		<PackageReference Include="microsoft.extensions.logging.abstractions" Version="[6, 8)" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net60'">
-		<PackageReference Include="Rebus" Version="[8.0.0-alpha01,)" />
+	<ItemGroup Condition="'$(TargetFramework)'=='netstandard21'">
+		<PackageReference Include="Rebus" Version="[8.0.0-alpha09,)" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[6, 8)" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="[6, 8)" />
 		<PackageReference Include="microsoft.extensions.logging.abstractions" Version="[6, 8)" />

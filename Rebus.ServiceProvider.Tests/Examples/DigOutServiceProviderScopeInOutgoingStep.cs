@@ -11,7 +11,6 @@ using Rebus.Pipeline.Send;
 using Rebus.Routing.TypeBased;
 using Rebus.Tests.Contracts;
 using Rebus.Tests.Contracts.Extensions;
-using Rebus.Transport;
 using Rebus.Transport.InMem;
 
 namespace Rebus.ServiceProvider.Tests.Examples;
@@ -54,9 +53,12 @@ public class DigOutServiceProviderScopeInOutgoingStep : FixtureBase
     {
         public async Task Process(OutgoingStepContext context, Func<Task> next)
         {
-            var scope = context.GetAsyncServiceScopeOrNull();
+            if (context.GetAsyncServiceScopeOrNull() != null)
+            {
+                context.Load<Message>().Headers["got-the-scope"] = "yes";
+            }
 
-            if (scope != null)
+            if (context.GetServiceScopeOrNull() != null)
             {
                 context.Load<Message>().Headers["got-the-scope"] = "yes";
             }

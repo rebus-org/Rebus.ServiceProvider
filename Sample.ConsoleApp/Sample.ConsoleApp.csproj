@@ -7,7 +7,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Rebus" Version="8.0.0-alpha09" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
