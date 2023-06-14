@@ -91,12 +91,12 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
     {
         var handledMessageTypes = new HashSet<Type>(messageType.GetBaseTypes()) { messageType };
         var compatibleMessageTypes = new HashSet<Type>();
-        
+
         foreach (var type in handledMessageTypes)
         {
             compatibleMessageTypes.UnionWith(GetCompatibleMessageHandlerTypes(type));
         }
-        
+
         handledMessageTypes.UnionWith(compatibleMessageTypes);
 
         return handledMessageTypes

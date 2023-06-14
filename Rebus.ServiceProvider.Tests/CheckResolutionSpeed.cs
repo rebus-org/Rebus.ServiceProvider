@@ -27,7 +27,9 @@ After updating some package versions:
 
      */
     [TestCase(100000)]
-    public async Task JustResolveManyTimes(int count)
+    [TestCase(1000000)]
+    [Description("A little bit of a funny test case, because System.String implements SO many things (e.g. IComparable, etc.), which means that the resolver has ~40 types to look up(!)")]
+    public async Task JustResolveManyTimes_String(int count)
     {
         var serviceCollection = new ServiceCollection();
 
@@ -51,6 +53,44 @@ After updating some package versions:
         var elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
 
         Console.WriteLine($"{count} resolutions took {elapsedSeconds:0.0} s - that's {count / elapsedSeconds:0.0} /s");
+    }
+
+    [TestCase(100000)]
+    [TestCase(1000000)]
+    public async Task JustResolveManyTimes_OwnMessageType(int count)
+    {
+        var serviceCollection = new ServiceCollection();
+
+        serviceCollection.AddTransient<IHandleMessages<SomeMessage>>(_ => new SomeMessageHandler());
+
+        serviceCollection.AddSingleton(p => new DependencyInjectionHandlerActivator(p));
+
+        await using var provider = serviceCollection.BuildServiceProvider();
+
+        var handlerActivator = provider.GetRequiredService<DependencyInjectionHandlerActivator>();
+
+        var stopwatch = Stopwatch.StartNew();
+
+        for (var counter = 0; counter < count; counter++)
+        {
+            using var scope = new RebusTransactionScope();
+
+            await handlerActivator.GetHandlers(new SomeMessage(), scope.TransactionContext);
+        }
+
+        var elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
+
+        Console.WriteLine($"{count} resolutions took {elapsedSeconds:0.0} s - that's {count / elapsedSeconds:0.0} /s");
+    }
+
+    record SomeMessage;
+
+    class SomeMessageHandler : IHandleMessages<SomeMessage>
+    {
+        public Task Handle(SomeMessage message)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
     class StringHandler : IHandleMessages<string>
