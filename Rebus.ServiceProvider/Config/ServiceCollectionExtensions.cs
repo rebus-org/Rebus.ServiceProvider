@@ -106,7 +106,7 @@ public static class ServiceCollectionExtensions
             {
                 throw new InvalidOperationException("Detected that the service collection already contains a default bus registration - please make only one single AddRebus call with isDefaultBus:true");
             }
-            
+
             services.AddSingleton(p => new RebusInitializer(startAutomatically, key, configure, onCreated, p, isDefaultBus, p.GetService<IHostApplicationLifetime>()));
             services.AddSingleton(p =>
                                   {
@@ -120,7 +120,7 @@ public static class ServiceCollectionExtensions
         {
             services.AddSingleton<IHostedService>(p => new RebusBackgroundService(new RebusInitializer(startAutomatically, key, configure, onCreated, p, isDefaultBus, p.GetService<IHostApplicationLifetime>())));
         }
-        
+
         if (!services.Any(s => s.ImplementationType == typeof(RebusResolver)))
         {
             services.AddSingleton(new RebusResolver());
@@ -219,13 +219,38 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Registers all Rebus message handler types found in the assembly of <typeparamref name="T"/> under the namespace that type lives
+    /// under. So all types within the same namespace will get mapped as handlers, but not types under other namespaces. This allows
+    /// you to separate messages for specific queues by namespace and register them all in one go.
+    /// </summary>
+    public static IServiceCollection AutoRegisterHandlersFromAssemblyNamespaceOf<T>(this IServiceCollection services)
+    {
+        return services.AutoRegisterHandlersFromAssemblyNamespaceOf(typeof(T));
+    }
+
+    /// <summary>
+    /// Registers all Rebus message handler types found in the assembly of <paramref name="handlerType"/> under the namespace that type lives
+    /// under. So all types within the same namespace will get mapped as handlers, but not types under other namespaces. This allows
+    /// you to separate messages for specific queues by namespace and register them all in one go.
+    /// </summary>
+    public static IServiceCollection AutoRegisterHandlersFromAssemblyNamespaceOf(this IServiceCollection services, Type handlerType)
+    {
+        if (services == null) throw new ArgumentNullException(nameof(services));
+        if (handlerType == null) throw new ArgumentNullException(nameof(handlerType));
+
+        RegisterAssembly(services, handlerType.Assembly, handlerType.Namespace);
+
+        return services;
+    }
+
     static Assembly GetAssembly<THandler>() => typeof(THandler).Assembly;
 
     static IEnumerable<Type> GetImplementedHandlerInterfaces(Type type) =>
         type.GetInterfaces()
             .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>));
 
-    static void RegisterAssembly(IServiceCollection services, Assembly assemblyToRegister)
+    static void RegisterAssembly(IServiceCollection services, Assembly assemblyToRegister, string namespaceFilter = null)
     {
         var typesToAutoRegister = assemblyToRegister.GetTypes()
             .Where(IsClass)
@@ -235,6 +260,12 @@ public static class ServiceCollectionExtensions
                 ImplementedHandlerInterfaces = GetImplementedHandlerInterfaces(type).ToList()
             })
             .Where(a => a.ImplementedHandlerInterfaces.Any());
+
+        if (!string.IsNullOrEmpty(namespaceFilter))
+        {
+            typesToAutoRegister = typesToAutoRegister.Where(a =>
+                a.Type.Namespace != null && a.Type.Namespace.StartsWith(namespaceFilter));
+        }
 
         foreach (var type in typesToAutoRegister)
         {
