@@ -116,9 +116,9 @@
 ## 9.0.0
 * Target .NET Standard and .NET 6 to be able to support async scopes (and thus disposing `IAsyncDisposable` things)
 
-## 10.0.0-alpha04
-* Update to Rebus 8
-* Extend allowed dependency version range to 7 for .NET Standard 2.0 build - thanks [talisker77]
+## 9.1.0
+* Target Rebus 7
+* Extend allowed dependency version ranges
 * Implement auto-registration methods that allow filtering by namespace - thanks [JeremySkinner]
 
 [AYss]: https://github.com/AYss
