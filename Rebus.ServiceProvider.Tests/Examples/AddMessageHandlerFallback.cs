@@ -55,10 +55,10 @@ public class AddMessageHandlerFallback : FixtureBase
         await bus.SendLocal(new SomeMessage());
         await bus.SendLocal(new AnotherMessage());
 
-        await events.WaitUntil(q => q.Count >= 1);
+        await events.WaitUntil(q => q.Count >= 2);
 
         // additional time to let additional stuff happen
-        await Task.Delay(TimeSpan.FromSeconds(1));
+        await Task.Delay(TimeSpan.FromSeconds(0.2));
 
         Assert.That(events, Is.EqualTo(new[]
         {
