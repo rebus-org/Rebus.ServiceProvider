@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 using Rebus.Bus;
@@ -32,7 +32,10 @@ Therefore, you can simply let Rebus do its things, and then you can remove all I
         services.AddRebus(configure => configure.Transport(t => t.UseInMemoryTransportAsOneWayClient(network)));
 
         // here's the crucial part: leave no IHostedService registrations behind
-        services.RemoveAll(typeof(IHostedService));
+        services
+            .Where(s => s.ServiceType == typeof(IHostedService) && s.ImplementationFactory?.Method.ToString().Contains("AddRebus") == true)
+            .ToList()
+            .ForEach(s => services.Remove(s));
 
         await using var provider = services.BuildServiceProvider();
 
