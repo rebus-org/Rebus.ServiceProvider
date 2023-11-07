@@ -140,8 +140,8 @@ public class ServiceCollectionExtensionsTests
 
     public abstract class TestHandlerBase
     {
-        private readonly TaskCompletionSource<bool> _countReachedSource;
-        private readonly int _countToWaitFor;
+        readonly TaskCompletionSource<bool> _countReachedSource;
+        readonly int _countToWaitFor;
 
         public TestHandlerBase(int countToWaitFor)
         {

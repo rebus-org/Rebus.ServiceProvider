@@ -1,19 +1,18 @@
 ﻿using System;
 
-namespace Sample.WebApp
+namespace Sample.WebApp;
+
+public class Message1
 {
-    public class Message1
+    public Message1()
     {
-        public Message1()
-        {
-            Id = Guid.NewGuid();
-        }
+        Id = Guid.NewGuid();
+    }
 
-        public Guid Id { get; }
+    public Guid Id { get; }
 
-        public override string ToString()
-        {
-            return $"Message1 : {Id}";
-        }
+    public override string ToString()
+    {
+        return $"Message1 : {Id}";
     }
 }

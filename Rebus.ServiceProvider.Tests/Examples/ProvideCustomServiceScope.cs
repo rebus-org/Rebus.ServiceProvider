@@ -56,7 +56,7 @@ public class ProvideCustomServiceScope : FixtureBase
 
     class MyStringHandler : IHandleMessages<string>
     {
-        private readonly CountdownEvent _countdown;
+        readonly CountdownEvent _countdown;
 
         public MyStringHandler(CountdownEvent countdown) => _countdown = countdown;
 
@@ -82,7 +82,7 @@ static class CustomScopeExtensions
     [StepDocumentation("Incoming pipeline step that uses the service provider passed to it to create an IServiceScope, which will be stashed in the incoming context for subsequent steps to pick up.")]
     class ProvideCustomScopeStep : IIncomingStep
     {
-        private readonly IServiceProvider _serviceProvider;
+        readonly IServiceProvider _serviceProvider;
 
         public ProvideCustomScopeStep(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 

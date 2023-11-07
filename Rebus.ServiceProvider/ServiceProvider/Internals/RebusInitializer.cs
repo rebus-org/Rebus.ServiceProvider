@@ -14,14 +14,14 @@ namespace Rebus.ServiceProvider.Internals;
 class RebusInitializer
 {
     public readonly Lazy<Task<(IBus, BusLifetimeEvents)>> _busAndEvents;
-    
-    private readonly bool _startAutomatically;
-    private readonly string _key;
-    private readonly Func<RebusConfigurer, IServiceProvider, RebusConfigurer> _configure;
-    private readonly Func<IBus, Task> _onCreated;
-    private readonly IServiceProvider _serviceProvider;
-    private readonly bool _isDefaultBus;
-    private readonly CancellationToken? _cancellationToken;
+
+    readonly bool _startAutomatically;
+    readonly string _key;
+    readonly Func<RebusConfigurer, IServiceProvider, RebusConfigurer> _configure;
+    readonly Func<IBus, Task> _onCreated;
+    readonly IServiceProvider _serviceProvider;
+    readonly bool _isDefaultBus;
+    readonly CancellationToken? _cancellationToken;
 
     public RebusInitializer(
         bool startAutomatically,

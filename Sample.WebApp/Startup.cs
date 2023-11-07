@@ -11,48 +11,47 @@ using Rebus.Config;
 using Rebus.Routing.TypeBased;
 using Rebus.Transport.InMem;
 
-namespace Sample.WebApp
+namespace Sample.WebApp;
+
+public class Startup
 {
-    public class Startup
+    readonly ILoggerFactory _loggerFactory;
+    public Startup(ILoggerFactory loggerFactory)
     {
-        private readonly ILoggerFactory _loggerFactory;
-        public Startup(ILoggerFactory loggerFactory)
+        _loggerFactory = loggerFactory;
+    }
+    public void ConfigureServices(IServiceCollection services)
+    {
+        // Register handlers 
+        services.AutoRegisterHandlersFromAssemblyOf<Handler1>();
+
+        // Configure and register Rebus
+        services.AddRebus(configure => configure
+            //.Logging(l => ...) //< do not configure logging - it will automatically use the host's logging
+            .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
+            .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
         {
-            _loggerFactory = loggerFactory;
+            app.UseDeveloperExceptionPage();
         }
-        public void ConfigureServices(IServiceCollection services)
+
+        app.Run(async (context) =>
         {
-            // Register handlers 
-            services.AutoRegisterHandlersFromAssemblyOf<Handler1>();
+            var bus = app.ApplicationServices.GetRequiredService<IBus>();
+            var logger = _loggerFactory.CreateLogger<Startup>();
 
-            // Configure and register Rebus
-            services.AddRebus(configure => configure
-                //.Logging(l => ...) //< do not configure logging - it will automatically use the host's logging
-                .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "Messages"))
-                .Routing(r => r.TypeBased().MapAssemblyOf<Message1>("Messages")));
-        }
+            logger.LogInformation("Publishing {MessageCount} messages", 10);
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            await Task.WhenAll(
+                Enumerable.Range(0, 10)
+                    .Select(i => new Message1())
+                    .Select(message => bus.Send(message)));
 
-            app.Run(async (context) =>
-            {
-                var bus = app.ApplicationServices.GetRequiredService<IBus>();
-                var logger = _loggerFactory.CreateLogger<Startup>();
-
-                logger.LogInformation("Publishing {MessageCount} messages", 10);
-
-                await Task.WhenAll(
-                    Enumerable.Range(0, 10)
-                        .Select(i => new Message1())
-                        .Select(message => bus.Send(message)));
-
-                await context.Response.WriteAsync("Rebus sent another 10 messages!");
-            });
-        }
+            await context.Response.WriteAsync("Rebus sent another 10 messages!");
+        });
     }
 }
