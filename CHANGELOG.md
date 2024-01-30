@@ -121,6 +121,11 @@
 * Extend allowed dependency version range to 7 for .NET Standard 2.0 build - thanks [talisker77]
 * Implement auto-registration methods that allow filtering by namespace - thanks [JeremySkinner]
 
+## 10.1.0
+* Add optional filter predicate to `AutoRegisterHandlersOf<>` - thanks [arildboifot]
+
+
+[arildboifot]: https://github.com/arildboifot
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
 [Hawxy]: https://github.com/Hawxy
