@@ -174,14 +174,15 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <typeparam name="THandler">The type of the handler.</typeparam>
     /// <param name="services">The services.</param>
+    /// <param name="predicate">Filter registered handlers based on type</param>
     /// <exception cref="System.ArgumentNullException"></exception>
-    public static IServiceCollection AutoRegisterHandlersFromAssemblyOf<THandler>(this IServiceCollection services)
+    public static IServiceCollection AutoRegisterHandlersFromAssemblyOf<THandler>(this IServiceCollection services, Func<Type, bool> predicate = null)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
 
         var assemblyToRegister = GetAssembly<THandler>();
 
-        RegisterAssembly(services, assemblyToRegister);
+        RegisterAssembly(services, assemblyToRegister, predicate: predicate);
 
         return services;
     }
@@ -191,12 +192,13 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The services</param>
     /// <param name="assembly">The assembly to scan</param>
-    public static IServiceCollection AutoRegisterHandlersFromAssembly(this IServiceCollection services, Assembly assembly)
+    /// /// <param name="predicate">Filter registered handlers based on type</param>
+    public static IServiceCollection AutoRegisterHandlersFromAssembly(this IServiceCollection services, Assembly assembly, Func<Type, bool> predicate = null)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (assembly == null) throw new ArgumentNullException(nameof(assembly));
 
-        RegisterAssembly(services, assembly);
+        RegisterAssembly(services, assembly, predicate: predicate);
 
         return services;
     }
@@ -206,7 +208,8 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The services</param>
     /// <param name="assemblyString">The long name of the assembly</param>
-    public static IServiceCollection AutoRegisterHandlersFromAssembly(this IServiceCollection services, string assemblyString)
+    /// <param name="predicate">Filter registered handlers based on type</param>
+    public static IServiceCollection AutoRegisterHandlersFromAssembly(this IServiceCollection services, string assemblyString, Func<Type, bool> predicate = null)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (string.IsNullOrEmpty(assemblyString)) throw new ArgumentNullException(nameof(assemblyString));
@@ -214,7 +217,7 @@ public static class ServiceCollectionExtensions
         var assemblyName = new AssemblyName(assemblyString);
         var assembly = Assembly.Load(assemblyName);
 
-        RegisterAssembly(services, assembly);
+        RegisterAssembly(services, assembly, predicate: predicate);
 
         return services;
     }
@@ -250,7 +253,7 @@ public static class ServiceCollectionExtensions
         type.GetInterfaces()
             .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>));
 
-    static void RegisterAssembly(IServiceCollection services, Assembly assemblyToRegister, string namespaceFilter = null)
+    static void RegisterAssembly(IServiceCollection services, Assembly assemblyToRegister, string namespaceFilter = null, Func<Type, bool> predicate = null)
     {
         var typesToAutoRegister = assemblyToRegister.GetTypes()
             .Where(IsClass)
@@ -267,6 +270,11 @@ public static class ServiceCollectionExtensions
                 a.Type.Namespace != null && a.Type.Namespace.StartsWith(namespaceFilter));
         }
 
+        if (predicate != null)
+        {
+            typesToAutoRegister = typesToAutoRegister.Where(x => predicate(x.Type));
+        }
+        
         foreach (var type in typesToAutoRegister)
         {
             RegisterType(services, type.Type);
