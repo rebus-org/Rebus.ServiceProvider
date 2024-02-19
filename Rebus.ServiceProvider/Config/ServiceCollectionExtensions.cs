@@ -121,7 +121,11 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<IHostedService>(p => new RebusBackgroundService(new RebusInitializer(startAutomatically, key, configure, onCreated, p, isDefaultBus, p.GetService<IHostApplicationLifetime>())));
         }
 
+#if NET8_0_OR_GREATER
+        if (!services.Any(s => (s.IsKeyedService ? s.KeyedImplementationType : s.ImplementationType) == typeof(RebusResolver)))
+#else
         if (!services.Any(s => s.ImplementationType == typeof(RebusResolver)))
+#endif
         {
             services.AddSingleton(new RebusResolver());
             services.AddSingleton(new ServiceProviderBusRegistry());
@@ -274,7 +278,7 @@ public static class ServiceCollectionExtensions
         {
             typesToAutoRegister = typesToAutoRegister.Where(x => predicate(x.Type));
         }
-        
+
         foreach (var type in typesToAutoRegister)
         {
             RegisterType(services, type.Type);
