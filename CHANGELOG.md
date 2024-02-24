@@ -124,6 +124,8 @@
 ## 10.1.0
 * Add optional filter predicate to `AutoRegisterHandlersOf<>` - thanks [arildboifot]
 
+## 10.1.1
+* Fix bug that would prevent Rebus to work alongside keyed registrations in .NET 8 - thanks [SimTsai]
 
 [arildboifot]: https://github.com/arildboifot
 [AYss]: https://github.com/AYss
@@ -139,9 +141,9 @@
 [SamPersson]: https://github.com/SamPersson
 [SbiCA]: https://github.com/SbiCA
 [sbyse]: https://github.com/sbyse
+[SimTsai]: https://github.com/SimTsai
 [skwasjer]: https://github.com/skwasjer
 [Slettan]: https://github.com/Slettan
-[skwasjer]: https://github.com/skwasjer
 [talisker77]: https://github.com/talisker77
 [TobiasNissen]: https://github.com/TobiasNissen
 [trevorreeves]: https://github.com/trevorreeves
