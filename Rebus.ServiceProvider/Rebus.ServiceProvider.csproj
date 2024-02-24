@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard20;netstandard21</TargetFrameworks>
+		<TargetFrameworks>netstandard20;netstandard21;net8.0</TargetFrameworks>
 		<LangVersion>11</LangVersion>
 		<Authors>mookid8000</Authors>
 		<PackageProjectUrl>https://rebus.fm/what-is-rebus/</PackageProjectUrl>
@@ -20,14 +20,19 @@
 			<PackagePath></PackagePath>
 		</None>
 		<None Include="..\README.md">
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Rebus" Version="[8.0.1,)" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[6, 9)" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="[6, 9)" />
-		<PackageReference Include="microsoft.extensions.logging.abstractions" Version="[6, 9)" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[6, 9)" />
+	</ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' != 'net8.0' ">
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[6, 9)" />
+	</ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[8, 9)" />
 	</ItemGroup>
 </Project>
