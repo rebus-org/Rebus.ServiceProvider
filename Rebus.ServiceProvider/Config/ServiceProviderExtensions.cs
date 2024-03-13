@@ -25,8 +25,7 @@ public static class ServiceProviderExtensions
         async Task StartHostedServices()
         {
             var disposalHelper = serviceProvider.GetRequiredService<RebusDisposalHelper>();
-            var services = serviceProvider.GetServices<IHostedService>().ToList();
-
+            var services = serviceProvider.GetServices<IHostedService>().Where(x => x.GetType() == typeof(RebusBackgroundService)).ToList();
             foreach (var service in services)
             {
                 await service.StartAsync(CancellationToken.None);
