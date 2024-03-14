@@ -25,9 +25,6 @@ public static class ServiceProviderExtensions
 
         async Task StartHostedServices()
         { 
-            Assembly assembly = Assembly.GetExecutingAssembly();
-           
-
             var disposalHelper = serviceProvider.GetRequiredService<RebusDisposalHelper>();
             var services = serviceProvider.GetServices<IHostedService>().Where(x => x.GetType().BaseType == typeof(BackgroundService)).ToList();
             foreach (var service in services)
