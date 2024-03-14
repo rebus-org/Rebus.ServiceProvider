@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,9 +24,12 @@ public static class ServiceProviderExtensions
         if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
         async Task StartHostedServices()
-        {
+        { 
+            Assembly assembly = Assembly.GetExecutingAssembly();
+           
+
             var disposalHelper = serviceProvider.GetRequiredService<RebusDisposalHelper>();
-            var services = serviceProvider.GetServices<IHostedService>().Where(x => x.GetType() == typeof(RebusBackgroundService)).ToList();
+            var services = serviceProvider.GetServices<IHostedService>().Where(x => x.GetType().BaseType == typeof(BackgroundService)).ToList();
             foreach (var service in services)
             {
                 await service.StartAsync(CancellationToken.None);
