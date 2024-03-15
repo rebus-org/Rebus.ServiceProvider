@@ -127,9 +127,13 @@
 ## 10.1.1
 * Fix bug that would prevent Rebus to work alongside keyed registrations in .NET 8 - thanks [SimTsai]
 
+## 10.1.2
+* Fix bug that would start all background services when `StartRebus` was called - thanks [EMRBlackHe]
+
 [arildboifot]: https://github.com/arildboifot
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
+[EMRBlackHe]: https://github.com/EMRBlackHe
 [Hawxy]: https://github.com/Hawxy
 [JeremySkinner]: https://github.com/JeremySkinner
 [jorenp]: https://github.com/jorenp
