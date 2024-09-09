@@ -48,7 +48,52 @@ public static class ServiceCollectionExtensions
     /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
     /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
     /// </param>
-    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null, bool startAutomatically = true)
+    public static IServiceCollection AddRebus(this IServiceCollection services,
+        Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null,
+        string key = null, bool startAutomatically = true)
+    {
+        if (services == null) throw new ArgumentNullException(nameof(services));
+        if (configure == null) throw new ArgumentNullException(nameof(configure));
+
+        return AddRebus(
+            services: services,
+            configure: configure,
+            isDefaultBus: isDefaultBus,
+            onCreated: (bus, _) => onCreated?.Invoke(bus) ?? Task.CompletedTask,
+            key: key,
+            startAutomatically: startAutomatically
+        );
+    }
+
+    /// <summary>
+    /// Adds Rebus to the service collection, invoking the <paramref name="configure"/> callback to allow for executing Rebus' configuration spell.
+    /// The <paramref name="isDefaultBus"/> parameter indicates whether resolving <see cref="IBus"/> from the resulting service provider outside of a Rebus
+    /// handler should yield THIS particular bus instance. Please note that there can be only 1 default bus per container instance! And please note that
+    /// Rebus handlers (and any services injected into them) will always have the <see cref="IBus"/> from the current message context injected into them.
+    /// </summary>
+    /// <param name="services">
+    /// Reference to the service collection that this extension method is invoked on
+    /// </param>
+    /// <param name="configure">
+    /// Configuration callback that can be used to invoke the Rebus configuration spell
+    /// </param>
+    /// <param name="isDefaultBus">
+    /// Indicates whether resolving <see cref="IBus"/> from the resulting service provider outside of a Rebus
+    /// handler should yield this particular bus instance. Please note that there can be only 1 default bus per container instance! And please note that
+    /// Rebus handlers (and any services injected into them) will always have the <see cref="IBus"/> from the current message context injected into them.
+    /// </param>
+    /// <param name="onCreated">
+    /// Optionally provides an asynchronous callback, which will be executed once the bus is operational, but before it has been started (i.e. begun receiving messages).
+    /// This is a good place to establish any subscriptions required for the bus.
+    /// </param>
+    /// <param name="key">
+    /// Optional key for the bus, which enables later retrieval of this specific bus instance by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.GetBus"/>
+    /// </param>
+    /// <param name="startAutomatically">
+    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
+    /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
+    /// </param>
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, Func<IBus, IServiceProvider, Task> onCreated, bool isDefaultBus = true, string key = null, bool startAutomatically = true)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
@@ -83,14 +128,61 @@ public static class ServiceCollectionExtensions
     /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
     /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
     /// </param>
-    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null, string key = null, bool startAutomatically = true)
+    public static IServiceCollection AddRebus(this IServiceCollection services,
+        Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true,
+        Func<IBus, Task> onCreated = null, string key = null, bool startAutomatically = true)
+    {
+        if (services == null) throw new ArgumentNullException(nameof(services));
+        if (configure == null) throw new ArgumentNullException(nameof(configure));
+
+        return AddRebus(
+            services: services,
+            configure: configure,
+            isDefaultBus: isDefaultBus,
+            onCreated: (bus, _) => onCreated?.Invoke(bus) ?? Task.CompletedTask,
+            key: key,
+            startAutomatically: startAutomatically
+        );
+    }
+
+    /// <summary>
+    /// Adds Rebus to the service collection, invoking the <paramref name="configure"/> callback to allow for executing Rebus' configuration spell.
+    /// The <paramref name="isDefaultBus"/> parameter indicates whether resolving <see cref="IBus"/> from the resulting service provider outside of a Rebus
+    /// handler should yield THIS particular bus instance. Please note that there can be only 1 default bus per container instance! And please note that
+    /// Rebus handlers (and any services injected into them) will always have the <see cref="IBus"/> from the current message context injected into them.
+    /// </summary>
+    /// <param name="services">
+    /// Reference to the service collection that this extension method is invoked on
+    /// </param>
+    /// <param name="configure">
+    /// Configuration callback that can be used to invoke the Rebus configuration spell
+    /// </param>
+    /// <param name="isDefaultBus">
+    /// Indicates whether resolving <see cref="IBus"/> from the resulting service provider outside of a Rebus
+    /// handler should yield this particular bus instance. Please note that there can be only 1 default bus per container instance! And please note that
+    /// Rebus handlers (and any services injected into them) will always have the <see cref="IBus"/> from the current message context injected into them.
+    /// </param>
+    /// <param name="onCreated">
+    /// Optionally provides an asynchronous callback, which will be executed once the bus is operational, but before it has been started (i.e. begun receiving messages). This is a good place to establish any subscriptions required for the bus.
+    /// </param>
+    /// <param name="key">
+    /// Optional key for the bus, which enables later retrieval of this specific bus instance by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.GetBus"/>
+    /// </param>
+    /// <param name="startAutomatically">
+    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
+    /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
+    /// </param>
+    public static IServiceCollection AddRebus(this IServiceCollection services,
+        Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, Func<IBus, IServiceProvider, Task> onCreated, 
+        bool isDefaultBus = true, string key = null, bool startAutomatically = true)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
         if (!startAutomatically && key == null)
         {
-            throw new ArgumentException($"Cannot add bus with startAutomatically=false and key=null. When configuring the bus to not automatically be started, a key must be provided, so that it's possible to look up the bus instance later on via IBusRegistry");
+            throw new ArgumentException(
+                "Cannot add bus with startAutomatically=false and key=null. When configuring the bus to not automatically be started, a key must be provided, so that it's possible to look up the bus instance later on via IBusRegistry");
         }
 
         if (!services.Any(s => s.ServiceType == typeof(RebusDisposalHelper)))
@@ -104,21 +196,50 @@ public static class ServiceCollectionExtensions
         {
             if (services.Any(s => s.ServiceType == typeof(DefaultBusInstance)))
             {
-                throw new InvalidOperationException("Detected that the service collection already contains a default bus registration - please make only one single AddRebus call with isDefaultBus:true");
+                throw new InvalidOperationException(
+                    "Detected that the service collection already contains a default bus registration - please make only one single AddRebus call with isDefaultBus:true");
             }
 
-            services.AddSingleton(p => new RebusInitializer(startAutomatically, key, configure, onCreated, p, isDefaultBus, p.GetService<IHostApplicationLifetime>()));
+            services.AddSingleton(p => new RebusInitializer(
+                startAutomatically: startAutomatically,
+                key: key,
+                configure: configure,
+                onCreated: onCreated,
+                serviceProvider: p,
+                isDefaultBus: true,
+                lifetime: p.GetService<IHostApplicationLifetime>()
+            ));
+
             services.AddSingleton(p =>
-                                  {
-                                      var defaultBusInstance = new DefaultBusInstance();
-                                      defaultBusInstance.SetInstanceResolver(p.GetRequiredService<RebusInitializer>()._busAndEvents);
-                                      return defaultBusInstance;
-                                  });
-            services.AddSingleton<IHostedService>(p => new RebusBackgroundService(p.GetRequiredService<RebusInitializer>()));
+            {
+                var defaultBusInstance = new DefaultBusInstance();
+                defaultBusInstance.SetInstanceResolver(p.GetRequiredService<RebusInitializer>()._busAndEvents);
+                return defaultBusInstance;
+            });
+
+            services.AddSingleton<IHostedService>(p =>
+            {
+                var rebusInitializer = p.GetRequiredService<RebusInitializer>();
+
+                return new RebusBackgroundService(rebusInitializer);
+            });
         }
         else
         {
-            services.AddSingleton<IHostedService>(p => new RebusBackgroundService(new RebusInitializer(startAutomatically, key, configure, onCreated, p, isDefaultBus, p.GetService<IHostApplicationLifetime>())));
+            services.AddSingleton<IHostedService>(p =>
+            {
+                var rebusInitializer = new RebusInitializer(
+                    startAutomatically: startAutomatically,
+                    key: key,
+                    configure: configure,
+                    onCreated: onCreated,
+                    serviceProvider: p,
+                    isDefaultBus: false,
+                    lifetime: p.GetService<IHostApplicationLifetime>()
+                );
+
+                return new RebusBackgroundService(rebusInitializer);
+            });
         }
 
 #if NET8_0_OR_GREATER
@@ -133,7 +254,8 @@ public static class ServiceCollectionExtensions
             services.AddTransient(p => p.GetRequiredService<RebusResolver>().GetBus(p));
             services.AddTransient(p => p.GetRequiredService<IBus>().Advanced.SyncBus);
             services.AddTransient(p => p.GetRequiredService<IBus>().Advanced.DataBus);
-            services.AddTransient(_ => MessageContext.Current ?? throw new InvalidOperationException("Could not get current message context! The message context can only be resolved when handling a Rebus message, and it looks like this attempt was made from somewhere else."));
+            services.AddTransient(_ => MessageContext.Current ?? throw new InvalidOperationException(
+                "Could not get current message context! The message context can only be resolved when handling a Rebus message, and it looks like this attempt was made from somewhere else."));
             services.AddTransient(p => p.GetRequiredService<DefaultBusInstance>().BusLifetimeEvents);
         }
 

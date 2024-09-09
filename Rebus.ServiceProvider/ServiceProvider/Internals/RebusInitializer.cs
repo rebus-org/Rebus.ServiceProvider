@@ -18,7 +18,7 @@ class RebusInitializer
     readonly bool _startAutomatically;
     readonly string _key;
     readonly Func<RebusConfigurer, IServiceProvider, RebusConfigurer> _configure;
-    readonly Func<IBus, Task> _onCreated;
+    readonly Func<IBus, IServiceProvider, Task> _onCreated;
     readonly IServiceProvider _serviceProvider;
     readonly bool _isDefaultBus;
     readonly CancellationToken? _cancellationToken;
@@ -27,7 +27,7 @@ class RebusInitializer
         bool startAutomatically,
         string key,
         Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure,
-        Func<IBus, Task> onCreated,
+        Func<IBus, IServiceProvider, Task> onCreated,
         IServiceProvider serviceProvider,
         bool isDefaultBus,
         IHostApplicationLifetime lifetime)
@@ -42,7 +42,7 @@ class RebusInitializer
 
         _busAndEvents = GetLazyInitializer();
     }
-    
+
     public Lazy<Task<(IBus, BusLifetimeEvents)>> GetLazyInitializer()
     {
         return new Lazy<Task<(IBus, BusLifetimeEvents)>>(async () =>
@@ -117,7 +117,7 @@ class RebusInitializer
             if (_onCreated != null)
             {
                 logger?.LogDebug("Invoking onCreated callback on bus instance {busInstance}", bus);
-                await _onCreated(bus);
+                await _onCreated(bus, _serviceProvider);
             }
 
             if (_startAutomatically)
