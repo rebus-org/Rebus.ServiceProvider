@@ -131,7 +131,7 @@
 * Fix bug that would start all background services when `StartRebus` was called - thanks [EMRBlackHe]
 
 ## 10.2.0
-* Add `AddRebus` overloads taht enable providing an `onCreated` callback that has `IServiceProvider` passed to it
+* Add `AddRebus` overloads that enable providing an `onCreated` callback that has `IServiceProvider` passed to it
 
 [arildboifot]: https://github.com/arildboifot
 [AYss]: https://github.com/AYss
