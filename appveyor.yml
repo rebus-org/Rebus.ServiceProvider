@@ -7,6 +7,7 @@ cache:
   - '%LocalAppData%\NuGet\Cache'
 
 before_build:
+  - choco install dotnet-sdk --version 9.0.100 # Manually install .NET 9 SDK (until it's available in the image: https://github.com/appveyor/ci/issues/3936)
   - appveyor-retry dotnet restore -v Minimal
 
 build_script:
