@@ -133,6 +133,9 @@
 ## 10.2.0
 * Add `AddRebus` overloads that enable providing an `onCreated` callback that has `IServiceProvider` passed to it
 
+## 10.3.0
+* Add support for .NET 9 - thanks [ronaldbarendse]
+
 [arildboifot]: https://github.com/arildboifot
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
@@ -144,6 +147,7 @@
 [mattwcole]: https://github.com/mattwcole
 [mattwhetton]: https://github.com/mattwhetton
 [meronz]: https://github.com/meronz
+[ronaldbarendse]: https://github.com/ronaldbarendse
 [rosieks]: https://github.com/rosieks
 [SamPersson]: https://github.com/SamPersson
 [SbiCA]: https://github.com/SbiCA
