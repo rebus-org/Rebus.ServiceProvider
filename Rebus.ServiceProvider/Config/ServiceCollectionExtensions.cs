@@ -50,7 +50,11 @@ public static class ServiceCollectionExtensions
     /// </param>
     public static IServiceCollection AddRebus(this IServiceCollection services,
         Func<RebusConfigurer, RebusConfigurer> configure, bool isDefaultBus = true, Func<IBus, Task> onCreated = null,
-        string key = null, bool startAutomatically = true)
+        string key = null, bool startAutomatically = true
+#if NET8_0_OR_GREATER
+        , object serviceKey = null
+#endif
+        )
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
@@ -62,6 +66,9 @@ public static class ServiceCollectionExtensions
             onCreated: (bus, _) => onCreated?.Invoke(bus) ?? Task.CompletedTask,
             key: key,
             startAutomatically: startAutomatically
+#if NET8_0_OR_GREATER
+            , serviceKey: serviceKey
+#endif
         );
     }
 
@@ -93,12 +100,26 @@ public static class ServiceCollectionExtensions
     /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
     /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
     /// </param>
-    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, Func<IBus, IServiceProvider, Task> onCreated, bool isDefaultBus = true, string key = null, bool startAutomatically = true)
+    public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, Func<IBus, IServiceProvider, Task> onCreated, bool isDefaultBus = true, string key = null, bool startAutomatically = true
+#if NET8_0_OR_GREATER
+        , object serviceKey = null
+#endif
+        )
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-        return AddRebus(services, (configurer, _) => configure(configurer), isDefaultBus: isDefaultBus, onCreated: onCreated, key: key, startAutomatically: startAutomatically);
+        return AddRebus(
+            services, 
+            (configurer, _) => configure(configurer), 
+            isDefaultBus: isDefaultBus, 
+            onCreated: onCreated, 
+            key: key, 
+            startAutomatically: startAutomatically
+#if NET8_0_OR_GREATER
+            , serviceKey: serviceKey
+#endif
+            );
     }
 
     /// <summary>
@@ -130,7 +151,11 @@ public static class ServiceCollectionExtensions
     /// </param>
     public static IServiceCollection AddRebus(this IServiceCollection services,
         Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, bool isDefaultBus = true,
-        Func<IBus, Task> onCreated = null, string key = null, bool startAutomatically = true)
+        Func<IBus, Task> onCreated = null, string key = null, bool startAutomatically = true
+#if NET8_0_OR_GREATER
+        , object serviceKey = null
+#endif
+        )
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
@@ -142,6 +167,9 @@ public static class ServiceCollectionExtensions
             onCreated: (bus, _) => onCreated?.Invoke(bus) ?? Task.CompletedTask,
             key: key,
             startAutomatically: startAutomatically
+#if NET8_0_OR_GREATER
+            , serviceKey: serviceKey
+#endif
         );
     }
 
@@ -173,8 +201,12 @@ public static class ServiceCollectionExtensions
     /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
     /// </param>
     public static IServiceCollection AddRebus(this IServiceCollection services,
-        Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, Func<IBus, IServiceProvider, Task> onCreated, 
-        bool isDefaultBus = true, string key = null, bool startAutomatically = true)
+        Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, Func<IBus, IServiceProvider, Task> onCreated,
+        bool isDefaultBus = true, string key = null, bool startAutomatically = true
+#if NET8_0_OR_GREATER
+        , object serviceKey = null
+#endif
+        )
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         if (configure == null) throw new ArgumentNullException(nameof(configure));
@@ -208,6 +240,9 @@ public static class ServiceCollectionExtensions
                 serviceProvider: p,
                 isDefaultBus: true,
                 lifetime: p.GetService<IHostApplicationLifetime>()
+#if NET8_0_OR_GREATER
+                , serviceKey: serviceKey
+#endif
             ));
 
             services.AddSingleton(p =>
@@ -236,6 +271,9 @@ public static class ServiceCollectionExtensions
                     serviceProvider: p,
                     isDefaultBus: false,
                     lifetime: p.GetService<IHostApplicationLifetime>()
+#if NET8_0_OR_GREATER
+                    , serviceKey: serviceKey
+#endif
                 );
 
                 return new RebusBackgroundService(rebusInitializer);
@@ -270,6 +308,16 @@ public static class ServiceCollectionExtensions
         return AddRebusHandler(services, typeof(THandler));
     }
 
+#if NET8_0_OR_GREATER
+    /// <summary>
+    /// Registers the given <typeparamref name="THandler"/> with a transient lifestyle using given <paramref name="serviceKey"/>
+    /// </summary>
+    public static IServiceCollection AddRebusHandler<THandler>(this IServiceCollection services, object serviceKey) where THandler : IHandleMessages
+    {
+        return AddRebusHandler(services, typeof(THandler), serviceKey);
+    }
+#endif
+
     /// <summary>
     /// Register the given <paramref name="typeToRegister"/> with a transient lifestyle
     /// </summary>
@@ -283,17 +331,50 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+#if NET8_0_OR_GREATER
+    /// <summary>
+    /// Register the given <paramref name="typeToRegister"/> with a transient lifestyle using given <paramref name="serviceKey"/>
+    /// </summary>
+    public static IServiceCollection AddRebusHandler(this IServiceCollection services, Type typeToRegister, object serviceKey)
+    {
+        if (services == null) throw new ArgumentNullException(nameof(services));
+        if (typeToRegister == null) throw new ArgumentNullException(nameof(typeToRegister));
+        if (serviceKey == null) throw new ArgumentNullException(nameof(serviceKey));
+
+        RegisterType(services, typeToRegister, serviceKey);
+
+        return services;
+    }
+#endif
+
     /// <summary>
     /// Registers the given <typeparamref name="THandler"/> with a transient lifestyle
     /// </summary>
     public static IServiceCollection AddRebusHandler<THandler>(this IServiceCollection services, Func<IServiceProvider, THandler> factory) where THandler : IHandleMessages
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
+        if (factory == null) throw new ArgumentNullException(nameof(factory));
 
         RegisterFactory(services, typeof(THandler), provider => factory(provider));
 
         return services;
     }
+
+#if NET8_0_OR_GREATER
+    /// <summary>
+    /// Registers the given <typeparamref name="THandler"/> with a transient lifestyle using given <paramref name="serviceKey"/>
+    /// </summary>
+    public static IServiceCollection AddRebusHandler<THandler>(this IServiceCollection services, object serviceKey, Func<IServiceProvider, object, THandler> factory) where THandler : IHandleMessages
+    {
+        if (services == null) throw new ArgumentNullException(nameof(services));
+        if (serviceKey == null) throw new ArgumentNullException(nameof(serviceKey));
+        if (factory == null) throw new ArgumentNullException(nameof(factory));
+
+        RegisterFactory(services, typeof(THandler), serviceKey, (provider, serviceKey) => factory(provider, serviceKey));
+
+        return services;
+    }
+#endif
 
     /// <summary>
     /// Automatically picks up all handler types from the assembly containing <typeparamref name="THandler"/> and registers them in the container
@@ -379,7 +460,11 @@ public static class ServiceCollectionExtensions
         type.GetInterfaces()
             .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>));
 
+#if NET8_0_OR_GREATER
+    static void RegisterAssembly(IServiceCollection services, Assembly assemblyToRegister, string namespaceFilter = null, Func<Type, bool> predicate = null, object serviceKey = null)
+#else
     static void RegisterAssembly(IServiceCollection services, Assembly assemblyToRegister, string namespaceFilter = null, Func<Type, bool> predicate = null)
+#endif
     {
         var typesToAutoRegister = assemblyToRegister.GetTypes()
             .Where(IsClass)
@@ -403,7 +488,14 @@ public static class ServiceCollectionExtensions
 
         foreach (var type in typesToAutoRegister)
         {
+#if NET8_0_OR_GREATER
+            if (serviceKey != null)
+                RegisterType(services, type.Type, serviceKey);
+            else
+                RegisterType(services, type.Type);
+#else
             RegisterType(services, type.Type);
+#endif
         }
     }
 
@@ -419,6 +511,18 @@ public static class ServiceCollectionExtensions
         }
     }
 
+#if NET8_0_OR_GREATER
+    static void RegisterFactory(IServiceCollection services, Type typeToRegister, object serviceKey, Func<IServiceProvider, object, object> factory)
+    {
+        var implementedHandlerInterfaces = GetImplementedHandlerInterfaces(typeToRegister).ToArray();
+
+        foreach (var handlerInterface in implementedHandlerInterfaces)
+        {
+            services.AddKeyedTransient(handlerInterface, serviceKey, factory);
+        }
+    }
+#endif
+
     static void RegisterType(IServiceCollection services, Type typeToRegister)
     {
         var implementedHandlerInterfaces = GetImplementedHandlerInterfaces(typeToRegister).ToArray();
@@ -428,4 +532,16 @@ public static class ServiceCollectionExtensions
             services.AddTransient(handlerInterface, typeToRegister);
         }
     }
+
+#if NET8_0_OR_GREATER
+    static void RegisterType(IServiceCollection services, Type typeToRegister, object serviceKey)
+    {
+        var implementedHandlerInterfaces = GetImplementedHandlerInterfaces(typeToRegister).ToArray();
+
+        foreach (var handlerInterface in implementedHandlerInterfaces)
+        {
+            services.AddKeyedTransient(handlerInterface, serviceKey, typeToRegister);
+        }
+    }
+#endif
 }

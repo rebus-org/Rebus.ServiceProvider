@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net48;net8.0</TargetFrameworks>
-		<LangVersion>11</LangVersion>
+		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Rebus.ServiceProvider\Rebus.ServiceProvider.csproj" />

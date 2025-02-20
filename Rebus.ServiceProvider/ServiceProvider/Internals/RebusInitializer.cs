@@ -22,6 +22,7 @@ class RebusInitializer
     readonly IServiceProvider _serviceProvider;
     readonly bool _isDefaultBus;
     readonly CancellationToken? _cancellationToken;
+    readonly object _serviceKey;
 
     public RebusInitializer(
         bool startAutomatically,
@@ -30,7 +31,11 @@ class RebusInitializer
         Func<IBus, IServiceProvider, Task> onCreated,
         IServiceProvider serviceProvider,
         bool isDefaultBus,
-        IHostApplicationLifetime lifetime)
+        IHostApplicationLifetime lifetime
+#if NET8_0_OR_GREATER
+        , object serviceKey = null
+#endif
+        )
     {
         _startAutomatically = startAutomatically;
         _key = key;
@@ -39,6 +44,9 @@ class RebusInitializer
         _serviceProvider = serviceProvider;
         _isDefaultBus = isDefaultBus;
         _cancellationToken = lifetime?.ApplicationStopping;
+#if NET8_0_OR_GREATER
+        _serviceKey = serviceKey;
+#endif
 
         _busAndEvents = GetLazyInitializer();
     }
@@ -54,7 +62,7 @@ class RebusInitializer
             BusLifetimeEvents busLifetimeEventsHack = null;
 
             var rebusConfigurer = Configure
-                .With(new DependencyInjectionHandlerActivator(_serviceProvider))
+                .With(new DependencyInjectionHandlerActivator(_serviceProvider, _serviceKey))
                 .Options(o => o.Decorate(c =>
                 {
                     // snatch events here
