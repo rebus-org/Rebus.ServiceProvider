@@ -25,12 +25,17 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
 {
     readonly ConcurrentDictionary<Type, Type[]> _typesToResolveByMessage = new();
     readonly IServiceProvider _provider;
+    readonly object _serviceKey;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DependencyInjectionHandlerActivator"/> class.
     /// </summary>
     /// <param name="provider">The service provider used to yield handler instances.</param>
-    public DependencyInjectionHandlerActivator(IServiceProvider provider) => _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+    public DependencyInjectionHandlerActivator(IServiceProvider provider, object serviceKey = null)
+    {
+        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+        _serviceKey = serviceKey;
+    }
 
     /// <summary>
     /// Resolves all handlers for the given <typeparamref name="TMessage"/> message type
@@ -81,7 +86,11 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
         var typesToResolve = _typesToResolveByMessage.GetOrAdd(typeof(TMessage), FigureOutTypesToResolve);
 
         return typesToResolve
+#if NET8_0_OR_GREATER
+            .SelectMany(type => (_serviceKey == null ? serviceProvider.GetServices(type) : serviceProvider.GetKeyedServices(type, _serviceKey)).Cast<IHandleMessages>())
+#else
             .SelectMany(type => serviceProvider.GetServices(type).Cast<IHandleMessages>())
+#endif
             .Distinct(new TypeEqualityComparer())
             .Cast<IHandleMessages<TMessage>>()
             .ToList();
