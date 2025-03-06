@@ -52,7 +52,7 @@ public class KeyedServices : FixtureBase
 
         await Task.Delay(TimeSpan.FromSeconds(3));
 
-        CollectionAssert.AreEquivalent(new[] { bus1Key, bus2Key }, log);
+        Assert.That(log, Is.EquivalentTo(new[] { bus1Key, bus2Key }));
     }
 
     class Handler1(string serviceKey, List<string> log) : IHandleMessages<string>
