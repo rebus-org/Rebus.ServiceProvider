@@ -99,12 +99,16 @@ class RebusInitializer
             logger?.LogInformation("Successfully created bus instance {busInstance} (isDefaultBus: {flag})", bus,
                 _isDefaultBus);
 
+            _serviceProvider
+                .GetRequiredService<RebusDisposalHelper>()
+                .Add(bus);
+
             // stopping the bus here will ensure that we've finished executing all message handlers when the container is disposed
             stoppingToken.Register(() =>
             {
-                logger?.LogDebug("Stopping token signaled - disposing bus instance {busInstance}", bus);
-                bus.Dispose();
-                logger?.LogInformation("Bus instance {busInstance} successfully disposed", bus);
+                logger?.LogDebug("Stopping token signaled - stopping bus instance {busInstance}", bus);
+                bus.Advanced.Workers.SetNumberOfWorkers(0);
+                logger?.LogInformation("Bus instance {busInstance} successfully stopped", bus);
             });
 
             if (_key != null)

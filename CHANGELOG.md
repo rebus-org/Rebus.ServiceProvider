@@ -139,6 +139,9 @@
 ## 10.4.0
 * Rename to `StartHostedServices`, because that's what it does
 
+## 10.5.0
+* Only stop the bus when the stopping token is signaled, and then dispose when the container is disposed
+
 [arildboifot]: https://github.com/arildboifot
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
