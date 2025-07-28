@@ -136,6 +136,9 @@
 ## 10.3.0
 * Add support for .NET 9 - thanks [ronaldbarendse]
 
+## 10.4.0
+* Rename to `StartHostedServices`, because that's what it does
+
 [arildboifot]: https://github.com/arildboifot
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo
