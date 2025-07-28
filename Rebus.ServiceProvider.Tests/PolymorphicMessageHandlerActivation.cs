@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Rebus.Activation;
@@ -49,7 +49,7 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
 
         var handlers = await activator.GetHandlers(new Child(), scope.TransactionContext);
 
-        handlers.Should().HaveCount(1);
+        Assert.That(handlers.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -61,7 +61,7 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
 
         var handlers = await activator.GetHandlers(new Child(), scope.TransactionContext);
 
-        handlers.Should().HaveCount(1);
+        Assert.That(handlers.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -73,7 +73,7 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
 
         var handlers = await activator.GetHandlers(new Parent(), scope.TransactionContext);
 
-        handlers.Should().HaveCount(0);
+        Assert.That(handlers.Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -86,7 +86,7 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
 
         var handlers = await activator.GetHandlers(new ConcreteCovariantGeneric<Child>(), scope.TransactionContext);
 
-        handlers.Should().HaveCount(1);
+        Assert.That(handlers.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -99,7 +99,7 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
 
         var handlers = await activator.GetHandlers(new ConcreteCovariantGeneric<Parent>(), scope.TransactionContext);
 
-        handlers.Should().HaveCount(1);
+        Assert.That(handlers.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -113,7 +113,7 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
         var handlers = await activator.GetHandlers(new ConcreteDoubleCovariantGeneric<Child, Child>(),
             scope.TransactionContext);
 
-        handlers.Should().HaveCount(1);
+        Assert.That(handlers.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -127,7 +127,7 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
         var handlers = await activator.GetHandlers(new ConcreteDoubleCovariantGeneric<Child, Child>(),
             scope.TransactionContext);
 
-        handlers.Should().HaveCount(1);
+        Assert.That(handlers.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -139,7 +139,7 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
 
         var handlers = await activator.GetHandlers(new ConcreteGeneric<Child>(), scope.TransactionContext);
 
-        handlers.Should().HaveCount(0);
+        Assert.That(handlers.Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -151,7 +151,7 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
 
         var handlers = await activator.GetHandlers(new FailedMessage<Child>(), scope.TransactionContext);
 
-        handlers.Should().HaveCount(1);
+        Assert.That(handlers.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -164,7 +164,7 @@ public class PolymorphicMessageHandlerActivation : FixtureBase
 
         var handlers = await activator.GetHandlers(new ConcreteConstrainedCovariant(), scope.TransactionContext);
 
-        handlers.Should().HaveCount(1);
+        Assert.That(handlers.Count(), Is.EqualTo(1));
     }
 }
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Rebus.Bus;
@@ -123,11 +122,8 @@ public class ServiceCollectionExtensionsTests
         await Task.WhenAny(testHandler1.CountReached, Task.Delay(3000));
         await Task.WhenAny(testHandler2.CountReached, Task.Delay(3000));
 
-        (provider.GetRequiredService<IHandleMessages<Message1>>() as Handler1)
-            .HandleCount.Should().Be(2);
-
-        (provider.GetRequiredService<IHandleMessages<MessageBase>>() as Handler2)
-            .HandleCount.Should().Be(2);
+        Assert.That((provider.GetRequiredService<IHandleMessages<Message1>>() as Handler1).HandleCount, Is.EqualTo(2));
+        Assert.That((provider.GetRequiredService<IHandleMessages<MessageBase>>() as Handler2).HandleCount, Is.EqualTo(2));
     }
 
     public abstract class MessageBase

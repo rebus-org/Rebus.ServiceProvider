@@ -1,12 +1,12 @@
-﻿using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Rebus.Config;
 using Rebus.Handlers;
 using Rebus.Routing.TypeBased;
 using Rebus.Transport;
 using Rebus.Transport.InMem;
+using System.Linq;
 using System.Threading.Tasks;
-using Rebus.Config;
 
 namespace Rebus.ServiceProvider.Tests;
 
@@ -40,7 +40,7 @@ public class RemoveDuplicateHandlers
 
         var handlers = await activator.GetHandlers(new Message1(), scope.TransactionContext);
 
-        handlers.Should().HaveCount(1);
+        Assert.That(handlers.Count(), Is.EqualTo(1));
     }
 
     public interface IMessage1

@@ -45,17 +45,8 @@ public class VerifyDisposableThings : FixtureBase
         asyncDisposableWasDisposed.WaitOrDie(TimeSpan.FromSeconds(5));
     }
 
-    class StringHandler : IHandleMessages<string>
+    class StringHandler(SomethingDisposable _, SomethingAsyncDisposable __) : IHandleMessages<string>
     {
-        readonly SomethingDisposable _somethingDisposable;
-        readonly SomethingAsyncDisposable _somethingAsyncDisposable;
-
-        public StringHandler(SomethingDisposable somethingDisposable, SomethingAsyncDisposable somethingAsyncDisposable)
-        {
-            _somethingDisposable = somethingDisposable;
-            _somethingAsyncDisposable = somethingAsyncDisposable;
-        }
-
         public async Task Handle(string message)
         {
         }
