@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,17 +18,21 @@ public static class ServiceProviderExtensions
     /// be called in situations where you've called AddRebus on your service collections and you are building your service provider OUTSIDE
     /// of the generic host.
     /// </summary>
-    public static IServiceProvider StartRebus(this IServiceProvider serviceProvider)
+    public static IServiceProvider StartHostedServices(this IServiceProvider serviceProvider)
     {
         if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
-        async Task StartHostedServices()
-        { 
+        async Task StartHostedServicesAsync()
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(1));
+            var cancellationToken = timeout.Token;
+
             var disposalHelper = serviceProvider.GetRequiredService<RebusDisposalHelper>();
-            var services = serviceProvider.GetServices<IHostedService>().Where(x => x.GetType().BaseType == typeof(BackgroundService)).ToList();
+            var services = serviceProvider.GetServices<IHostedService>().ToList();
+
             foreach (var service in services)
             {
-                await service.StartAsync(CancellationToken.None);
+                await service.StartAsync(cancellationToken);
 
                 Task StopService() => service.StopAsync(CancellationToken.None);
 
@@ -37,17 +40,13 @@ public static class ServiceProviderExtensions
             }
         }
 
-        AsyncHelpers.RunSync(StartHostedServices);
+        AsyncHelpers.RunSync(StartHostedServicesAsync);
 
         return serviceProvider;
     }
 
-    class DisposableCallback : IDisposable
+    class DisposableCallback(Action disposed) : IDisposable
     {
-        readonly Action _onDispose;
-
-        public DisposableCallback(Action onDispose) => _onDispose = onDispose ?? throw new ArgumentNullException(nameof(onDispose));
-
-        public void Dispose() => _onDispose();
+        public void Dispose() => disposed();
     }
 }

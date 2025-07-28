@@ -52,7 +52,7 @@ public class OverrideBusRegistrationExample : FixtureBase
 
         using var provider = services.BuildServiceProvider();
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         var bus = provider.GetRequiredService<IBus>();
 

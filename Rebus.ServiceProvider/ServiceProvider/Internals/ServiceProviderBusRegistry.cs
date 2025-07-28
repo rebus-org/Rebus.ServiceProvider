@@ -53,6 +53,6 @@ class ServiceProviderBusRegistry : IBusRegistry
 
     static KeyNotFoundException GetKeyNotFoundException(string key)
     {
-        return new KeyNotFoundException($"Registry did not contain a bus instance with key '{key}'. The key is configured by calling AddRebus(...,  key: \"your-key\") when adding a bus to the container. Also, it's required that the host has been started (or that StartRebus() has been called on the service provider), because the bus instances do not exist before that.");
+        return new KeyNotFoundException($"Registry did not contain a bus instance with key '{key}'. The key is configured by calling AddRebus(...,  key: \"your-key\") when adding a bus to the container. Also, it's required that the host has been started (or that StartHostedServices() has been called on the service provider), because the bus instances do not exist before that.");
     }
 }

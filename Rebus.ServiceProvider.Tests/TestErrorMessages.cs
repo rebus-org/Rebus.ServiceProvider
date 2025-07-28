@@ -89,7 +89,7 @@ public class TestErrorMessages : FixtureBase
 
         using var provider = services.BuildServiceProvider();
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         var exception = Assert.Throws<InvalidOperationException>(() => provider.GetRequiredService<IBus>());
 
@@ -123,7 +123,7 @@ public class TestErrorMessages : FixtureBase
 
         using var provider = services.BuildServiceProvider();
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         provider.GetRequiredService<IBus>();
     }

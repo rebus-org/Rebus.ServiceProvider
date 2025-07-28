@@ -33,7 +33,7 @@ public class CheckMutlipleBusesAndResolutionByName
 
         using var provider = services.BuildServiceProvider();
 
-        var ex = Assert.Throws<ArgumentException>(() => provider.StartRebus());
+        var ex = Assert.Throws<ArgumentException>(() => provider.StartHostedServices());
 
         Console.WriteLine(ex);
     }
@@ -59,7 +59,7 @@ public class CheckMutlipleBusesAndResolutionByName
 
         using var provider = services.BuildServiceProvider();
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         var registry = provider.GetRequiredService<IBusRegistry>();
 
@@ -83,7 +83,7 @@ public class CheckMutlipleBusesAndResolutionByName
 
         using var provider = services.BuildServiceProvider();
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         var registry = provider.GetRequiredService<IBusRegistry>();
 
@@ -118,7 +118,7 @@ public class CheckMutlipleBusesAndResolutionByName
 
         using var provider = services.BuildServiceProvider();
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         var registry = provider.GetRequiredService<IBusRegistry>();
 
@@ -146,7 +146,7 @@ public class CheckMutlipleBusesAndResolutionByName
 
         using var provider = services.BuildServiceProvider();
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         var registry = provider.GetRequiredService<IBusRegistry>();
 

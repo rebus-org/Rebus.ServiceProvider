@@ -21,7 +21,7 @@ public class CheckHowServiceProviderWorks : FixtureBase
 
         using (var provider = services.BuildServiceProvider())
         {
-            provider.StartRebus();
+            provider.StartHostedServices();
         }
     }
 

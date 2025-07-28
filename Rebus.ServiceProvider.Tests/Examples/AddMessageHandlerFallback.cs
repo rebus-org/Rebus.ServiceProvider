@@ -48,7 +48,7 @@ public class AddMessageHandlerFallback : FixtureBase
 
         await using var provider = services.BuildServiceProvider();
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         var bus = provider.GetRequiredService<IBus>();
 

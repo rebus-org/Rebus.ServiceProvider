@@ -52,7 +52,7 @@ public class VerifyProviderAndScopeInStepContext : FixtureBase
 
         var provider = Using(serviceCollection.BuildServiceProvider());
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         await provider.GetRequiredService<IBus>().SendLocal("hej med dig din bandit!");
 
@@ -102,7 +102,7 @@ public class VerifyProviderAndScopeInStepContext : FixtureBase
 
         var provider = Using(serviceCollection.BuildServiceProvider());
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         await provider.GetRequiredService<IBus>().SendLocal("hej med dig din bandit!");
 

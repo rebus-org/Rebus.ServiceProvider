@@ -33,7 +33,7 @@ public class InjectBusIntoAnotherBackgroundService : FixtureBase
 
         await using var provider = services.BuildServiceProvider();
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         otherBackgroundServiceWasStarted.WaitOrDie(timeout: TimeSpan.FromSeconds(5));
     }

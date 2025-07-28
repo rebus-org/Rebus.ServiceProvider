@@ -30,8 +30,8 @@ public class Program
             // 3. Application started pipeline...
 
             // 3.1. Now application is running, lets trigger the 'start' of Rebus.
-            // PLEASE NOTE THAT StartRebus SHOULD ONLY BE CALLED WHEN YOU'RE BUILDING THE SERVICE PROVIDER YOURSELF
-            provider.StartRebus();
+            // PLEASE NOTE THAT StartHostedServices SHOULD ONLY BE CALLED WHEN YOU'RE BUILDING THE SERVICE PROVIDER YOURSELF
+            provider.StartHostedServices();
                 
             // 3.2. Begin the domain work for the application
             var producer = provider.GetRequiredService<Producer>();

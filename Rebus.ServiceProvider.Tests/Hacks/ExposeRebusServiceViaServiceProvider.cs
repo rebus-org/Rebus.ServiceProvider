@@ -44,7 +44,7 @@ public class ExposeRebusServiceViaServiceProvider
         await using var provider = services.BuildServiceProvider();
 
         // manually call this, because we're not in a hosting context
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         // now the container can deliver this:
         var storage = provider.GetRequiredService<ISagaStorage>();

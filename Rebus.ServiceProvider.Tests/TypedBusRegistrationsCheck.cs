@@ -43,7 +43,7 @@ public class TypedBusRegistrationsCheck : FixtureBase
 
         await using var provider = services.BuildServiceProvider();
 
-        provider.StartRebus();
+        provider.StartHostedServices();
 
         var bus1 = provider.GetRequiredService<IBus<MainBus>>();
         var bus2 = provider.GetRequiredService<IBus<SecondaryBus>>();

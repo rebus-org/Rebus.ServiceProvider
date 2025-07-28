@@ -89,13 +89,13 @@ services.AddRebus(...);
 using var provider = services.BuildServiceProvider();
 
 // THIS 👇 will start the bus(es)  
-provider.StartRebus();
+provider.StartHostedServices();
 ```
 
 ### Hosting inside the generic host
 
 ⚠ With the generic host (which is what you're using, if you've created a console app, a background worker, or a web app), the configuration extensions
-in this package rely on `IHostedService` and how the host uses these, and therefore the above call to `StartRebus()` shoule NOT be made.
+in this package rely on `IHostedService` and how the host uses these, and therefore the above call to `StartHostedServices()` shoule NOT be made.
 
 ℹ With the generic host, there's two major modes of operation:
 
@@ -309,7 +309,7 @@ services.AddRebus(
     key: "my-favorite-bus"
 );
 ```
-and then the host starts up (or you call the `StartRebus()` extension method on the service provider), the bus will automatically be started (i.e.
+and then the host starts up (or you call the `StartHostedServices()` extension method on the service provider), the bus will automatically be started (i.e.
 it will start consuming messages).
 
 You can delay the time of when message consumption is begun by setting `startAutomatically: false` in the call to `AddRebus`:

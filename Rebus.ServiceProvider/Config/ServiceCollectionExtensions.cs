@@ -45,7 +45,7 @@ public static class ServiceCollectionExtensions
     /// Optional key for the bus, which enables later retrieval of this specific bus instance by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.GetBus"/>
     /// </param>
     /// <param name="startAutomatically">
-    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
+    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartHostedServices() is called on the service provider).
     /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
     /// </param>
     public static IServiceCollection AddRebus(this IServiceCollection services,
@@ -90,7 +90,7 @@ public static class ServiceCollectionExtensions
     /// Optional key for the bus, which enables later retrieval of this specific bus instance by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.GetBus"/>
     /// </param>
     /// <param name="startAutomatically">
-    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
+    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartHostedServices() is called on the service provider).
     /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
     /// </param>
     public static IServiceCollection AddRebus(this IServiceCollection services, Func<RebusConfigurer, RebusConfigurer> configure, Func<IBus, IServiceProvider, Task> onCreated, bool isDefaultBus = true, string key = null, bool startAutomatically = true)
@@ -125,7 +125,7 @@ public static class ServiceCollectionExtensions
     /// Optional key for the bus, which enables later retrieval of this specific bus instance by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.GetBus"/>
     /// </param>
     /// <param name="startAutomatically">
-    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
+    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartHostedServices() is called on the service provider).
     /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
     /// </param>
     public static IServiceCollection AddRebus(this IServiceCollection services,
@@ -169,7 +169,7 @@ public static class ServiceCollectionExtensions
     /// Optional key for the bus, which enables later retrieval of this specific bus instance by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.GetBus"/>
     /// </param>
     /// <param name="startAutomatically">
-    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartRebus() is called on the service provider).
+    /// Configures whether this bus should be started automatically (i.e. whether message consumption should begin) when the host starts up (or when StartHostedServices() is called on the service provider).
     /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
     /// </param>
     public static IServiceCollection AddRebus(this IServiceCollection services,

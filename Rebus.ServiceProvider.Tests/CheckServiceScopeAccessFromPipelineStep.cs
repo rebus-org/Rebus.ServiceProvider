@@ -38,7 +38,7 @@ public class CheckServiceScopeAccessFromPipelineStep : FixtureBase
 
         var serviceProvider = Using(services.BuildServiceProvider());
 
-        serviceProvider.StartRebus();
+        serviceProvider.StartHostedServices();
 
         var bus = serviceProvider.GetRequiredService<IBus>();
 
