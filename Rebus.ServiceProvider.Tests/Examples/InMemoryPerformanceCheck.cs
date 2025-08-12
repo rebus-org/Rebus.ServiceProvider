@@ -25,13 +25,14 @@ public class InMemoryPerformanceCheck : FixtureBase
     {
         base.SetUp();
 
+        const string queueName = "test-queue";
+
         var services = new ServiceCollection();
 
-        services.AddRebus(configure =>
-            configure.Transport(t => t.UseInMemoryTransport(new(), "test-queue"))
-                .Routing(r => r.TypeBased().Map<PerformanceData>("test-queue")) // Map all messages in the assembly of Program to the queue
-                .Logging(l => l.ColoredConsole(LogLevel.Warn))
-        );
+        services.AddRebus(configure => configure
+            .Transport(t => t.UseInMemoryTransport(new(), queueName))
+            .Routing(r => r.TypeBased().Map<PerformanceData>(queueName))
+            .Logging(l => l.ColoredConsole(LogLevel.Warn)));
 
         services.AddRebusHandler<PerformanceConsumer>();
 
