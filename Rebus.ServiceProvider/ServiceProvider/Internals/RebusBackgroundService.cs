@@ -5,11 +5,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace Rebus.ServiceProvider.Internals;
 
-class RebusBackgroundService : BackgroundService
+class RebusBackgroundService(RebusInitializer rebusInitializer) : BackgroundService
 {
-    readonly RebusInitializer _rebusInitializer;
-
-    public RebusBackgroundService(RebusInitializer rebusInitializer) => _rebusInitializer = rebusInitializer ?? throw new ArgumentNullException(nameof(rebusInitializer));
+    readonly RebusInitializer _rebusInitializer = rebusInitializer ?? throw new ArgumentNullException(nameof(rebusInitializer));
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

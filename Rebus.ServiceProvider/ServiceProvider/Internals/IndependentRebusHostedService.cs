@@ -8,15 +8,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Rebus.ServiceProvider.Internals;
 
-class IndependentRebusHostedService : IHostedService
+class IndependentRebusHostedService(Action<IServiceCollection> configureServices) : IHostedService
 {
+    readonly Action<IServiceCollection> _configureServices = configureServices ?? throw new ArgumentNullException(nameof(configureServices));
     readonly ConcurrentStack<IHostedService> _hostedServices = new();
-    readonly Action<IServiceCollection> _configureServices;
 
     IServiceProvider _serviceProvider;
     ILogger<IndependentRebusHostedService> _logger;
-
-    public IndependentRebusHostedService(Action<IServiceCollection> configureServices) => _configureServices = configureServices ?? throw new ArgumentNullException(nameof(configureServices));
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {

@@ -128,7 +128,7 @@ public class DependencyInjectionHandlerActivator : IHandlerActivator
     /// </summary>
     static IEnumerable<Type> GetBaseTypes(GenericTypePair typePair)
     {
-        IEnumerable<Type> result = new[] { typePair.ActualType };
+        IEnumerable<Type> result = [typePair.ActualType];
 
         if (IsCovariant(typePair.GenericType))
         {

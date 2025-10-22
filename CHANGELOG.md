@@ -142,6 +142,10 @@
 ## 10.5.0
 * Only stop the bus when the stopping token is signaled, and then dispose when the container is disposed
 
+## 10.6.0
+* Update Rebus dependency to 8.9.0
+
+
 [arildboifot]: https://github.com/arildboifot
 [AYss]: https://github.com/AYss
 [dariogriffo]: https://github.com/dariogriffo

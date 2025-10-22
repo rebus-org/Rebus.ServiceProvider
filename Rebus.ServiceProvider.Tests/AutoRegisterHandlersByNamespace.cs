@@ -23,9 +23,9 @@ namespace Rebus.ServiceProvider.Tests
 
             // Should auto register the 2 handlers in Namespace1
             // and not register the 1 that's in Namespace2.
-            Assert.AreEqual(2, handlers.Count);
-            Assert.IsInstanceOf<Namespace1TestHandler1>(handlers[0]);
-            Assert.IsInstanceOf<Namespace1TestHandler2>(handlers[1]);
+            Assert.That(handlers.Count, Is.EqualTo(2));
+            Assert.That(handlers[0], Is.InstanceOf<Namespace1TestHandler1>());
+            Assert.That(handlers[1], Is.InstanceOf<Namespace1TestHandler2>());
         }
     }
 }

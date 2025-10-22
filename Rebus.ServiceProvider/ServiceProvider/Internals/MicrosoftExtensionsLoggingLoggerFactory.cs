@@ -26,45 +26,37 @@ class MicrosoftExtensionsLoggingLoggerFactory : AbstractRebusLoggerFactory
             : new MicrosoftExtensionsLoggingLogger(_logger, RenderString);
     }
 
-    class MicrosoftExtensionsLoggingLogger : ILog
+    class MicrosoftExtensionsLoggingLogger(ILogger logger, Func<string, object[], string> renderString)
+        : ILog
     {
-        readonly Func<string, object[], string> _renderString;
-        readonly ILogger _logger;
-
-        public MicrosoftExtensionsLoggingLogger(ILogger logger, Func<string, object[], string> renderString)
-        {
-            _logger = logger;
-            _renderString = renderString;
-        }
-
         public void Debug(string message, params object[] objs)
         {
-            _logger.LogDebug(_renderString(message, objs));
+            logger.LogDebug(renderString(message, objs));
         }
 
         public void Info(string message, params object[] objs)
         {
-            _logger.LogInformation(_renderString(message, objs));
+            logger.LogInformation(renderString(message, objs));
         }
 
         public void Warn(string message, params object[] objs)
         {
-            _logger.LogWarning(_renderString(message, objs));
+            logger.LogWarning(renderString(message, objs));
         }
 
         public void Warn(Exception exception, string message, params object[] objs)
         {
-            _logger.LogWarning(exception, _renderString(message, objs));
+            logger.LogWarning(exception, renderString(message, objs));
         }
 
         public void Error(string message, params object[] objs)
         {
-            _logger.LogError(_renderString(message, objs));
+            logger.LogError(renderString(message, objs));
         }
 
         public void Error(Exception exception, string message, params object[] objs)
         {
-            _logger.LogError(exception, _renderString(message, objs));
+            logger.LogError(exception, renderString(message, objs));
         }
     }
 }

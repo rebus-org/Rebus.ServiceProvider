@@ -22,8 +22,8 @@ namespace Rebus.ServiceProvider.Tests
             var handlers = provider.GetServices<IHandleMessages<string>>()
                 .ToList();
 
-            Assert.AreEqual(1, handlers.Count);
-            Assert.IsInstanceOf<TestHandler1>(handlers[0]);
+            Assert.That(handlers.Count, Is.EqualTo(1));
+            Assert.That(handlers[0], Is.InstanceOf<TestHandler1>());
         }
         
         [Test]
@@ -37,8 +37,8 @@ namespace Rebus.ServiceProvider.Tests
             var handlers = provider.GetServices<IHandleMessages<string>>()
                .ToList();
 
-            Assert.AreEqual(1, handlers.Count);
-            Assert.IsInstanceOf<TestHandler1>(handlers[0]);
+            Assert.That(handlers.Count, Is.EqualTo(1));
+            Assert.That(handlers[0], Is.InstanceOf<TestHandler1>());
         }
     }
 }

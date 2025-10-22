@@ -9,11 +9,9 @@ namespace Rebus.ServiceProvider.Internals;
 /// <summary>
 /// All TRANSIENT resolutions of IBus must be wrapped in this to avoid having the container dispose the bus prematurely!
 /// </summary>
-class BusWrapper : IBus
+class BusWrapper(IBus bus) : IBus
 {
-    readonly IBus _bus;
-
-    public BusWrapper(IBus bus) => _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+    readonly IBus _bus = bus ?? throw new ArgumentNullException(nameof(bus));
 
     // this is the important part: do NOT forward call to wrapped bus - disposing the wrapper must never dispose the bus!
     public void Dispose()
