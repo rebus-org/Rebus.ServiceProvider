@@ -16,8 +16,8 @@ before_build:
   - cmd: dotnet --version ## Verify that the correct .NET SDK version is being used
 
 build_script:
-  - dotnet build Rebus.ServiceProvider -c Release --no-restore
+  - dotnet build -c Release --no-restore
 
 test_script:
-  - dotnet test Rebus.ServiceProvider.Tests --no-restore
+  - dotnet test -c Release --no-restore
 
