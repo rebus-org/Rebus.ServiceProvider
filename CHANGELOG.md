@@ -145,9 +145,13 @@
 ## 10.6.0
 * Update Rebus dependency to 8.9.0
 
+## 10.7.0
+* Target .NET 10 too - thanks [dampee]
+
 
 [arildboifot]: https://github.com/arildboifot
 [AYss]: https://github.com/AYss
+[dampee]: https://github.com/dampee
 [dariogriffo]: https://github.com/dariogriffo
 [EMRBlackHe]: https://github.com/EMRBlackHe
 [Hawxy]: https://github.com/Hawxy
