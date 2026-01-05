@@ -148,7 +148,12 @@
 ## 10.7.0
 * Target .NET 10 too - thanks [dampee]
 
+## 10.7.1
+* Fix allowed dependency versions for Microsoft.Extensions.DependencyInjection - thanks [AGiorgetti]
 
+
+
+[AGiorgetti]: https://github.com/AGiorgetti
 [arildboifot]: https://github.com/arildboifot
 [AYss]: https://github.com/AYss
 [dampee]: https://github.com/dampee
