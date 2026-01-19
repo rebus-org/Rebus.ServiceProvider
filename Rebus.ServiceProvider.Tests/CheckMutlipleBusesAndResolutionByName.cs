@@ -124,7 +124,7 @@ public class CheckMutlipleBusesAndResolutionByName
 
         var keys = registry.GetAllKeys().OrderBy(k => k);
 
-        Assert.That(keys, Is.EqualTo(new[] {"bus1", "bus2", "bus3"}));
+        Assert.That(keys, Is.EqualTo(["bus1", "bus2", "bus3"]));
     }
 
     [Test]

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Rebus.Bus;
 using Rebus.Handlers;
@@ -173,7 +174,7 @@ public static class ServiceCollectionExtensions
     /// Setting this to false should be combined with providing a <paramref name="key"/>, because the bus can then be started by resolving <see cref="IBusRegistry"/> and calling <see cref="IBusRegistry.StartBus"/> on it.
     /// </param>
     public static IServiceCollection AddRebus(this IServiceCollection services,
-        Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, Func<IBus, IServiceProvider, Task> onCreated, 
+        Func<RebusConfigurer, IServiceProvider, RebusConfigurer> configure, Func<IBus, IServiceProvider, Task> onCreated,
         bool isDefaultBus = true, string key = null, bool startAutomatically = true)
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
@@ -185,12 +186,9 @@ public static class ServiceCollectionExtensions
                 "Cannot add bus with startAutomatically=false and key=null. When configuring the bus to not automatically be started, a key must be provided, so that it's possible to look up the bus instance later on via IBusRegistry");
         }
 
-        if (!services.Any(s => s.ServiceType == typeof(RebusDisposalHelper)))
-        {
-            // important to create this one in a way where the container assumes responsibility of disposing it
-            services.AddSingleton<RebusDisposalHelper>();
-            // NOTE: this was added to support disposal in scenarios where Rebus is hosted with a service provider OUTSIDE of the generic host
-        }
+        // NOTE: this was added to support disposal in scenarios where Rebus is hosted with a service provider OUTSIDE of the generic host
+        // important to create this one in a way where the container assumes responsibility of disposing it
+        services.TryAddSingleton<RebusDisposalHelper>();
 
         if (isDefaultBus)
         {
@@ -242,11 +240,16 @@ public static class ServiceCollectionExtensions
             });
         }
 
+        Type GetRelevantImplementationType(ServiceDescriptor descriptor)
+        {
 #if NET8_0_OR_GREATER
-        if (!services.Any(s => (s.IsKeyedService ? s.KeyedImplementationType : s.ImplementationType) == typeof(RebusResolver)))
+            return descriptor.IsKeyedService ? descriptor.KeyedImplementationType : descriptor.ImplementationType;
 #else
-        if (!services.Any(s => s.ImplementationType == typeof(RebusResolver)))
+            return descriptor.ImplementationType;
 #endif
+        }
+
+        if (!services.Any(s => GetRelevantImplementationType(s) == typeof(RebusResolver)))
         {
             services.AddSingleton(new RebusResolver());
             services.AddSingleton(new ServiceProviderBusRegistry());

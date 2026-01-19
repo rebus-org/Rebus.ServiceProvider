@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard20;netstandard21;net8.0;net10.0</TargetFrameworks>
-		<LangVersion>13</LangVersion>
+		<TargetFrameworks>netstandard20;netstandard21;net8.0;net9.0;net10.0</TargetFrameworks>
+		<LangVersion>14</LangVersion>
 		<Authors>mookid8000</Authors>
 		<PackageProjectUrl>https://rebus.fm/what-is-rebus/</PackageProjectUrl>
 		<Copyright>Copyright Rebus FM ApS 2012</Copyright>
@@ -33,6 +33,9 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[6, 11)" />
 	</ItemGroup>
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[8, 11)" />
+	</ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[8, 11)" />
 	</ItemGroup>
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net10.0' ">

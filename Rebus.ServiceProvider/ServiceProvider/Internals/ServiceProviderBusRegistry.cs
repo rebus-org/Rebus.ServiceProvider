@@ -15,14 +15,14 @@ class ServiceProviderBusRegistry : IBusRegistry
     public IBus GetBus(string key)
     {
         if (key == null) throw new ArgumentNullException(nameof(key));
-        return _buses.TryGetValue(key, out var result)
-            ? result
-            : throw GetKeyNotFoundException(key);
+        
+        return _buses.TryGetValue(key, out var result) ? result : throw GetKeyNotFoundException(key);
     }
 
     public bool TryGetBus(string key, out IBus bus)
     {
         if (key == null) throw new ArgumentNullException(nameof(key));
+        
         return _buses.TryGetValue(key, out bus);
     }
 
@@ -36,7 +36,11 @@ class ServiceProviderBusRegistry : IBusRegistry
             ? result
             : throw GetKeyNotFoundException(key);
 
-        return starter.Start();
+        var bus = starter.Start();
+
+        _starters.TryRemove(key, out _);
+
+        return bus;
     }
 
     public IReadOnlyList<string> GetAllKeys() => _buses.Keys.ToList().AsReadOnly();

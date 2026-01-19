@@ -151,7 +151,9 @@
 ## 10.7.1
 * Fix allowed dependency versions for Microsoft.Extensions.DependencyInjection - thanks [AGiorgetti]
 
-
+## 10.7.2
+* Fix bug introduced by .NET 10's asynchronous background task execution
+* Add more explicit compilation targets
 
 [AGiorgetti]: https://github.com/AGiorgetti
 [arildboifot]: https://github.com/arildboifot
