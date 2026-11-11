@@ -155,6 +155,9 @@
 * Fix bug introduced by .NET 10's asynchronous background task execution
 * Add more explicit compilation targets
 
+## 10.8.0
+* Expand allowed versions to work with .NET 11 – thanks [janode]
+
 [AGiorgetti]: https://github.com/AGiorgetti
 [arildboifot]: https://github.com/arildboifot
 [AYss]: https://github.com/AYss
@@ -162,6 +165,7 @@
 [dariogriffo]: https://github.com/dariogriffo
 [EMRBlackHe]: https://github.com/EMRBlackHe
 [Hawxy]: https://github.com/Hawxy
+[janode]: https://github.com/janode
 [JeremySkinner]: https://github.com/JeremySkinner
 [jorenp]: https://github.com/jorenp
 [komainu85]: https://github.com/komainu85
